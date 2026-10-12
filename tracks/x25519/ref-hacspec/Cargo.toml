@@ -1,0 +1,12 @@
+[package]
+name = "hacspec-curve25519"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+hacspec-lib = { path = "../hacspec-old/lib" }
+
+[workspace]

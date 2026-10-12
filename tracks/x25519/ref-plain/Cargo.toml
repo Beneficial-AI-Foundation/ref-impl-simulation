@@ -1,0 +1,9 @@
+[package]
+name = "x25519-ref"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hacspec-lib = { path = "../hacspec-old/lib" }
+
+[workspace]
