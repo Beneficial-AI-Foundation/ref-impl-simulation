@@ -123,8 +123,8 @@ agree.
    explained, and no proof raises the heartbeat limit.
 5. The method finds real differences between the implementations. Examples are the HKDF
    salt of hpke-rs, its short-PSK check and the different `z2` formula of dalek.
-6. Two of the three real units are code that libsignal ships: the dalek ladder step and
-   field code (track B) and the hpke-rs key schedule (track C).
+6. Two of the three real units are code that libsignal ships: dalek's X25519 agreement
+   path (track B) and the hpke-rs key schedule (track C).
 
 ## 6. Weaknesses and limits
 

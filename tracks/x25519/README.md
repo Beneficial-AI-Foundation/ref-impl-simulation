@@ -15,13 +15,25 @@ against the real `montgomery::differential_add_and_double`. The track also prove
 refinement of the X25519 function, with the step theorem as one layer. The next subsection
 shows the layers.
 
-libsignal computes X25519 through `x25519-dalek` 3.0.0 and curve25519-dalek 5.0.0. On
-2026-10-30, against libsignal `fc90b90f`, `differential_add_and_double` in 5.0.0 was
-textually identical to the version proved here. The field functions that it calls were
-identical too, apart from the extraction edits in `pow2k` and `add_assign` (section 2).
-These functions are `add`, `sub`, `mul`, `square` and `reduce`. That comparison did not
-cover the other functions on the path of the full theorem: `from_bytes`, `to_bytes`,
-`invert`, `pow22501`, `pow2k` with other exponents, the ladder loop and `clamp_integer`.
+libsignal computes X25519 agreement through `x25519-dalek` 3.0.0 and curve25519-dalek
+5.0.0 (libsignal `fc90b90f`). `calculate_agreement` calls `StaticSecret::diffie_hellman`,
+which calls `MontgomeryPoint::mul_clamped`. On 2026-11-02, `compare-dalek5.py` compared
+every function on the path of the full theorem in 5.0.0 with the copy proved here. The
+crate checksums match libsignal's `Cargo.lock`. After comments and blank lines are removed,
+all bodies are identical except three, and each of the three is an extraction edit:
+
+1. `add_assign` uses `while` in place of `for i in 0..5`.
+2. `pow2k` uses `while k > 0` in place of `loop` with `break` at `k == 0`. Its callers
+   pass `k ≥ 1`. Its five `debug_assert!`s are removed.
+3. The ladder `mul` calls `mul_bits_be(scalar.bits_le().rev().skip(1))` in 5.0.0. The copy
+   inlines this loop as an index loop over bits 254 down to 0, with the same bit read, and
+   writes `prev_bit != cur_bit` in place of `prev_bit ^ cur_bit`.
+
+The identical bodies include `from_bytes`, `to_bytes`, `reduce`, `invert`, `pow22501`,
+`differential_add_and_double`, `as_affine`, `conditional_select`, `mul_clamped`,
+`clamp_integer` and the multiplication wrappers. libsignal builds dalek with
+`overflow-checks = false` in release. The theorem shows that no arithmetic on the path
+overflows, so this setting does not change the result.
 
 ### The unit in full refinement
 
@@ -66,8 +78,9 @@ so this track proves its own.
 The theorem does not cover these paths. `x25519_secret_to_public` calls
 `x25519_scalarmult` with the base point 9. Its real counterpart,
 `MontgomeryPoint::mul_base_clamped`, goes through Edwards base point tables and is not
-extracted. libsignal calls `x25519-dalek`, which wraps `mul_clamped`. These wrappers are
-not extracted either. The theorem also says nothing about constant time or about the erasure
+extracted, and libsignal uses it to derive public keys (`PublicKey::from`). libsignal
+calls `x25519-dalek`, whose `diffie_hellman` wraps `mul_clamped`. The wrappers are not
+extracted, but each is a single call to `mul_clamped`. The theorem also says nothing about constant time or about the erasure
 of secrets by `zeroize`.
 
 ## 2. Translation
@@ -287,6 +300,8 @@ specs build with a limit of 151,845. Some proofs set `maxRecDepth 4096`.
    one (Aeneas issue #1458). It reads declarations with the name on the same line as the
    keyword or on the next line. `scripts/tests/test-check-short-names.sh` tests the second
    form.
+6. `compare-dalek5.py` compares the functions on the proved path with dalek 5.0.0 and
+   prints `==` for each identical body (section 1).
 
 ## 7. Strengths and weaknesses
 
@@ -300,8 +315,8 @@ Strengths:
 4. The relation is total, and the output bound carries to the next step.
 5. The Lean reference reproduces two RFC test vectors and the outputs of the Rust port on
    the edge inputs of `ref-plain/tests/edge.rs`.
-6. The proved step and field arithmetic are the code that libsignal runs on 64-bit
-   targets, apart from the extraction edits.
+6. The proved path is the code of libsignal's X25519 agreement on 64-bit targets, apart
+   from the extraction edits (section 1).
 7. The ladder argument is pure algebra over a ring. The Aeneas parts of the proof only
    connect each program to it.
 
@@ -330,6 +345,14 @@ lake env lean Sim/AxiomsFull.lean
 lake env lean Sim/RefVectors.lean
 for d in X25519Ref Curve25519Dalek; do ../../../scripts/check-short-names.py $(ls $d/*.lean | grep -v _Template); done
 ../../../scripts/tests/test-check-short-names.sh
+```
+
+The comparison with dalek 5.0.0 needs the crate in the cargo registry, for example after
+`cargo fetch` in a project that depends on `curve25519-dalek = "=5.0.0"`. From
+`tracks/x25519`:
+
+```bash
+./compare-dalek5.py real-dalek/curve25519-dalek ~/.cargo/registry/src/index.crates.io-*/curve25519-dalek-5.0.0
 ```
 
 The extraction commands. Run them in `ref-plain/` and in `real-dalek/`, with the Aeneas
