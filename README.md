@@ -4,8 +4,9 @@ This repository tests one question. Take an RFC, a small Rust reference implemen
 it and a real Rust implementation. Aeneas translates both Rust programs to Lean. Can Lean
 then prove that the real implementation computes what the reference computes? Three
 feasibility studies, one per RFC, answer this for one unit of each implementation. Each
-study ends in a Lean theorem with no `sorry`. No study proves a theorem about the whole
-public API. Section 2 shows where each unit sits in that larger goal.
+study ends in a Lean theorem with no `sorry`. Track B also proves a theorem about the
+whole X25519 function. Tracks A and C do not prove a theorem about their whole public API.
+Section 2 shows where each unit sits in that larger goal.
 
 ## 1. Problem
 
@@ -42,7 +43,7 @@ that satisfies the premises.
 | Track | RFC | Reference | Real implementation | Unit |
 |---|---|---|---|---|
 | [A](tracks/chacha20poly1305/README.md) | RFC 8439 (ChaCha20) | [hax-style ChaCha20 spec](https://github.com/cryspen/hax/tree/a1ddcfffd617a9f29442acb900a01df7339f3ea8/examples/chacha20) (`cryspen/hax`) | [libcrux HACL ChaCha20](https://github.com/cryspen/libcrux/tree/3ade18381ad3144d755507f97994933d8585839b/crates/algorithms/chacha20poly1305) (`cryspen/libcrux`) | block core |
-| [B](tracks/x25519/README.md) | RFC 7748 (X25519) | [hacspec curve25519 spec](https://github.com/hacspec/specs/blob/c511110d6f4bb4628da193a2c8e44c928d9555b8/curve25519/src/curve25519.rs) (`hacspec/specs`), ported to plain Rust | [curve25519-dalek 4.2.0](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-lean-verify/tree/26d49052347e52cb3923952ea225d28faf48fe72/curve25519-dalek), as modified by `curve25519-dalek-lean-verify` | one Montgomery ladder step |
+| [B](tracks/x25519/README.md) | RFC 7748 (X25519) | [hacspec curve25519 spec](https://github.com/hacspec/specs/blob/c511110d6f4bb4628da193a2c8e44c928d9555b8/curve25519/src/curve25519.rs) (`hacspec/specs`), ported to plain Rust | [curve25519-dalek 4.2.0](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-lean-verify/tree/26d49052347e52cb3923952ea225d28faf48fe72/curve25519-dalek), as modified by `curve25519-dalek-lean-verify` | one Montgomery ladder step, then the full X25519 function |
 | [C](tracks/hpke/README.md) | RFC 9180 (HPKE) | [hacspec HPKE spec](https://github.com/cryspen/hpke-spec/tree/85429a9ab519ca6eb5b286294203cefe75399223) (`cryspen/hpke-spec`) behind a library shim | [`cryspen/hpke-rs` 0.6.1](https://github.com/cryspen/hpke-rs/tree/e1a4b12d3e630c713a89e97a2a91e4a597f3fc82) | key schedule, base mode, HKDF-SHA256 |
 
 Each track README is self-contained. It gives the sources, the translation and its edits,
@@ -60,7 +61,7 @@ API down to the unit and the status of each layer. It also lists the missing res
 | Track | Public API pair | Main missing result |
 |---|---|---|
 | [A](tracks/chacha20poly1305/README.md#the-unit-in-full-refinement) | `chacha20_encrypt` against `chacha20`, then the AEAD | the key setup, the message loop, and a Poly1305 reference |
-| [B](tracks/x25519/README.md#the-unit-in-full-refinement) | `mul_clamped` against `x25519_scalarmult` | the ladder invariant up to a projective factor |
+| [B](tracks/x25519/README.md#the-unit-in-full-refinement) | `mul_clamped` against `x25519_scalarmult` | none. `X25519Sim.mul_clamped_refines` is proved |
 | [C](tracks/hpke/README.md#the-unit-in-full-refinement) | `Hpke::seal` and `open` against `HpkeSeal` and `HpkeOpen` | extraction of the reference API, the KEM, and the context as a forward simulation |
 
 ## 3. Method
@@ -97,14 +98,14 @@ into lemmas. The files that Aeneas generates set 1,000,000 for their own definit
 
 | | A ChaCha20 | B X25519 | C HPKE |
 |---|---|---|---|
-| Main theorem | `Sim.core_refines` | `X25519Sim.differential_add_and_double_refines_proved` | `Sim.key_schedule_base_refines` |
-| Premises | output buffer of 16 words, `ctx` equals the reference state | limb bounds on the inputs | the provider computes the shared HKDF model and the RFC lengths, and its PRNG call succeeds. Base mode with empty PSK, HKDF-SHA256, matching identifiers, a bound on the length of `info` |
-| Trusted definitions | none | the plain-Rust port, the `ZMod p` field model, 6 `subtle` and `zeroize` models off the proved path | the shared HKDF model (HMAC opaque), the cryptolib model, the `hacspec_lib` shim, 6 `std` models |
+| Main theorem | `Sim.core_refines` | `X25519Sim.differential_add_and_double_refines_proved` (the step) and `X25519Sim.mul_clamped_refines` (full refinement) | `Sim.key_schedule_base_refines` |
+| Premises | output buffer of 16 words, `ctx` equals the reference state | limb bounds for the step. None for full refinement | the provider computes the shared HKDF model and the RFC lengths, and its PRNG call succeeds. Base mode with empty PSK, HKDF-SHA256, matching identifiers, a bound on the length of `info` |
+| Trusted definitions | none | the plain-Rust port, the `ZMod p` field model, 6 `subtle` and `zeroize` models. Only full refinement uses the `subtle` and `zeroize` models | the shared HKDF model (HMAC opaque), the cryptolib model, the `hacspec_lib` shim, 6 `std` models |
 | Axioms beyond the standard 3 | none | none | 4 formatting declarations, 24 `native_decide` auxiliary axioms |
 | Source edits | reference 33 lines, real 0 lines | reference port 166 changed lines and a 32-line field module, real 0 lines here (361 lines in `curve25519-dalek-lean-verify`) | reference 0 lines (shim 179 lines), real 1 line |
 | Lockstep | at the call level: 18 of 18 calls | at the level of field operations: 19 steps | only at the shared HKDF calls |
 
-All three main theorems are proved. Every relation is total. Each theorem proves that both
+All main theorems are proved. Every relation is total. Each theorem proves that both
 programs succeed on the premise domain, with no panic or overflow, and that the results
 agree.
 
@@ -122,21 +123,21 @@ agree.
    explained, and no proof raises the heartbeat limit.
 5. The method finds real differences between the implementations. Examples are the HKDF
    salt of hpke-rs, its short-PSK check and the different `z2` formula of dalek.
-6. Two of the three real units are code that libsignal ships: the dalek ladder step and
-   field code (track B) and the hpke-rs key schedule (track C).
+6. Two of the three real units are code that libsignal ships: dalek's X25519 agreement
+   path (track B) and the hpke-rs key schedule (track C).
 
 ## 6. Weaknesses and limits
 
 1. Old hacspec specifications do not go through Aeneas. Track A uses a
    hax-style spec, track B a port to plain Rust, and track C a library shim. The port and
    the shim are trusted.
-2. No reference is checked against its RFC by proof. Only track B runs RFC test vectors,
-   and only two.
-3. No track proves full refinement of the public API. Each unit is small: a block core,
-   one ladder step, one key schedule mode. Section 2 lists what each track still needs.
-   Loops whose shapes differ between the two sides need hand-written invariants. An
-   example is the ladder of track B, where the two states agree only up to a projective
-   factor.
+2. No reference is checked against its RFC by proof. Only track B runs RFC test vectors:
+   two RFC vectors and a set of edge inputs.
+3. Only track B proves full refinement, and only for `mul_clamped`. Tracks A and C prove
+   one small unit each: a block core and one key schedule mode. Section 2 lists what they
+   still need. Loops whose shapes differ between the two sides need hand-written
+   invariants. Track B shows the cost: its ladder needed a scaling argument, because after
+   the first iteration the two states agree only up to a projective factor.
 4. Opaque primitives limit what a theorem says. In track C, HMAC and SHA-2 are opaque,
    and the provider premises stay assumptions because the RustCrypto provider does not
    extract.
