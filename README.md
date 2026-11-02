@@ -86,7 +86,7 @@ into lemmas. The files that Aeneas generates set 1,000,000 for their own definit
 | Premises | output buffer of 16 words, `ctx` equals the reference state | limb bounds on the inputs | the provider computes the shared HKDF model and the RFC lengths, and its PRNG call succeeds. Base mode with empty PSK, HKDF-SHA256, matching identifiers, a bound on the length of `info` |
 | Trusted definitions | none | the plain-Rust port, the `ZMod p` field model, 6 `subtle` and `zeroize` models off the proved path | the shared HKDF model (HMAC opaque), the cryptolib model, the `hacspec_lib` shim, 6 `std` models |
 | Axioms beyond the standard 3 | none | none | 4 formatting declarations, 24 `native_decide` auxiliary axioms |
-| Source edits | reference 33 lines, real 0 lines | reference port 166 changed lines and a 32-line field module, real 0 lines here (361 lines in `lean-verify`) | reference 0 lines (shim 179 lines), real 1 line |
+| Source edits | reference 33 lines, real 0 lines | reference port 166 changed lines and a 32-line field module, real 0 lines here (361 lines in `curve25519-dalek-lean-verify`) | reference 0 lines (shim 179 lines), real 1 line |
 | Lockstep | at the call level: 18 of 18 calls | at the level of field operations: 19 steps | only at the shared HKDF calls |
 
 All three main theorems are proved. Every relation is total. Each theorem proves that both
