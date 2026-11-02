@@ -40,9 +40,9 @@ that satisfies the premises.
 
 | Track | RFC | Reference | Real implementation | Unit |
 |---|---|---|---|---|
-| [A](tracks/chacha20poly1305/README.md) | RFC 8439 (ChaCha20) | hax-style ChaCha20 spec (`cryspen/hax`) | libcrux HACL ChaCha20 (`cryspen/libcrux`) | block core |
-| [B](tracks/x25519/README.md) | RFC 7748 (X25519) | hacspec curve25519 spec (`hacspec/specs`), ported to plain Rust | curve25519-dalek 4.2.0, as modified by `curve25519-dalek-lean-verify` | one Montgomery ladder step |
-| [C](tracks/hpke/README.md) | RFC 9180 (HPKE) | hacspec HPKE spec (`cryspen/hpke-spec`) behind a library shim | `cryspen/hpke-rs` 0.6.1 | key schedule, base mode, HKDF-SHA256 |
+| [A](tracks/chacha20poly1305/README.md) | RFC 8439 (ChaCha20) | [hax-style ChaCha20 spec](https://github.com/cryspen/hax/tree/a1ddcfffd617a9f29442acb900a01df7339f3ea8/examples/chacha20) (`cryspen/hax`) | [libcrux HACL ChaCha20](https://github.com/cryspen/libcrux/tree/3ade18381ad3144d755507f97994933d8585839b/crates/algorithms/chacha20poly1305) (`cryspen/libcrux`) | block core |
+| [B](tracks/x25519/README.md) | RFC 7748 (X25519) | [hacspec curve25519 spec](https://github.com/hacspec/specs/blob/c511110d6f4bb4628da193a2c8e44c928d9555b8/curve25519/src/curve25519.rs) (`hacspec/specs`), ported to plain Rust | [curve25519-dalek 4.2.0](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-lean-verify/tree/26d49052347e52cb3923952ea225d28faf48fe72/curve25519-dalek), as modified by `curve25519-dalek-lean-verify` | one Montgomery ladder step |
+| [C](tracks/hpke/README.md) | RFC 9180 (HPKE) | [hacspec HPKE spec](https://github.com/cryspen/hpke-spec/tree/85429a9ab519ca6eb5b286294203cefe75399223) (`cryspen/hpke-spec`) behind a library shim | [`cryspen/hpke-rs` 0.6.1](https://github.com/cryspen/hpke-rs/tree/e1a4b12d3e630c713a89e97a2a91e4a597f3fc82) | key schedule, base mode, HKDF-SHA256 |
 
 Each track README is self-contained. It gives the sources, the translation and its edits,
 and the exact theorem. It also gives the assumptions, the proof structure, the checks, and

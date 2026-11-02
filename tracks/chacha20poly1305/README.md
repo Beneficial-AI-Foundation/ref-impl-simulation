@@ -6,9 +6,9 @@ All paths are relative to `tracks/chacha20poly1305/`.
 
 | Role | Code | Commit |
 |---|---|---|
-| Reference (used) | `cryspen/hax` `examples/chacha20`, hax style | `a1ddcfff` |
-| Reference (tried) | old hacspec ChaCha20 and Poly1305, `hacspec/hacspec` | `4ecc847f` |
-| Real | libcrux HACL ChaCha20-Poly1305, `crates/algorithms/chacha20poly1305` | `3ade1838` |
+| Reference (used) | [`cryspen/hax` `examples/chacha20`](https://github.com/cryspen/hax/tree/a1ddcfffd617a9f29442acb900a01df7339f3ea8/examples/chacha20), hax style | `a1ddcfff` |
+| Reference (tried) | old hacspec [ChaCha20](https://github.com/hacspec/hacspec/tree/4ecc847fc944fe996e19423aa41f002f2039dab0/examples/chacha20) and [Poly1305](https://github.com/hacspec/hacspec/tree/4ecc847fc944fe996e19423aa41f002f2039dab0/examples/poly1305), `hacspec/hacspec` | `4ecc847f` |
+| Real | libcrux HACL ChaCha20-Poly1305, [`crates/algorithms/chacha20poly1305`](https://github.com/cryspen/libcrux/tree/3ade18381ad3144d755507f97994933d8585839b/crates/algorithms/chacha20poly1305) | `3ade1838` |
 
 The unit is the ChaCha20 block core of RFC 8439: the quarter round, the double round, the
 20 rounds, and the core that adds the input state. Key setup (`chacha20_init`), the byte

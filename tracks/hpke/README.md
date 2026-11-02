@@ -6,9 +6,9 @@ All paths are relative to `tracks/hpke/`.
 
 | Role | Code | Commit |
 |---|---|---|
-| Reference | `cryspen/hpke-spec`, old hacspec | `85429a9a` (2022-09-15) |
-| Reference library | `hacspec/hacspec` `lib/` | `4ecc847f` |
-| Real | `cryspen/hpke-rs` 0.6.1 | `e1a4b12d` (2026-07-16) |
+| Reference | [`cryspen/hpke-spec`](https://github.com/cryspen/hpke-spec/tree/85429a9ab519ca6eb5b286294203cefe75399223), old hacspec | `85429a9a` (2022-09-15) |
+| Reference library | [`hacspec/hacspec` `lib/`](https://github.com/hacspec/hacspec/tree/4ecc847fc944fe996e19423aa41f002f2039dab0/lib) | `4ecc847f` |
+| Real | [`cryspen/hpke-rs` 0.6.1](https://github.com/cryspen/hpke-rs/tree/e1a4b12d3e630c713a89e97a2a91e4a597f3fc82) | `e1a4b12d` (2026-07-16) |
 
 The unit is the key schedule of RFC 9180 section 5.1 in base mode: `KeySchedule`,
 `LabeledExtract` and `LabeledExpand`. The KEM, the AEAD, the PSK modes and the public API
