@@ -1,0 +1,10 @@
+[package]
+name = "hacspec_cryptolib"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/cryptolib.rs"
+
+[dependencies]
+hacspec-lib = { path = "../hacspec-lib" }

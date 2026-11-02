@@ -1,0 +1,1268 @@
+pub mod curve25519_dalek
+pub mod curve25519_dalek::constants
+pub const curve25519_dalek::constants::BASEPOINT_ORDER: curve25519_dalek::scalar::Scalar
+pub const curve25519_dalek::constants::ED25519_BASEPOINT_COMPRESSED: curve25519_dalek::edwards::CompressedEdwardsY
+pub const curve25519_dalek::constants::RISTRETTO_BASEPOINT_COMPRESSED: curve25519_dalek::ristretto::CompressedRistretto
+pub const curve25519_dalek::constants::RISTRETTO_BASEPOINT_POINT: curve25519_dalek::ristretto::RistrettoPoint
+pub const curve25519_dalek::constants::X25519_BASEPOINT: curve25519_dalek::montgomery::MontgomeryPoint
+pub static curve25519_dalek::constants::RISTRETTO_BASEPOINT_TABLE: &curve25519_dalek::ristretto::RistrettoBasepointTable
+pub mod curve25519_dalek::edwards
+pub struct curve25519_dalek::edwards::CompressedEdwardsY(pub [u8; 32])
+impl curve25519_dalek::edwards::CompressedEdwardsY
+pub const fn curve25519_dalek::edwards::CompressedEdwardsY::as_bytes(&self) -> &[u8; 32]
+pub fn curve25519_dalek::edwards::CompressedEdwardsY::decompress(&self) -> core::option::Option<curve25519_dalek::edwards::EdwardsPoint>
+pub const fn curve25519_dalek::edwards::CompressedEdwardsY::to_bytes(&self) -> [u8; 32]
+impl curve25519_dalek::edwards::CompressedEdwardsY
+pub fn curve25519_dalek::edwards::CompressedEdwardsY::from_slice(bytes: &[u8]) -> core::result::Result<curve25519_dalek::edwards::CompressedEdwardsY, core::array::TryFromSliceError>
+impl core::convert::TryFrom<&[u8]> for curve25519_dalek::edwards::CompressedEdwardsY
+pub type curve25519_dalek::edwards::CompressedEdwardsY::Error = core::array::TryFromSliceError
+pub fn curve25519_dalek::edwards::CompressedEdwardsY::try_from(slice: &[u8]) -> core::result::Result<curve25519_dalek::edwards::CompressedEdwardsY, core::array::TryFromSliceError>
+impl core::default::Default for curve25519_dalek::edwards::CompressedEdwardsY
+pub fn curve25519_dalek::edwards::CompressedEdwardsY::default() -> curve25519_dalek::edwards::CompressedEdwardsY
+impl core::fmt::Debug for curve25519_dalek::edwards::CompressedEdwardsY
+pub fn curve25519_dalek::edwards::CompressedEdwardsY::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl curve25519_dalek::traits::Identity for curve25519_dalek::edwards::CompressedEdwardsY
+pub fn curve25519_dalek::edwards::CompressedEdwardsY::identity() -> curve25519_dalek::edwards::CompressedEdwardsY
+impl subtle::ConstantTimeEq for curve25519_dalek::edwards::CompressedEdwardsY
+pub fn curve25519_dalek::edwards::CompressedEdwardsY::ct_eq(&self, other: &curve25519_dalek::edwards::CompressedEdwardsY) -> subtle::Choice
+impl zeroize::Zeroize for curve25519_dalek::edwards::CompressedEdwardsY
+pub fn curve25519_dalek::edwards::CompressedEdwardsY::zeroize(&mut self)
+#[repr(transparent)] pub struct curve25519_dalek::edwards::EdwardsBasepointTable(_)
+impl core::fmt::Debug for curve25519_dalek::edwards::EdwardsBasepointTable
+pub fn curve25519_dalek::edwards::EdwardsBasepointTable::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl curve25519_dalek::traits::BasepointTable for curve25519_dalek::edwards::EdwardsBasepointTable
+pub type curve25519_dalek::edwards::EdwardsBasepointTable::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTable::basepoint(&self) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTable::create(basepoint: &curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsBasepointTable
+pub fn curve25519_dalek::edwards::EdwardsBasepointTable::mul_base(&self, scalar: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTable::mul_base_clamped(&self, bytes: [u8; 32]) -> Self::Point
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTable> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTable) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTable
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTable::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTable::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTable> for curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix16) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTable> for curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix16) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTable> for curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix16) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTable> for curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix16) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+#[repr(transparent)] pub struct curve25519_dalek::edwards::EdwardsBasepointTableRadix128(_)
+impl core::fmt::Debug for curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl curve25519_dalek::traits::BasepointTable for curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub type curve25519_dalek::edwards::EdwardsBasepointTableRadix128::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::basepoint(&self) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::create(basepoint: &curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::mul_base(&self, scalar: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::mul_base_clamped(&self, bytes: [u8; 32]) -> Self::Point
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTable> for curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix16) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128> for curve25519_dalek::edwards::EdwardsBasepointTableRadix16
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix16::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix16
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128> for curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128> for curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128> for curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256> for curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32> for curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64> for curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+#[repr(transparent)] pub struct curve25519_dalek::edwards::EdwardsBasepointTableRadix256(_)
+impl core::fmt::Debug for curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl curve25519_dalek::traits::BasepointTable for curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub type curve25519_dalek::edwards::EdwardsBasepointTableRadix256::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::basepoint(&self) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::create(basepoint: &curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::mul_base(&self, scalar: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::mul_base_clamped(&self, bytes: [u8; 32]) -> Self::Point
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTable> for curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix16) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128> for curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256> for curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256> for curve25519_dalek::edwards::EdwardsBasepointTableRadix16
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix16::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix16
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256> for curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256> for curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32> for curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64> for curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+#[repr(transparent)] pub struct curve25519_dalek::edwards::EdwardsBasepointTableRadix32(_)
+impl core::fmt::Debug for curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl curve25519_dalek::traits::BasepointTable for curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub type curve25519_dalek::edwards::EdwardsBasepointTableRadix32::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::basepoint(&self) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::create(basepoint: &curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::mul_base(&self, scalar: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::mul_base_clamped(&self, bytes: [u8; 32]) -> Self::Point
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTable> for curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix16) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128> for curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256> for curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32> for curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32> for curve25519_dalek::edwards::EdwardsBasepointTableRadix16
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix16::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix16
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32> for curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32> for curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64> for curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+#[repr(transparent)] pub struct curve25519_dalek::edwards::EdwardsBasepointTableRadix64(_)
+impl core::fmt::Debug for curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl curve25519_dalek::traits::BasepointTable for curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub type curve25519_dalek::edwards::EdwardsBasepointTableRadix64::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::basepoint(&self) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::create(basepoint: &curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::mul_base(&self, scalar: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::mul_base_clamped(&self, bytes: [u8; 32]) -> Self::Point
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTable> for curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix16) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128> for curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256> for curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32> for curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64> for curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64> for curve25519_dalek::edwards::EdwardsBasepointTableRadix16
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix16::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix16
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64> for curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+impl<'a> core::convert::From<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64> for curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::from(table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub struct curve25519_dalek::edwards::EdwardsPoint
+impl curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::compress(&self) -> curve25519_dalek::edwards::CompressedEdwardsY
+pub fn curve25519_dalek::edwards::EdwardsPoint::compress_batch(inputs: &[curve25519_dalek::edwards::EdwardsPoint]) -> alloc::vec::Vec<curve25519_dalek::edwards::CompressedEdwardsY>
+pub fn curve25519_dalek::edwards::EdwardsPoint::to_montgomery(&self) -> curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::to_montgomery_batch(eds: &[Self]) -> alloc::vec::Vec<curve25519_dalek::montgomery::MontgomeryPoint>
+impl curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::is_small_order(&self) -> bool
+pub fn curve25519_dalek::edwards::EdwardsPoint::is_torsion_free(&self) -> bool
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_by_cofactor(&self) -> curve25519_dalek::edwards::EdwardsPoint
+impl curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_base(scalar: &curve25519_dalek::scalar::Scalar) -> Self
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_base_clamped(bytes: [u8; 32]) -> Self
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_clamped(self, bytes: [u8; 32]) -> Self
+impl curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::vartime_double_scalar_mul_basepoint(a: &curve25519_dalek::scalar::Scalar, A: &curve25519_dalek::edwards::EdwardsPoint, b: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::cmp::Eq for curve25519_dalek::edwards::EdwardsPoint
+impl core::cmp::PartialEq for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::eq(&self, other: &curve25519_dalek::edwards::EdwardsPoint) -> bool
+impl core::default::Default for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::default() -> curve25519_dalek::edwards::EdwardsPoint
+impl core::fmt::Debug for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::ops::arith::Add for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::add(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::AddAssign for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::add_assign(&mut self, rhs: curve25519_dalek::edwards::EdwardsPoint)
+impl core::ops::arith::Mul<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::MulAssign<curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::Neg for &curve25519_dalek::edwards::EdwardsPoint
+pub type &curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &curve25519_dalek::edwards::EdwardsPoint::neg(self) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::Neg for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::neg(self) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::Sub for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::sub(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::SubAssign for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::sub_assign(&mut self, rhs: curve25519_dalek::edwards::EdwardsPoint)
+impl curve25519_dalek::traits::Identity for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::identity() -> curve25519_dalek::edwards::EdwardsPoint
+impl curve25519_dalek::traits::MultiscalarMul for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::multiscalar_mul<I, J>(scalars: I, points: J) -> curve25519_dalek::edwards::EdwardsPoint where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::edwards::EdwardsPoint>
+impl curve25519_dalek::traits::VartimeMultiscalarMul for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::optional_multiscalar_mul<I, J>(scalars: I, points: J) -> core::option::Option<curve25519_dalek::edwards::EdwardsPoint> where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator<Item = core::option::Option<curve25519_dalek::edwards::EdwardsPoint>>
+pub fn curve25519_dalek::edwards::EdwardsPoint::vartime_multiscalar_mul<I, J>(scalars: I, points: J) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>, Self::Point: core::clone::Clone
+impl subtle::ConditionallySelectable for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::conditional_select(a: &curve25519_dalek::edwards::EdwardsPoint, b: &curve25519_dalek::edwards::EdwardsPoint, choice: subtle::Choice) -> curve25519_dalek::edwards::EdwardsPoint
+impl subtle::ConstantTimeEq for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::ct_eq(&self, other: &curve25519_dalek::edwards::EdwardsPoint) -> subtle::Choice
+impl zeroize::Zeroize for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::zeroize(&mut self)
+impl<'a> core::ops::arith::Add<&'a curve25519_dalek::edwards::EdwardsPoint> for &curve25519_dalek::edwards::EdwardsPoint
+pub type &curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &curve25519_dalek::edwards::EdwardsPoint::add(self, other: &'a curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Add<curve25519_dalek::edwards::EdwardsPoint> for &'a curve25519_dalek::edwards::EdwardsPoint
+pub type &'a curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsPoint::add(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::AddAssign<&'a curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::add_assign(&mut self, _rhs: &'a curve25519_dalek::edwards::EdwardsPoint)
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsPoint> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, point: &'a curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::scalar::Scalar> for &curve25519_dalek::edwards::EdwardsPoint
+pub type &curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &curve25519_dalek::edwards::EdwardsPoint::mul(self, scalar: &'a curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::edwards::EdwardsPoint> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsPoint
+pub type &'a curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::MulAssign<&'a curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_assign(&mut self, scalar: &'a curve25519_dalek::scalar::Scalar)
+impl<'a> core::ops::arith::Sub<&'a curve25519_dalek::edwards::EdwardsPoint> for &curve25519_dalek::edwards::EdwardsPoint
+pub type &curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &curve25519_dalek::edwards::EdwardsPoint::sub(self, other: &'a curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Sub<curve25519_dalek::edwards::EdwardsPoint> for &'a curve25519_dalek::edwards::EdwardsPoint
+pub type &'a curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsPoint::sub(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::SubAssign<&'a curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::sub_assign(&mut self, _rhs: &'a curve25519_dalek::edwards::EdwardsPoint)
+impl<'b> core::ops::arith::Add<&'b curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::add(self, rhs: &'b curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: &'b curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'b> core::ops::arith::Sub<&'b curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::sub(self, rhs: &'b curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<T> core::iter::traits::accum::Sum<T> for curve25519_dalek::edwards::EdwardsPoint where T: core::borrow::Borrow<curve25519_dalek::edwards::EdwardsPoint>
+pub fn curve25519_dalek::edwards::EdwardsPoint::sum<I>(iter: I) -> Self where I: core::iter::traits::iterator::Iterator<Item = T>
+pub struct curve25519_dalek::edwards::VartimeEdwardsPrecomputation(_)
+impl curve25519_dalek::traits::VartimePrecomputedMultiscalarMul for curve25519_dalek::edwards::VartimeEdwardsPrecomputation
+pub type curve25519_dalek::edwards::VartimeEdwardsPrecomputation::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::VartimeEdwardsPrecomputation::is_empty(&self) -> bool
+pub fn curve25519_dalek::edwards::VartimeEdwardsPrecomputation::len(&self) -> usize
+pub fn curve25519_dalek::edwards::VartimeEdwardsPrecomputation::new<I>(static_points: I) -> Self where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>
+pub fn curve25519_dalek::edwards::VartimeEdwardsPrecomputation::optional_mixed_multiscalar_mul<I, J, K>(&self, static_scalars: I, dynamic_scalars: J, dynamic_points: K) -> core::option::Option<Self::Point> where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, K: core::iter::traits::collect::IntoIterator<Item = core::option::Option<Self::Point>>
+pub fn curve25519_dalek::edwards::VartimeEdwardsPrecomputation::vartime_mixed_multiscalar_mul<I, J, K>(&self, static_scalars: I, dynamic_scalars: J, dynamic_points: K) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, K: core::iter::traits::collect::IntoIterator, <K as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>
+pub fn curve25519_dalek::edwards::VartimeEdwardsPrecomputation::vartime_multiscalar_mul<I>(&self, static_scalars: I) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>
+pub type curve25519_dalek::edwards::EdwardsBasepointTableRadix16 = curve25519_dalek::edwards::EdwardsBasepointTable
+pub mod curve25519_dalek::montgomery
+pub struct curve25519_dalek::montgomery::MontgomeryPoint(pub [u8; 32])
+impl curve25519_dalek::montgomery::MontgomeryPoint
+pub const fn curve25519_dalek::montgomery::MontgomeryPoint::as_bytes(&self) -> &[u8; 32]
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_base(scalar: &curve25519_dalek::scalar::Scalar) -> Self
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_base_clamped(bytes: [u8; 32]) -> Self
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_bits_be(&self, bits: impl core::iter::traits::iterator::Iterator<Item = bool>) -> curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_clamped(self, bytes: [u8; 32]) -> Self
+pub const fn curve25519_dalek::montgomery::MontgomeryPoint::to_bytes(&self) -> [u8; 32]
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::to_edwards(&self, sign: u8) -> core::option::Option<curve25519_dalek::edwards::EdwardsPoint>
+impl core::cmp::Eq for curve25519_dalek::montgomery::MontgomeryPoint
+impl core::cmp::PartialEq for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::eq(&self, other: &curve25519_dalek::montgomery::MontgomeryPoint) -> bool
+impl core::hash::Hash for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::hash<H: core::hash::Hasher>(&self, state: &mut H)
+impl core::ops::arith::Mul<&curve25519_dalek::montgomery::MontgomeryPoint> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, point: &curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::Mul<&curve25519_dalek::scalar::Scalar> for &curve25519_dalek::montgomery::MontgomeryPoint
+pub type &curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &curve25519_dalek::montgomery::MontgomeryPoint::mul(self, scalar: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::Mul<curve25519_dalek::montgomery::MontgomeryPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub type curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::MulAssign<&curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_assign(&mut self, scalar: &curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::MulAssign<curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl curve25519_dalek::traits::Identity for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::identity() -> curve25519_dalek::montgomery::MontgomeryPoint
+impl subtle::ConditionallySelectable for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::conditional_select(a: &Self, b: &Self, choice: subtle::Choice) -> Self
+impl subtle::ConstantTimeEq for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::ct_eq(&self, other: &curve25519_dalek::montgomery::MontgomeryPoint) -> subtle::Choice
+impl zeroize::Zeroize for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::zeroize(&mut self)
+impl<'a> core::ops::arith::Mul<curve25519_dalek::montgomery::MontgomeryPoint> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &'a curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::montgomery::MontgomeryPoint
+pub type &'a curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &'a curve25519_dalek::montgomery::MontgomeryPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::montgomery::MontgomeryPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: &'b curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub type curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+pub mod curve25519_dalek::ristretto
+pub struct curve25519_dalek::ristretto::CompressedRistretto(pub [u8; 32])
+impl curve25519_dalek::ristretto::CompressedRistretto
+pub const fn curve25519_dalek::ristretto::CompressedRistretto::as_bytes(&self) -> &[u8; 32]
+pub fn curve25519_dalek::ristretto::CompressedRistretto::decompress(&self) -> core::option::Option<curve25519_dalek::ristretto::RistrettoPoint>
+pub fn curve25519_dalek::ristretto::CompressedRistretto::from_slice(bytes: &[u8]) -> core::result::Result<curve25519_dalek::ristretto::CompressedRistretto, core::array::TryFromSliceError>
+pub const fn curve25519_dalek::ristretto::CompressedRistretto::to_bytes(&self) -> [u8; 32]
+impl core::convert::TryFrom<&[u8]> for curve25519_dalek::ristretto::CompressedRistretto
+pub type curve25519_dalek::ristretto::CompressedRistretto::Error = core::array::TryFromSliceError
+pub fn curve25519_dalek::ristretto::CompressedRistretto::try_from(slice: &[u8]) -> core::result::Result<curve25519_dalek::ristretto::CompressedRistretto, core::array::TryFromSliceError>
+impl core::default::Default for curve25519_dalek::ristretto::CompressedRistretto
+pub fn curve25519_dalek::ristretto::CompressedRistretto::default() -> curve25519_dalek::ristretto::CompressedRistretto
+impl core::fmt::Debug for curve25519_dalek::ristretto::CompressedRistretto
+pub fn curve25519_dalek::ristretto::CompressedRistretto::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl curve25519_dalek::traits::Identity for curve25519_dalek::ristretto::CompressedRistretto
+pub fn curve25519_dalek::ristretto::CompressedRistretto::identity() -> curve25519_dalek::ristretto::CompressedRistretto
+impl subtle::ConstantTimeEq for curve25519_dalek::ristretto::CompressedRistretto
+pub fn curve25519_dalek::ristretto::CompressedRistretto::ct_eq(&self, other: &curve25519_dalek::ristretto::CompressedRistretto) -> subtle::Choice
+impl zeroize::Zeroize for curve25519_dalek::ristretto::CompressedRistretto
+pub fn curve25519_dalek::ristretto::CompressedRistretto::zeroize(&mut self)
+#[repr(transparent)] pub struct curve25519_dalek::ristretto::RistrettoBasepointTable(_)
+impl curve25519_dalek::ristretto::RistrettoBasepointTable
+pub fn curve25519_dalek::ristretto::RistrettoBasepointTable::basepoint(&self) -> curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoBasepointTable::create(basepoint: &curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoBasepointTable
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::ristretto::RistrettoBasepointTable> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::ristretto::RistrettoBasepointTable) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &curve25519_dalek::ristretto::RistrettoBasepointTable
+pub type &curve25519_dalek::ristretto::RistrettoBasepointTable::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::ristretto::RistrettoBasepointTable::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+pub struct curve25519_dalek::ristretto::RistrettoPoint(_)
+impl curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::compress(&self) -> curve25519_dalek::ristretto::CompressedRistretto
+pub fn curve25519_dalek::ristretto::RistrettoPoint::double_and_compress_batch<'a, I>(points: I) -> alloc::vec::Vec<curve25519_dalek::ristretto::CompressedRistretto> where I: core::iter::traits::collect::IntoIterator<Item = &'a curve25519_dalek::ristretto::RistrettoPoint>
+pub fn curve25519_dalek::ristretto::RistrettoPoint::from_uniform_bytes(bytes: &[u8; 64]) -> curve25519_dalek::ristretto::RistrettoPoint
+impl curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul_base(scalar: &curve25519_dalek::scalar::Scalar) -> Self
+impl curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::vartime_double_scalar_mul_basepoint(a: &curve25519_dalek::scalar::Scalar, A: &curve25519_dalek::ristretto::RistrettoPoint, b: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::cmp::Eq for curve25519_dalek::ristretto::RistrettoPoint
+impl core::cmp::PartialEq for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::eq(&self, other: &curve25519_dalek::ristretto::RistrettoPoint) -> bool
+impl core::default::Default for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::default() -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::fmt::Debug for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::ops::arith::Add for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::add(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::AddAssign for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::add_assign(&mut self, rhs: curve25519_dalek::ristretto::RistrettoPoint)
+impl core::ops::arith::AddAssign<&curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::add_assign(&mut self, _rhs: &curve25519_dalek::ristretto::RistrettoPoint)
+impl core::ops::arith::Mul<curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::MulAssign<curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::Neg for &curve25519_dalek::ristretto::RistrettoPoint
+pub type &curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::ristretto::RistrettoPoint::neg(self) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::Neg for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::neg(self) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::Sub for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::sub(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::SubAssign for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::sub_assign(&mut self, rhs: curve25519_dalek::ristretto::RistrettoPoint)
+impl core::ops::arith::SubAssign<&curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::sub_assign(&mut self, _rhs: &curve25519_dalek::ristretto::RistrettoPoint)
+impl curve25519_dalek::traits::Identity for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::identity() -> curve25519_dalek::ristretto::RistrettoPoint
+impl curve25519_dalek::traits::MultiscalarMul for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Point = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::multiscalar_mul<I, J>(scalars: I, points: J) -> curve25519_dalek::ristretto::RistrettoPoint where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::ristretto::RistrettoPoint>
+impl curve25519_dalek::traits::VartimeMultiscalarMul for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Point = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::optional_multiscalar_mul<I, J>(scalars: I, points: J) -> core::option::Option<curve25519_dalek::ristretto::RistrettoPoint> where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator<Item = core::option::Option<curve25519_dalek::ristretto::RistrettoPoint>>
+pub fn curve25519_dalek::ristretto::RistrettoPoint::vartime_multiscalar_mul<I, J>(scalars: I, points: J) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>, Self::Point: core::clone::Clone
+impl subtle::ConditionallySelectable for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::conditional_select(a: &curve25519_dalek::ristretto::RistrettoPoint, b: &curve25519_dalek::ristretto::RistrettoPoint, choice: subtle::Choice) -> curve25519_dalek::ristretto::RistrettoPoint
+impl subtle::ConstantTimeEq for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::ct_eq(&self, other: &curve25519_dalek::ristretto::RistrettoPoint) -> subtle::Choice
+impl zeroize::Zeroize for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::zeroize(&mut self)
+impl<'a> core::ops::arith::Add<&'a curve25519_dalek::ristretto::RistrettoPoint> for &curve25519_dalek::ristretto::RistrettoPoint
+pub type &curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::ristretto::RistrettoPoint::add(self, other: &'a curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Add<curve25519_dalek::ristretto::RistrettoPoint> for &'a curve25519_dalek::ristretto::RistrettoPoint
+pub type &'a curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &'a curve25519_dalek::ristretto::RistrettoPoint::add(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::ristretto::RistrettoPoint> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, point: &'a curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::scalar::Scalar> for &curve25519_dalek::ristretto::RistrettoPoint
+pub type &curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::ristretto::RistrettoPoint::mul(self, scalar: &'a curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::ristretto::RistrettoPoint> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &'a curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::ristretto::RistrettoPoint
+pub type &'a curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &'a curve25519_dalek::ristretto::RistrettoPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::MulAssign<&'a curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul_assign(&mut self, scalar: &'a curve25519_dalek::scalar::Scalar)
+impl<'a> core::ops::arith::Sub<&'a curve25519_dalek::ristretto::RistrettoPoint> for &curve25519_dalek::ristretto::RistrettoPoint
+pub type &curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::ristretto::RistrettoPoint::sub(self, other: &'a curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Sub<curve25519_dalek::ristretto::RistrettoPoint> for &'a curve25519_dalek::ristretto::RistrettoPoint
+pub type &'a curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &'a curve25519_dalek::ristretto::RistrettoPoint::sub(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Add<&'b curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::add(self, rhs: &'b curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: &'b curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Sub<&'b curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::sub(self, rhs: &'b curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<T> core::iter::traits::accum::Sum<T> for curve25519_dalek::ristretto::RistrettoPoint where T: core::borrow::Borrow<curve25519_dalek::ristretto::RistrettoPoint>
+pub fn curve25519_dalek::ristretto::RistrettoPoint::sum<I>(iter: I) -> Self where I: core::iter::traits::iterator::Iterator<Item = T>
+pub struct curve25519_dalek::ristretto::VartimeRistrettoPrecomputation(_)
+impl curve25519_dalek::traits::VartimePrecomputedMultiscalarMul for curve25519_dalek::ristretto::VartimeRistrettoPrecomputation
+pub type curve25519_dalek::ristretto::VartimeRistrettoPrecomputation::Point = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::VartimeRistrettoPrecomputation::is_empty(&self) -> bool
+pub fn curve25519_dalek::ristretto::VartimeRistrettoPrecomputation::len(&self) -> usize
+pub fn curve25519_dalek::ristretto::VartimeRistrettoPrecomputation::new<I>(static_points: I) -> Self where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>
+pub fn curve25519_dalek::ristretto::VartimeRistrettoPrecomputation::optional_mixed_multiscalar_mul<I, J, K>(&self, static_scalars: I, dynamic_scalars: J, dynamic_points: K) -> core::option::Option<Self::Point> where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, K: core::iter::traits::collect::IntoIterator<Item = core::option::Option<Self::Point>>
+pub fn curve25519_dalek::ristretto::VartimeRistrettoPrecomputation::vartime_mixed_multiscalar_mul<I, J, K>(&self, static_scalars: I, dynamic_scalars: J, dynamic_points: K) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, K: core::iter::traits::collect::IntoIterator, <K as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>
+pub fn curve25519_dalek::ristretto::VartimeRistrettoPrecomputation::vartime_multiscalar_mul<I>(&self, static_scalars: I) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>
+pub mod curve25519_dalek::scalar
+pub struct curve25519_dalek::scalar::Scalar
+impl curve25519_dalek::scalar::Scalar
+pub const curve25519_dalek::scalar::Scalar::ONE: Self
+pub const curve25519_dalek::scalar::Scalar::ZERO: Self
+pub const fn curve25519_dalek::scalar::Scalar::as_bytes(&self) -> &[u8; 32]
+pub fn curve25519_dalek::scalar::Scalar::batch_invert(inputs: &mut [curve25519_dalek::scalar::Scalar]) -> curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::invert(&self) -> curve25519_dalek::scalar::Scalar
+pub const fn curve25519_dalek::scalar::Scalar::to_bytes(&self) -> [u8; 32]
+impl curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from_bytes_mod_order(bytes: [u8; 32]) -> curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from_bytes_mod_order_wide(input: &[u8; 64]) -> curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from_canonical_bytes(bytes: [u8; 32]) -> subtle::CtOption<curve25519_dalek::scalar::Scalar>
+impl core::cmp::Eq for curve25519_dalek::scalar::Scalar
+impl core::cmp::PartialEq for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::eq(&self, other: &Self) -> bool
+impl core::convert::From<u128> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from(x: u128) -> curve25519_dalek::scalar::Scalar
+impl core::convert::From<u16> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from(x: u16) -> curve25519_dalek::scalar::Scalar
+impl core::convert::From<u32> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from(x: u32) -> curve25519_dalek::scalar::Scalar
+impl core::convert::From<u64> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from(x: u64) -> curve25519_dalek::scalar::Scalar
+impl core::convert::From<u8> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from(x: u8) -> curve25519_dalek::scalar::Scalar
+impl core::default::Default for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::default() -> curve25519_dalek::scalar::Scalar
+impl core::fmt::Debug for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::ops::arith::Add for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::add(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl core::ops::arith::AddAssign for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::add_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::Mul for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl core::ops::arith::Mul<&curve25519_dalek::montgomery::MontgomeryPoint> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, point: &curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::Mul<&curve25519_dalek::scalar::Scalar> for &curve25519_dalek::montgomery::MontgomeryPoint
+pub type &curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &curve25519_dalek::montgomery::MontgomeryPoint::mul(self, scalar: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::Mul<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::Mul<curve25519_dalek::montgomery::MontgomeryPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::Mul<curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub type curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::MulAssign for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::mul_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::MulAssign<&curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_assign(&mut self, scalar: &curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::MulAssign<curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::MulAssign<curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::MulAssign<curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::Neg for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn &curve25519_dalek::scalar::Scalar::neg(self) -> curve25519_dalek::scalar::Scalar
+impl core::ops::arith::Neg for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::neg(self) -> curve25519_dalek::scalar::Scalar
+impl core::ops::arith::Sub for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::sub(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl core::ops::arith::SubAssign for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::sub_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::index::Index<usize> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = u8
+pub fn curve25519_dalek::scalar::Scalar::index(&self, _index: usize) -> &u8
+impl subtle::ConditionallySelectable for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::conditional_select(a: &Self, b: &Self, choice: subtle::Choice) -> Self
+impl subtle::ConstantTimeEq for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::ct_eq(&self, other: &Self) -> subtle::Choice
+impl zeroize::Zeroize for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::zeroize(&mut self)
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTable> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTable) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTable
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTable::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTable::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Add<&'a curve25519_dalek::scalar::Scalar> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn &curve25519_dalek::scalar::Scalar::add(self, _rhs: &'a curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'a> core::ops::arith::Add<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn &'a curve25519_dalek::scalar::Scalar::add(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'a> core::ops::arith::AddAssign<&'a curve25519_dalek::scalar::Scalar> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::add_assign(&mut self, _rhs: &'a curve25519_dalek::scalar::Scalar)
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsPoint> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, point: &'a curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::ristretto::RistrettoBasepointTable> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::ristretto::RistrettoBasepointTable) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::ristretto::RistrettoPoint> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, point: &'a curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::scalar::Scalar> for &curve25519_dalek::edwards::EdwardsPoint
+pub type &curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &curve25519_dalek::edwards::EdwardsPoint::mul(self, scalar: &'a curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::scalar::Scalar> for &curve25519_dalek::ristretto::RistrettoPoint
+pub type &curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::ristretto::RistrettoPoint::mul(self, scalar: &'a curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::scalar::Scalar> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, _rhs: &'a curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'a> core::ops::arith::Mul<curve25519_dalek::edwards::EdwardsPoint> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::montgomery::MontgomeryPoint> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &'a curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::ristretto::RistrettoPoint> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &'a curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsPoint
+pub type &'a curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::montgomery::MontgomeryPoint
+pub type &'a curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &'a curve25519_dalek::montgomery::MontgomeryPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::ristretto::RistrettoPoint
+pub type &'a curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &'a curve25519_dalek::ristretto::RistrettoPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn &'a curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'a> core::ops::arith::MulAssign<&'a curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_assign(&mut self, scalar: &'a curve25519_dalek::scalar::Scalar)
+impl<'a> core::ops::arith::MulAssign<&'a curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul_assign(&mut self, scalar: &'a curve25519_dalek::scalar::Scalar)
+impl<'a> core::ops::arith::MulAssign<&'a curve25519_dalek::scalar::Scalar> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::mul_assign(&mut self, _rhs: &'a curve25519_dalek::scalar::Scalar)
+impl<'a> core::ops::arith::Sub<&'a curve25519_dalek::scalar::Scalar> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn &curve25519_dalek::scalar::Scalar::sub(self, rhs: &'a curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'a> core::ops::arith::Sub<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn &'a curve25519_dalek::scalar::Scalar::sub(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'a> core::ops::arith::SubAssign<&'a curve25519_dalek::scalar::Scalar> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::sub_assign(&mut self, _rhs: &'a curve25519_dalek::scalar::Scalar)
+impl<'b> core::ops::arith::Add<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::add(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: &'b curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::montgomery::MontgomeryPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: &'b curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: &'b curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &curve25519_dalek::ristretto::RistrettoBasepointTable
+pub type &curve25519_dalek::ristretto::RistrettoBasepointTable::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::ristretto::RistrettoBasepointTable::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub type curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'b> core::ops::arith::Sub<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::sub(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<T> core::iter::traits::accum::Product<T> for curve25519_dalek::scalar::Scalar where T: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>
+pub fn curve25519_dalek::scalar::Scalar::product<I>(iter: I) -> Self where I: core::iter::traits::iterator::Iterator<Item = T>
+impl<T> core::iter::traits::accum::Sum<T> for curve25519_dalek::scalar::Scalar where T: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>
+pub fn curve25519_dalek::scalar::Scalar::sum<I>(iter: I) -> Self where I: core::iter::traits::iterator::Iterator<Item = T>
+pub const fn curve25519_dalek::scalar::clamp_integer(bytes: [u8; 32]) -> [u8; 32]
+pub mod curve25519_dalek::traits
+pub trait curve25519_dalek::traits::BasepointTable
+pub type curve25519_dalek::traits::BasepointTable::Point
+pub fn curve25519_dalek::traits::BasepointTable::basepoint(&self) -> Self::Point
+pub fn curve25519_dalek::traits::BasepointTable::create(basepoint: &Self::Point) -> Self
+pub fn curve25519_dalek::traits::BasepointTable::mul_base(&self, scalar: &curve25519_dalek::scalar::Scalar) -> Self::Point
+pub fn curve25519_dalek::traits::BasepointTable::mul_base_clamped(&self, bytes: [u8; 32]) -> Self::Point
+impl curve25519_dalek::traits::BasepointTable for curve25519_dalek::edwards::EdwardsBasepointTable
+pub type curve25519_dalek::edwards::EdwardsBasepointTable::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTable::basepoint(&self) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTable::create(basepoint: &curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsBasepointTable
+pub fn curve25519_dalek::edwards::EdwardsBasepointTable::mul_base(&self, scalar: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTable::mul_base_clamped(&self, bytes: [u8; 32]) -> Self::Point
+impl curve25519_dalek::traits::BasepointTable for curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub type curve25519_dalek::edwards::EdwardsBasepointTableRadix128::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::basepoint(&self) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::create(basepoint: &curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::mul_base(&self, scalar: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix128::mul_base_clamped(&self, bytes: [u8; 32]) -> Self::Point
+impl curve25519_dalek::traits::BasepointTable for curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub type curve25519_dalek::edwards::EdwardsBasepointTableRadix256::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::basepoint(&self) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::create(basepoint: &curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::mul_base(&self, scalar: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix256::mul_base_clamped(&self, bytes: [u8; 32]) -> Self::Point
+impl curve25519_dalek::traits::BasepointTable for curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub type curve25519_dalek::edwards::EdwardsBasepointTableRadix32::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::basepoint(&self) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::create(basepoint: &curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::mul_base(&self, scalar: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix32::mul_base_clamped(&self, bytes: [u8; 32]) -> Self::Point
+impl curve25519_dalek::traits::BasepointTable for curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub type curve25519_dalek::edwards::EdwardsBasepointTableRadix64::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::basepoint(&self) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::create(basepoint: &curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::mul_base(&self, scalar: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsBasepointTableRadix64::mul_base_clamped(&self, bytes: [u8; 32]) -> Self::Point
+pub trait curve25519_dalek::traits::Identity
+pub fn curve25519_dalek::traits::Identity::identity() -> Self
+impl curve25519_dalek::traits::Identity for curve25519_dalek::edwards::CompressedEdwardsY
+pub fn curve25519_dalek::edwards::CompressedEdwardsY::identity() -> curve25519_dalek::edwards::CompressedEdwardsY
+impl curve25519_dalek::traits::Identity for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::identity() -> curve25519_dalek::edwards::EdwardsPoint
+impl curve25519_dalek::traits::Identity for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::identity() -> curve25519_dalek::montgomery::MontgomeryPoint
+impl curve25519_dalek::traits::Identity for curve25519_dalek::ristretto::CompressedRistretto
+pub fn curve25519_dalek::ristretto::CompressedRistretto::identity() -> curve25519_dalek::ristretto::CompressedRistretto
+impl curve25519_dalek::traits::Identity for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::identity() -> curve25519_dalek::ristretto::RistrettoPoint
+pub trait curve25519_dalek::traits::IsIdentity
+pub fn curve25519_dalek::traits::IsIdentity::is_identity(&self) -> bool
+impl<T> curve25519_dalek::traits::IsIdentity for T where T: subtle::ConstantTimeEq + curve25519_dalek::traits::Identity
+pub fn T::is_identity(&self) -> bool
+pub trait curve25519_dalek::traits::MultiscalarMul
+pub type curve25519_dalek::traits::MultiscalarMul::Point
+pub fn curve25519_dalek::traits::MultiscalarMul::multiscalar_mul<I, J>(scalars: I, points: J) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>
+impl curve25519_dalek::traits::MultiscalarMul for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::multiscalar_mul<I, J>(scalars: I, points: J) -> curve25519_dalek::edwards::EdwardsPoint where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::edwards::EdwardsPoint>
+impl curve25519_dalek::traits::MultiscalarMul for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Point = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::multiscalar_mul<I, J>(scalars: I, points: J) -> curve25519_dalek::ristretto::RistrettoPoint where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::ristretto::RistrettoPoint>
+pub trait curve25519_dalek::traits::VartimeMultiscalarMul
+pub type curve25519_dalek::traits::VartimeMultiscalarMul::Point
+pub fn curve25519_dalek::traits::VartimeMultiscalarMul::optional_multiscalar_mul<I, J>(scalars: I, points: J) -> core::option::Option<Self::Point> where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator<Item = core::option::Option<Self::Point>>
+pub fn curve25519_dalek::traits::VartimeMultiscalarMul::vartime_multiscalar_mul<I, J>(scalars: I, points: J) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>, Self::Point: core::clone::Clone
+impl curve25519_dalek::traits::VartimeMultiscalarMul for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::optional_multiscalar_mul<I, J>(scalars: I, points: J) -> core::option::Option<curve25519_dalek::edwards::EdwardsPoint> where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator<Item = core::option::Option<curve25519_dalek::edwards::EdwardsPoint>>
+pub fn curve25519_dalek::edwards::EdwardsPoint::vartime_multiscalar_mul<I, J>(scalars: I, points: J) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>, Self::Point: core::clone::Clone
+impl curve25519_dalek::traits::VartimeMultiscalarMul for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Point = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::optional_multiscalar_mul<I, J>(scalars: I, points: J) -> core::option::Option<curve25519_dalek::ristretto::RistrettoPoint> where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator<Item = core::option::Option<curve25519_dalek::ristretto::RistrettoPoint>>
+pub fn curve25519_dalek::ristretto::RistrettoPoint::vartime_multiscalar_mul<I, J>(scalars: I, points: J) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>, Self::Point: core::clone::Clone
+pub trait curve25519_dalek::traits::VartimePrecomputedMultiscalarMul: core::marker::Sized
+pub type curve25519_dalek::traits::VartimePrecomputedMultiscalarMul::Point: core::clone::Clone
+pub fn curve25519_dalek::traits::VartimePrecomputedMultiscalarMul::is_empty(&self) -> bool
+pub fn curve25519_dalek::traits::VartimePrecomputedMultiscalarMul::len(&self) -> usize
+pub fn curve25519_dalek::traits::VartimePrecomputedMultiscalarMul::new<I>(static_points: I) -> Self where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>
+pub fn curve25519_dalek::traits::VartimePrecomputedMultiscalarMul::optional_mixed_multiscalar_mul<I, J, K>(&self, static_scalars: I, dynamic_scalars: J, dynamic_points: K) -> core::option::Option<Self::Point> where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, K: core::iter::traits::collect::IntoIterator<Item = core::option::Option<Self::Point>>
+pub fn curve25519_dalek::traits::VartimePrecomputedMultiscalarMul::vartime_mixed_multiscalar_mul<I, J, K>(&self, static_scalars: I, dynamic_scalars: J, dynamic_points: K) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, K: core::iter::traits::collect::IntoIterator, <K as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>
+pub fn curve25519_dalek::traits::VartimePrecomputedMultiscalarMul::vartime_multiscalar_mul<I>(&self, static_scalars: I) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>
+impl curve25519_dalek::traits::VartimePrecomputedMultiscalarMul for curve25519_dalek::edwards::VartimeEdwardsPrecomputation
+pub type curve25519_dalek::edwards::VartimeEdwardsPrecomputation::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::VartimeEdwardsPrecomputation::is_empty(&self) -> bool
+pub fn curve25519_dalek::edwards::VartimeEdwardsPrecomputation::len(&self) -> usize
+pub fn curve25519_dalek::edwards::VartimeEdwardsPrecomputation::new<I>(static_points: I) -> Self where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>
+pub fn curve25519_dalek::edwards::VartimeEdwardsPrecomputation::optional_mixed_multiscalar_mul<I, J, K>(&self, static_scalars: I, dynamic_scalars: J, dynamic_points: K) -> core::option::Option<Self::Point> where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, K: core::iter::traits::collect::IntoIterator<Item = core::option::Option<Self::Point>>
+pub fn curve25519_dalek::edwards::VartimeEdwardsPrecomputation::vartime_mixed_multiscalar_mul<I, J, K>(&self, static_scalars: I, dynamic_scalars: J, dynamic_points: K) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, K: core::iter::traits::collect::IntoIterator, <K as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>
+pub fn curve25519_dalek::edwards::VartimeEdwardsPrecomputation::vartime_multiscalar_mul<I>(&self, static_scalars: I) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>
+impl curve25519_dalek::traits::VartimePrecomputedMultiscalarMul for curve25519_dalek::ristretto::VartimeRistrettoPrecomputation
+pub type curve25519_dalek::ristretto::VartimeRistrettoPrecomputation::Point = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::VartimeRistrettoPrecomputation::is_empty(&self) -> bool
+pub fn curve25519_dalek::ristretto::VartimeRistrettoPrecomputation::len(&self) -> usize
+pub fn curve25519_dalek::ristretto::VartimeRistrettoPrecomputation::new<I>(static_points: I) -> Self where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>
+pub fn curve25519_dalek::ristretto::VartimeRistrettoPrecomputation::optional_mixed_multiscalar_mul<I, J, K>(&self, static_scalars: I, dynamic_scalars: J, dynamic_points: K) -> core::option::Option<Self::Point> where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, K: core::iter::traits::collect::IntoIterator<Item = core::option::Option<Self::Point>>
+pub fn curve25519_dalek::ristretto::VartimeRistrettoPrecomputation::vartime_mixed_multiscalar_mul<I, J, K>(&self, static_scalars: I, dynamic_scalars: J, dynamic_points: K) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, K: core::iter::traits::collect::IntoIterator, <K as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>
+pub fn curve25519_dalek::ristretto::VartimeRistrettoPrecomputation::vartime_multiscalar_mul<I>(&self, static_scalars: I) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>
+pub struct curve25519_dalek::EdwardsPoint
+impl curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::compress(&self) -> curve25519_dalek::edwards::CompressedEdwardsY
+pub fn curve25519_dalek::edwards::EdwardsPoint::compress_batch(inputs: &[curve25519_dalek::edwards::EdwardsPoint]) -> alloc::vec::Vec<curve25519_dalek::edwards::CompressedEdwardsY>
+pub fn curve25519_dalek::edwards::EdwardsPoint::to_montgomery(&self) -> curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::to_montgomery_batch(eds: &[Self]) -> alloc::vec::Vec<curve25519_dalek::montgomery::MontgomeryPoint>
+impl curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::is_small_order(&self) -> bool
+pub fn curve25519_dalek::edwards::EdwardsPoint::is_torsion_free(&self) -> bool
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_by_cofactor(&self) -> curve25519_dalek::edwards::EdwardsPoint
+impl curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_base(scalar: &curve25519_dalek::scalar::Scalar) -> Self
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_base_clamped(bytes: [u8; 32]) -> Self
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_clamped(self, bytes: [u8; 32]) -> Self
+impl curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::vartime_double_scalar_mul_basepoint(a: &curve25519_dalek::scalar::Scalar, A: &curve25519_dalek::edwards::EdwardsPoint, b: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::cmp::Eq for curve25519_dalek::edwards::EdwardsPoint
+impl core::cmp::PartialEq for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::eq(&self, other: &curve25519_dalek::edwards::EdwardsPoint) -> bool
+impl core::default::Default for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::default() -> curve25519_dalek::edwards::EdwardsPoint
+impl core::fmt::Debug for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::ops::arith::Add for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::add(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::AddAssign for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::add_assign(&mut self, rhs: curve25519_dalek::edwards::EdwardsPoint)
+impl core::ops::arith::Mul<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::MulAssign<curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::Neg for &curve25519_dalek::edwards::EdwardsPoint
+pub type &curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &curve25519_dalek::edwards::EdwardsPoint::neg(self) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::Neg for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::neg(self) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::Sub for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::sub(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::SubAssign for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::sub_assign(&mut self, rhs: curve25519_dalek::edwards::EdwardsPoint)
+impl curve25519_dalek::traits::Identity for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::identity() -> curve25519_dalek::edwards::EdwardsPoint
+impl curve25519_dalek::traits::MultiscalarMul for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::multiscalar_mul<I, J>(scalars: I, points: J) -> curve25519_dalek::edwards::EdwardsPoint where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::edwards::EdwardsPoint>
+impl curve25519_dalek::traits::VartimeMultiscalarMul for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Point = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::optional_multiscalar_mul<I, J>(scalars: I, points: J) -> core::option::Option<curve25519_dalek::edwards::EdwardsPoint> where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator<Item = core::option::Option<curve25519_dalek::edwards::EdwardsPoint>>
+pub fn curve25519_dalek::edwards::EdwardsPoint::vartime_multiscalar_mul<I, J>(scalars: I, points: J) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>, Self::Point: core::clone::Clone
+impl subtle::ConditionallySelectable for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::conditional_select(a: &curve25519_dalek::edwards::EdwardsPoint, b: &curve25519_dalek::edwards::EdwardsPoint, choice: subtle::Choice) -> curve25519_dalek::edwards::EdwardsPoint
+impl subtle::ConstantTimeEq for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::ct_eq(&self, other: &curve25519_dalek::edwards::EdwardsPoint) -> subtle::Choice
+impl zeroize::Zeroize for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::zeroize(&mut self)
+impl<'a> core::ops::arith::Add<&'a curve25519_dalek::edwards::EdwardsPoint> for &curve25519_dalek::edwards::EdwardsPoint
+pub type &curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &curve25519_dalek::edwards::EdwardsPoint::add(self, other: &'a curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Add<curve25519_dalek::edwards::EdwardsPoint> for &'a curve25519_dalek::edwards::EdwardsPoint
+pub type &'a curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsPoint::add(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::AddAssign<&'a curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::add_assign(&mut self, _rhs: &'a curve25519_dalek::edwards::EdwardsPoint)
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsPoint> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, point: &'a curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::scalar::Scalar> for &curve25519_dalek::edwards::EdwardsPoint
+pub type &curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &curve25519_dalek::edwards::EdwardsPoint::mul(self, scalar: &'a curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::edwards::EdwardsPoint> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsPoint
+pub type &'a curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::MulAssign<&'a curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_assign(&mut self, scalar: &'a curve25519_dalek::scalar::Scalar)
+impl<'a> core::ops::arith::Sub<&'a curve25519_dalek::edwards::EdwardsPoint> for &curve25519_dalek::edwards::EdwardsPoint
+pub type &curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &curve25519_dalek::edwards::EdwardsPoint::sub(self, other: &'a curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Sub<curve25519_dalek::edwards::EdwardsPoint> for &'a curve25519_dalek::edwards::EdwardsPoint
+pub type &'a curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsPoint::sub(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::SubAssign<&'a curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::sub_assign(&mut self, _rhs: &'a curve25519_dalek::edwards::EdwardsPoint)
+impl<'b> core::ops::arith::Add<&'b curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::add(self, rhs: &'b curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: &'b curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'b> core::ops::arith::Sub<&'b curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::sub(self, rhs: &'b curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<T> core::iter::traits::accum::Sum<T> for curve25519_dalek::edwards::EdwardsPoint where T: core::borrow::Borrow<curve25519_dalek::edwards::EdwardsPoint>
+pub fn curve25519_dalek::edwards::EdwardsPoint::sum<I>(iter: I) -> Self where I: core::iter::traits::iterator::Iterator<Item = T>
+pub struct curve25519_dalek::MontgomeryPoint(pub [u8; 32])
+impl curve25519_dalek::montgomery::MontgomeryPoint
+pub const fn curve25519_dalek::montgomery::MontgomeryPoint::as_bytes(&self) -> &[u8; 32]
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_base(scalar: &curve25519_dalek::scalar::Scalar) -> Self
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_base_clamped(bytes: [u8; 32]) -> Self
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_bits_be(&self, bits: impl core::iter::traits::iterator::Iterator<Item = bool>) -> curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_clamped(self, bytes: [u8; 32]) -> Self
+pub const fn curve25519_dalek::montgomery::MontgomeryPoint::to_bytes(&self) -> [u8; 32]
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::to_edwards(&self, sign: u8) -> core::option::Option<curve25519_dalek::edwards::EdwardsPoint>
+impl core::cmp::Eq for curve25519_dalek::montgomery::MontgomeryPoint
+impl core::cmp::PartialEq for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::eq(&self, other: &curve25519_dalek::montgomery::MontgomeryPoint) -> bool
+impl core::hash::Hash for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::hash<H: core::hash::Hasher>(&self, state: &mut H)
+impl core::ops::arith::Mul<&curve25519_dalek::montgomery::MontgomeryPoint> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, point: &curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::Mul<&curve25519_dalek::scalar::Scalar> for &curve25519_dalek::montgomery::MontgomeryPoint
+pub type &curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &curve25519_dalek::montgomery::MontgomeryPoint::mul(self, scalar: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::Mul<curve25519_dalek::montgomery::MontgomeryPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub type curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::MulAssign<&curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_assign(&mut self, scalar: &curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::MulAssign<curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl curve25519_dalek::traits::Identity for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::identity() -> curve25519_dalek::montgomery::MontgomeryPoint
+impl subtle::ConditionallySelectable for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::conditional_select(a: &Self, b: &Self, choice: subtle::Choice) -> Self
+impl subtle::ConstantTimeEq for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::ct_eq(&self, other: &curve25519_dalek::montgomery::MontgomeryPoint) -> subtle::Choice
+impl zeroize::Zeroize for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::zeroize(&mut self)
+impl<'a> core::ops::arith::Mul<curve25519_dalek::montgomery::MontgomeryPoint> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &'a curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::montgomery::MontgomeryPoint
+pub type &'a curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &'a curve25519_dalek::montgomery::MontgomeryPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::montgomery::MontgomeryPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: &'b curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub type curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+pub struct curve25519_dalek::RistrettoPoint(_)
+impl curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::compress(&self) -> curve25519_dalek::ristretto::CompressedRistretto
+pub fn curve25519_dalek::ristretto::RistrettoPoint::double_and_compress_batch<'a, I>(points: I) -> alloc::vec::Vec<curve25519_dalek::ristretto::CompressedRistretto> where I: core::iter::traits::collect::IntoIterator<Item = &'a curve25519_dalek::ristretto::RistrettoPoint>
+pub fn curve25519_dalek::ristretto::RistrettoPoint::from_uniform_bytes(bytes: &[u8; 64]) -> curve25519_dalek::ristretto::RistrettoPoint
+impl curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul_base(scalar: &curve25519_dalek::scalar::Scalar) -> Self
+impl curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::vartime_double_scalar_mul_basepoint(a: &curve25519_dalek::scalar::Scalar, A: &curve25519_dalek::ristretto::RistrettoPoint, b: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::cmp::Eq for curve25519_dalek::ristretto::RistrettoPoint
+impl core::cmp::PartialEq for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::eq(&self, other: &curve25519_dalek::ristretto::RistrettoPoint) -> bool
+impl core::default::Default for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::default() -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::fmt::Debug for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::ops::arith::Add for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::add(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::AddAssign for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::add_assign(&mut self, rhs: curve25519_dalek::ristretto::RistrettoPoint)
+impl core::ops::arith::AddAssign<&curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::add_assign(&mut self, _rhs: &curve25519_dalek::ristretto::RistrettoPoint)
+impl core::ops::arith::Mul<curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::MulAssign<curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::Neg for &curve25519_dalek::ristretto::RistrettoPoint
+pub type &curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::ristretto::RistrettoPoint::neg(self) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::Neg for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::neg(self) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::Sub for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::sub(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::SubAssign for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::sub_assign(&mut self, rhs: curve25519_dalek::ristretto::RistrettoPoint)
+impl core::ops::arith::SubAssign<&curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::sub_assign(&mut self, _rhs: &curve25519_dalek::ristretto::RistrettoPoint)
+impl curve25519_dalek::traits::Identity for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::identity() -> curve25519_dalek::ristretto::RistrettoPoint
+impl curve25519_dalek::traits::MultiscalarMul for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Point = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::multiscalar_mul<I, J>(scalars: I, points: J) -> curve25519_dalek::ristretto::RistrettoPoint where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::ristretto::RistrettoPoint>
+impl curve25519_dalek::traits::VartimeMultiscalarMul for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Point = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::optional_multiscalar_mul<I, J>(scalars: I, points: J) -> core::option::Option<curve25519_dalek::ristretto::RistrettoPoint> where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator<Item = core::option::Option<curve25519_dalek::ristretto::RistrettoPoint>>
+pub fn curve25519_dalek::ristretto::RistrettoPoint::vartime_multiscalar_mul<I, J>(scalars: I, points: J) -> Self::Point where I: core::iter::traits::collect::IntoIterator, <I as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>, J: core::iter::traits::collect::IntoIterator, <J as core::iter::traits::collect::IntoIterator>::Item: core::borrow::Borrow<Self::Point>, Self::Point: core::clone::Clone
+impl subtle::ConditionallySelectable for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::conditional_select(a: &curve25519_dalek::ristretto::RistrettoPoint, b: &curve25519_dalek::ristretto::RistrettoPoint, choice: subtle::Choice) -> curve25519_dalek::ristretto::RistrettoPoint
+impl subtle::ConstantTimeEq for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::ct_eq(&self, other: &curve25519_dalek::ristretto::RistrettoPoint) -> subtle::Choice
+impl zeroize::Zeroize for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::zeroize(&mut self)
+impl<'a> core::ops::arith::Add<&'a curve25519_dalek::ristretto::RistrettoPoint> for &curve25519_dalek::ristretto::RistrettoPoint
+pub type &curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::ristretto::RistrettoPoint::add(self, other: &'a curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Add<curve25519_dalek::ristretto::RistrettoPoint> for &'a curve25519_dalek::ristretto::RistrettoPoint
+pub type &'a curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &'a curve25519_dalek::ristretto::RistrettoPoint::add(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::ristretto::RistrettoPoint> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, point: &'a curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::scalar::Scalar> for &curve25519_dalek::ristretto::RistrettoPoint
+pub type &curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::ristretto::RistrettoPoint::mul(self, scalar: &'a curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::ristretto::RistrettoPoint> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &'a curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::ristretto::RistrettoPoint
+pub type &'a curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &'a curve25519_dalek::ristretto::RistrettoPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::MulAssign<&'a curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul_assign(&mut self, scalar: &'a curve25519_dalek::scalar::Scalar)
+impl<'a> core::ops::arith::Sub<&'a curve25519_dalek::ristretto::RistrettoPoint> for &curve25519_dalek::ristretto::RistrettoPoint
+pub type &curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::ristretto::RistrettoPoint::sub(self, other: &'a curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Sub<curve25519_dalek::ristretto::RistrettoPoint> for &'a curve25519_dalek::ristretto::RistrettoPoint
+pub type &'a curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &'a curve25519_dalek::ristretto::RistrettoPoint::sub(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Add<&'b curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::add(self, rhs: &'b curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: &'b curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Sub<&'b curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::sub(self, rhs: &'b curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<T> core::iter::traits::accum::Sum<T> for curve25519_dalek::ristretto::RistrettoPoint where T: core::borrow::Borrow<curve25519_dalek::ristretto::RistrettoPoint>
+pub fn curve25519_dalek::ristretto::RistrettoPoint::sum<I>(iter: I) -> Self where I: core::iter::traits::iterator::Iterator<Item = T>
+pub struct curve25519_dalek::Scalar
+impl curve25519_dalek::scalar::Scalar
+pub const curve25519_dalek::scalar::Scalar::ONE: Self
+pub const curve25519_dalek::scalar::Scalar::ZERO: Self
+pub const fn curve25519_dalek::scalar::Scalar::as_bytes(&self) -> &[u8; 32]
+pub fn curve25519_dalek::scalar::Scalar::batch_invert(inputs: &mut [curve25519_dalek::scalar::Scalar]) -> curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::invert(&self) -> curve25519_dalek::scalar::Scalar
+pub const fn curve25519_dalek::scalar::Scalar::to_bytes(&self) -> [u8; 32]
+impl curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from_bytes_mod_order(bytes: [u8; 32]) -> curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from_bytes_mod_order_wide(input: &[u8; 64]) -> curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from_canonical_bytes(bytes: [u8; 32]) -> subtle::CtOption<curve25519_dalek::scalar::Scalar>
+impl core::cmp::Eq for curve25519_dalek::scalar::Scalar
+impl core::cmp::PartialEq for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::eq(&self, other: &Self) -> bool
+impl core::convert::From<u128> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from(x: u128) -> curve25519_dalek::scalar::Scalar
+impl core::convert::From<u16> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from(x: u16) -> curve25519_dalek::scalar::Scalar
+impl core::convert::From<u32> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from(x: u32) -> curve25519_dalek::scalar::Scalar
+impl core::convert::From<u64> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from(x: u64) -> curve25519_dalek::scalar::Scalar
+impl core::convert::From<u8> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::from(x: u8) -> curve25519_dalek::scalar::Scalar
+impl core::default::Default for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::default() -> curve25519_dalek::scalar::Scalar
+impl core::fmt::Debug for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::ops::arith::Add for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::add(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl core::ops::arith::AddAssign for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::add_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::Mul for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl core::ops::arith::Mul<&curve25519_dalek::montgomery::MontgomeryPoint> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, point: &curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::Mul<&curve25519_dalek::scalar::Scalar> for &curve25519_dalek::montgomery::MontgomeryPoint
+pub type &curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &curve25519_dalek::montgomery::MontgomeryPoint::mul(self, scalar: &curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::Mul<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::Mul<curve25519_dalek::montgomery::MontgomeryPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::Mul<curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub type curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl core::ops::arith::MulAssign for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::mul_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::MulAssign<&curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_assign(&mut self, scalar: &curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::MulAssign<curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::MulAssign<curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::MulAssign<curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::arith::Neg for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn &curve25519_dalek::scalar::Scalar::neg(self) -> curve25519_dalek::scalar::Scalar
+impl core::ops::arith::Neg for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::neg(self) -> curve25519_dalek::scalar::Scalar
+impl core::ops::arith::Sub for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::sub(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl core::ops::arith::SubAssign for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::sub_assign(&mut self, rhs: curve25519_dalek::scalar::Scalar)
+impl core::ops::index::Index<usize> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = u8
+pub fn curve25519_dalek::scalar::Scalar::index(&self, _index: usize) -> &u8
+impl subtle::ConditionallySelectable for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::conditional_select(a: &Self, b: &Self, choice: subtle::Choice) -> Self
+impl subtle::ConstantTimeEq for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::ct_eq(&self, other: &Self) -> subtle::Choice
+impl zeroize::Zeroize for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::zeroize(&mut self)
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTable> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTable) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64> for &'b curve25519_dalek::scalar::Scalar
+pub type &'b curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'b curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTable
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTable::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTable::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix128::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix256::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix32::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a, 'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64
+pub type &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsBasepointTableRadix64::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Add<&'a curve25519_dalek::scalar::Scalar> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn &curve25519_dalek::scalar::Scalar::add(self, _rhs: &'a curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'a> core::ops::arith::Add<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn &'a curve25519_dalek::scalar::Scalar::add(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'a> core::ops::arith::AddAssign<&'a curve25519_dalek::scalar::Scalar> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::add_assign(&mut self, _rhs: &'a curve25519_dalek::scalar::Scalar)
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsPoint> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, point: &'a curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::ristretto::RistrettoBasepointTable> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, basepoint_table: &'a curve25519_dalek::ristretto::RistrettoBasepointTable) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::ristretto::RistrettoPoint> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, point: &'a curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::scalar::Scalar> for &curve25519_dalek::edwards::EdwardsPoint
+pub type &curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &curve25519_dalek::edwards::EdwardsPoint::mul(self, scalar: &'a curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::scalar::Scalar> for &curve25519_dalek::ristretto::RistrettoPoint
+pub type &curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::ristretto::RistrettoPoint::mul(self, scalar: &'a curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<&'a curve25519_dalek::scalar::Scalar> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn &curve25519_dalek::scalar::Scalar::mul(self, _rhs: &'a curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'a> core::ops::arith::Mul<curve25519_dalek::edwards::EdwardsPoint> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::montgomery::MontgomeryPoint> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &'a curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::ristretto::RistrettoPoint> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &'a curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::edwards::EdwardsPoint
+pub type &'a curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn &'a curve25519_dalek::edwards::EdwardsPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::montgomery::MontgomeryPoint
+pub type &'a curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn &'a curve25519_dalek::montgomery::MontgomeryPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::ristretto::RistrettoPoint
+pub type &'a curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &'a curve25519_dalek::ristretto::RistrettoPoint::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'a> core::ops::arith::Mul<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn &'a curve25519_dalek::scalar::Scalar::mul(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'a> core::ops::arith::MulAssign<&'a curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul_assign(&mut self, scalar: &'a curve25519_dalek::scalar::Scalar)
+impl<'a> core::ops::arith::MulAssign<&'a curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul_assign(&mut self, scalar: &'a curve25519_dalek::scalar::Scalar)
+impl<'a> core::ops::arith::MulAssign<&'a curve25519_dalek::scalar::Scalar> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::mul_assign(&mut self, _rhs: &'a curve25519_dalek::scalar::Scalar)
+impl<'a> core::ops::arith::Sub<&'a curve25519_dalek::scalar::Scalar> for &curve25519_dalek::scalar::Scalar
+pub type &curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn &curve25519_dalek::scalar::Scalar::sub(self, rhs: &'a curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'a> core::ops::arith::Sub<curve25519_dalek::scalar::Scalar> for &'a curve25519_dalek::scalar::Scalar
+pub type &'a curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn &'a curve25519_dalek::scalar::Scalar::sub(self, rhs: curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'a> core::ops::arith::SubAssign<&'a curve25519_dalek::scalar::Scalar> for curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::sub_assign(&mut self, _rhs: &'a curve25519_dalek::scalar::Scalar)
+impl<'b> core::ops::arith::Add<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::add(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: &'b curve25519_dalek::edwards::EdwardsPoint) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::montgomery::MontgomeryPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: &'b curve25519_dalek::montgomery::MontgomeryPoint) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::ristretto::RistrettoPoint> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: &'b curve25519_dalek::ristretto::RistrettoPoint) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for &curve25519_dalek::ristretto::RistrettoBasepointTable
+pub type &curve25519_dalek::ristretto::RistrettoBasepointTable::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn &curve25519_dalek::ristretto::RistrettoBasepointTable::mul(self, scalar: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::edwards::EdwardsPoint
+pub type curve25519_dalek::edwards::EdwardsPoint::Output = curve25519_dalek::edwards::EdwardsPoint
+pub fn curve25519_dalek::edwards::EdwardsPoint::mul(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::edwards::EdwardsPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::montgomery::MontgomeryPoint
+pub type curve25519_dalek::montgomery::MontgomeryPoint::Output = curve25519_dalek::montgomery::MontgomeryPoint
+pub fn curve25519_dalek::montgomery::MontgomeryPoint::mul(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::montgomery::MontgomeryPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::ristretto::RistrettoPoint
+pub type curve25519_dalek::ristretto::RistrettoPoint::Output = curve25519_dalek::ristretto::RistrettoPoint
+pub fn curve25519_dalek::ristretto::RistrettoPoint::mul(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::ristretto::RistrettoPoint
+impl<'b> core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::mul(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<'b> core::ops::arith::Sub<&'b curve25519_dalek::scalar::Scalar> for curve25519_dalek::scalar::Scalar
+pub type curve25519_dalek::scalar::Scalar::Output = curve25519_dalek::scalar::Scalar
+pub fn curve25519_dalek::scalar::Scalar::sub(self, rhs: &'b curve25519_dalek::scalar::Scalar) -> curve25519_dalek::scalar::Scalar
+impl<T> core::iter::traits::accum::Product<T> for curve25519_dalek::scalar::Scalar where T: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>
+pub fn curve25519_dalek::scalar::Scalar::product<I>(iter: I) -> Self where I: core::iter::traits::iterator::Iterator<Item = T>
+impl<T> core::iter::traits::accum::Sum<T> for curve25519_dalek::scalar::Scalar where T: core::borrow::Borrow<curve25519_dalek::scalar::Scalar>
+pub fn curve25519_dalek::scalar::Scalar::sum<I>(iter: I) -> Self where I: core::iter::traits::iterator::Iterator<Item = T>

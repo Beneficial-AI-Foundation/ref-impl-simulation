@@ -1,0 +1,20 @@
+[workspace]
+members = ["chacha20poly1305", "poly1305", "hacl-rs", "macros", "secrets", "traits"]
+resolver = "2"
+
+[workspace.package]
+version = "0.0.6"
+authors = ["Cryspen"]
+license = "Apache-2.0"
+homepage = "https://github.com/cryspen/libcrux"
+edition = "2021"
+repository = "https://github.com/cryspen/libcrux"
+readme = "README.md"
+rust-version = "1.78.0"
+
+[workspace.dependencies]
+hax-lib = { version = "=0.3.6" }
+libcrux-traits = { version = "=0.0.6", path = "traits" }
+libcrux-hacl-rs = { version = "=0.0.4", path = "hacl-rs" }
+libcrux-macros  = { version = "=0.0.3", path = "macros" }
+libcrux-secrets = { version = "=0.0.5", path = "secrets" }

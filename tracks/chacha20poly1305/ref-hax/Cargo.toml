@@ -1,0 +1,13 @@
+[package]
+name = "chacha20_hax"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "chacha20_hax"
+path = "src/lib.rs"
+
+[dependencies]
+hax-lib = { path = "../upstream/hax/hax-lib" }
+
+[workspace]

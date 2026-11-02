@@ -1,0 +1,29 @@
+# Toolchain copy, build outputs
+.aeneas/
+.aeneas-main/
+target/
+.lake/
+*.llbc
+**/aeneas-backend/
+**/logs/
+**/out/
+
+# Upstream clones (commits are in scripts/fetch-upstreams.sh) and trees built from them
+tracks/hpke/hacspec/
+tracks/hpke/hpke-spec/
+tracks/hpke/hpke-rs/
+tracks/x25519/aeneas-src/
+tracks/x25519/hacspec-old/
+tracks/x25519/hacspec-specs/
+tracks/chacha20poly1305/upstream/
+**/index.scip
+**/index.scip.json
+tracks/x25519/lean/primecert/
+tracks/x25519/lv-measure/
+
+# Local archive of working notes (not published)
+archive/
+tracks/hpke/ref-shim/
+
+# Agent instructions (local only)
+CLAUDE.md

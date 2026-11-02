@@ -1,0 +1,8 @@
+# Backend configuration for this project
+# Note: These flags must also be set in scripts/build-rust-docs.sh for documentation builds
+[build]
+rustflags = [
+    "--cfg", "curve25519_dalek_backend=\"serial\"",
+    "--cfg", "curve25519_dalek_bits=\"64\"",
+    "--cfg", "verify",
+]
