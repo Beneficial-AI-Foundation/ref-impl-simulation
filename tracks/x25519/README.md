@@ -6,9 +6,9 @@ All paths are relative to `tracks/x25519/`.
 
 | Role | Code | Commit |
 |---|---|---|
-| Reference | `hacspec/specs` `curve25519/src/curve25519.rs`, old hacspec | `c511110d` (2025-04-22) |
-| Reference library | `hacspec/hacspec` `lib/` | `4ecc847f` |
-| Real | curve25519-dalek 4.2.0 as modified by `curve25519-dalek-lean-verify` | `26d49052` |
+| Reference | [`hacspec/specs` `curve25519/src/curve25519.rs`](https://github.com/hacspec/specs/blob/c511110d6f4bb4628da193a2c8e44c928d9555b8/curve25519/src/curve25519.rs), old hacspec | `c511110d` (2025-04-22) |
+| Reference library | [`hacspec/hacspec` `lib/`](https://github.com/hacspec/hacspec/tree/4ecc847fc944fe996e19423aa41f002f2039dab0/lib) | `4ecc847f` |
+| Real | [curve25519-dalek 4.2.0 as modified by `curve25519-dalek-lean-verify`](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-lean-verify/tree/26d49052347e52cb3923952ea225d28faf48fe72/curve25519-dalek) | `26d49052` |
 
 The unit is one step of the Montgomery ladder: the reference `point_add_and_double`
 against the real `montgomery::differential_add_and_double`. Both whole ladders are
