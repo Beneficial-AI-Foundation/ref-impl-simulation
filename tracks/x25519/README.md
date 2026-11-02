@@ -1,4 +1,4 @@
-# Track B: X25519 Montgomery ladder step (RFC 7748)
+# Track B: X25519 (RFC 7748)
 
 All paths are relative to `tracks/x25519/`.
 
@@ -11,60 +11,63 @@ All paths are relative to `tracks/x25519/`.
 | Real | [curve25519-dalek 4.2.0 as modified by `curve25519-dalek-lean-verify`](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-lean-verify/tree/26d49052347e52cb3923952ea225d28faf48fe72/curve25519-dalek) | `26d49052` |
 
 The unit is one step of the Montgomery ladder: the reference `point_add_and_double`
-against the real `montgomery::differential_add_and_double`. The theorem covers this step
-only. The next subsection shows where the step sits in the full X25519 function.
+against the real `montgomery::differential_add_and_double`. The track also proves full
+refinement of the X25519 function, with the step theorem as one layer. The next subsection
+shows the layers.
 
 libsignal computes X25519 through `x25519-dalek` 3.0.0 and curve25519-dalek 5.0.0. On
 2026-10-30, against libsignal `fc90b90f`, `differential_add_and_double` in 5.0.0 was
 textually identical to the version proved here. The field functions that it calls were
 identical too, apart from the extraction edits in `pow2k` and `add_assign` (section 2).
-These functions are `add`, `sub`, `mul`, `square` and `reduce`.
+These functions are `add`, `sub`, `mul`, `square` and `reduce`. That comparison did not
+cover the other functions on the path of the full theorem: `from_bytes`, `to_bytes`,
+`invert`, `pow22501`, `pow2k` with other exponents, the ladder loop and `clamp_integer`.
 
 ### The unit in full refinement
 
 Full refinement is a theorem about the X25519 function itself. It relates the real
 `MontgomeryPoint::mul_clamped` to the reference `x25519_scalarmult` on all 32-byte inputs.
 Both functions take a scalar and a u-coordinate as bytes and return the result as bytes.
-The table follows the call path from this pair down to the unit. A full proof relates
-each pair of functions in the table.
+The table follows the call path from this pair down to the unit. The theorem
+`X25519Sim.mul_clamped_refines` (section 3) relates every pair in the table.
 
-| Layer | Reference (`lean/X25519Ref`) | Real (`lean/Curve25519Dalek`) | Status |
-|---|---|---|---|
-| X25519 function | `x25519_scalarmult` | `MontgomeryPoint::mul_clamped` | extracted, no theorem |
-| Scalar clamping | `decode_scalar`, `mask_scalar` | `scalar::clamp_integer` | extracted, no theorem |
-| Point decoding | `decode_point` | `FieldElement51::from_bytes` | extracted, no theorem |
-| Ladder | `montgomery_ladder` | `Mul<&Scalar> for &MontgomeryPoint` | extracted, no theorem |
-| Ladder step (the unit) | `point_add_and_double` | `differential_add_and_double` | proved |
-| Point encoding | `encode_point` | `ProjectivePoint::as_affine` | extracted, no theorem |
+| Layer | Reference (`lean/X25519Ref`) | Real (`lean/Curve25519Dalek`) | Status | Lean |
+|---|---|---|---|---|
+| X25519 function | `x25519_scalarmult` | `MontgomeryPoint::mul_clamped` | proved | `Sim/Full.lean` |
+| Scalar clamping | `decode_scalar`, `mask_scalar` | `scalar::clamp_integer` | proved | `Sim/Full.lean` |
+| Point decoding | `decode_point` | `FieldElement51::from_bytes` | proved | `Sim/Full.lean`, `Sim/Bytes.lean` |
+| Ladder | `montgomery_ladder` | `Mul<&Scalar> for &MontgomeryPoint` | proved | `Sim/LadderMath.lean`, `Sim/RefSide.lean`, `Sim/RealSide.lean` |
+| Ladder step (the unit) | `point_add_and_double` | `differential_add_and_double` | proved | `Sim/Pilot.lean`, `Sim/Discharge.lean` |
+| Point encoding | `encode_point` | `ProjectivePoint::as_affine` | proved | `Sim/Full.lean`, `Sim/Bytes.lean` |
 
-The step theorem also proves the field operations that the step calls (section 2).
-`x25519_secret_to_public` calls `x25519_scalarmult` with the base point 9. Its real
-counterpart, `MontgomeryPoint::mul_base_clamped`, goes through Edwards base point tables
-and is not extracted. libsignal calls `x25519-dalek`, which wraps `mul_clamped`. These
-wrappers are not extracted either.
+The layers needed these results:
 
-Full refinement needs four more results:
+1. Clamping and decoding. `clamp_integer` and `mask_scalar` have the same code, so the
+   Lean definitions are equal by `rfl`. `decode_point` clears bit 255 and reads the bytes.
+   `from_bytes` reads the low 255 bits. Both give `U8x32_as_Nat u % 2 ^ 255` mod p.
+2. The ladder. The reference runs 256 iterations from bit 255, with a swap before and
+   after each step. dalek runs 255 iterations from bit 254, with lazy swaps and one swap at
+   the end. `mul_loop_spec` shows that dalek's logical state, the physical pair swapped by
+   the last bit, follows the reference iteration on each bit. The invariant also carries
+   the limb bound `2 ^ 52`. The masked scalar has bit 255 equal to 0, so the reference runs
+   one extra step. After that step, the second point is dalek's point times `4 u`. Each
+   later step scales each point by a nonzero factor, and the encoding `x / z` cancels the
+   factor (`enc_ladder_extra_step`). If `u = 0`, both encodings are 0.
+3. Encoding. `invert` computes `z ^ (p - 2)`, which is `z⁻¹` in `ZMod p`, with `0⁻¹ = 0`.
+   `to_bytes` returns the canonical representative, and the bytes of a number below `p`
+   are its base-256 digits, so they equal `fe_to_bytes`.
+4. Composition. `mul_clamped_refines` chains the layers.
 
-1. Clamping and decoding. `mask_scalar` and `clamp_integer` apply the same three bit
-   operations. `decode_point` and `from_bytes` both clear the top bit and read the rest
-   in little-endian order. These lemmas are short.
-2. The ladder. This is the main open problem. The reference runs 256 iterations, with a
-   swap before and after each step. dalek starts at bit 254, runs 255 iterations with
-   lazy swaps and swaps once at the end. After the first iteration, the two states agree
-   only up to a common projective factor. The ladder invariant must state this, and it
-   must carry the limb bounds from one step to the next. The step theorem gives the
-   field-level part of each iteration.
-3. Encoding. Both sides compute `U / W` and encode the canonical representative. The
-   projective factor cancels in the quotient. This needs a proof that dalek's `invert` and
-   `to_bytes` compute `fe_inv` and `fe_to_bytes` of the field model.
-4. Composition. The theorem for the X25519 function chains the results of all layers.
+The real side reuses specs of `curve25519-dalek-lean-verify` at commit `26d49052`:
+`from_bytes`, `to_bytes`, `pow22501` and `invert`, ported to the Aeneas version of this
+project (section 2). Its ladder spec, `mul_loop_spec`, has three `sorry`s at that commit,
+so this track proves its own.
 
-`curve25519-dalek-lean-verify` already covers most of the real side. At commit
-`26d49052`, it has specs for `clamp_integer`, `from_bytes`, `to_bytes`, `invert`,
-`as_affine` and `mul_clamped`. Their files have no `sorry`. These specs state what dalek
-computes on the curve. They do not refer to a reference program. The ladder loop spec,
-`mul_loop_spec`, has three `sorry`s at that commit. To use these specs, this track must
-port them to the Aeneas version of this project, as it did for the field proofs.
+The theorem does not cover these paths. `x25519_secret_to_public` calls
+`x25519_scalarmult` with the base point 9. Its real counterpart,
+`MontgomeryPoint::mul_base_clamped`, goes through Edwards base point tables and is not
+extracted. libsignal calls `x25519-dalek`, which wraps `mul_clamped`. These wrappers are
+not extracted either.
 
 ## 2. Translation
 
@@ -114,6 +117,23 @@ Field proofs. `curve25519-dalek-lean-verify` proves the field operations on Aene
 `Auxiliary.lean` also changed in three proofs. Each changed file has a "Port note" in its
 header. The statements of the spec theorems did not change.
 
+Byte and inversion proofs. The full theorem also uses four more specs, ported in
+`lean/Curve25519Dalek/Specs/Backend/Serial/U64/Field/FieldElement51/` and
+`lean/Curve25519Dalek/Specs/Field/FieldElement51/`:
+
+| File | `curve25519-dalek-lean-verify` lines | Port lines | `diff` lines | Change |
+|---|---|---|---|---|
+| `FromBytes` | 270 | 281 | 25 | Index bounds stated before `step*`. No more `maxHeartbeats 1000000` |
+| `ToBytes` | 711 | 1012 | 1081 | New proof of `to_bytes_spec` in eight parts. No more `maxHeartbeats 1600000`. Ten `bv_decide` proofs replaced |
+| `Pow22501`, `Invert` | 125, 81 | 125, 81 | 0 | None |
+
+Upstream `to_bytes_spec` steps through the whole function at once. The port splits
+`to_bytes` into three stages: the carry chain that computes `q`, the carry chain that
+gives five canonical limbs, and the packing into bytes. The packing has five parts, one per
+limb boundary. An unfolding lemma proves that the parts compose to `to_bytes`. The
+`bv_decide` tactic adds axioms that trust native code, so the port proves those lemmas with
+`omega` and `Nat` bit lemmas.
+
 ## 3. Statement
 
 The relation maps a real field element to the reference field (`lean/Sim/Pilot.lean`):
@@ -150,7 +170,19 @@ and every output limb is below `2^52`. The output bound implies the input bounds
 invariant carries from one step to the next. The reference step does not read the `z`
 coordinate of the base point, so `z1` is arbitrary.
 
-The theorem is a corollary of `differential_add_and_double_refines` (`lean/Sim/Pilot.lean`),
+The full refinement theorem is `X25519Sim.mul_clamped_refines` (`lean/Sim/Full.lean`):
+
+```lean
+theorem mul_clamped_refines (u s : Array U8 32#usize) :
+    montgomery.MontgomeryPoint.mul_clamped u s ⦃ r =>
+      x25519_ref.x25519_scalarmult s u = ok r ⦄
+```
+
+It has no premises. For every 32-byte scalar `s` and u-coordinate `u`, the real function
+returns a value with no panic, no overflow and no divergence. The reference returns the
+same 32 bytes. The relation on inputs and outputs is equality of bytes.
+
+The step theorem is a corollary of `differential_add_and_double_refines` (`lean/Sim/Pilot.lean`),
 which takes the four field contracts `C : FieldContracts` as a premise.
 `field_contracts` (`lean/Sim/Discharge.lean`) proves the four contracts from the ported
 `add_spec`, `sub_spec`, `mul_spec` and `square_spec`. `FieldContracts` is stated in
@@ -159,8 +191,9 @@ statements agree.
 
 ## 4. Assumptions
 
-Premises. They appear in the statement: every limb of the four point coordinates is below
-`2^53`, and every limb of `u` is below `2^54`.
+Premises. The full theorem has none. The step theorem has limb bounds: every limb of the
+four point coordinates is below `2^53`, and every limb of `u` is below `2^54`. The full
+theorem discharges them, because the ladder keeps every limb below `2^52`.
 
 Trusted definitions. `#print axioms` does not show them.
 
@@ -171,15 +204,22 @@ Trusted definitions. `#print axioms` does not show them.
    and `fe_sq` are the ring operations. `fe_inv` is the `ZMod` inverse, which maps 0 to 0
    as `nat_mod`'s `inv` does. `fe_from_bytes` decodes little-endian and reduces mod p.
    `fe_to_bytes` encodes the canonical representative. The ladder step uses only the ring
-   operations and `fe_lit`.
-3. The 6 hand definitions for `subtle` and `zeroize` on the real side. The step does not
-   use them. `subtle.Choice.from` panics on inputs other than 0 and 1, where Rust has only
-   a `debug_assert!`.
+   operations and `fe_lit`. The full theorem also uses `fe_inv`, `fe_from_bytes` and
+   `fe_to_bytes`.
+3. The 6 hand definitions for `subtle` and `zeroize` on the real side
+   (`lean/Curve25519Dalek/FunsExternal.lean`). The step does not use them. The full theorem
+   uses all of them. `conditional_select` returns `b` if the choice is 1 and `a`
+   otherwise. Rust computes the same with a bit mask, in constant time. `subtle.Choice.from`
+   panics on inputs other than 0 and 1, where Rust has only a `debug_assert!`. The ladder
+   passes only 0 and 1, and the proof shows this. `zeroize` returns the default value. Its
+   result is not used.
 4. The real code is the modified copy of dalek in `curve25519-dalek-lean-verify`. The
    theorem holds for that copy.
 
 Axioms. `lake env lean Sim/AxiomsDischarge.lean` gives only `propext`, `Classical.choice`
-and `Quot.sound` for the theorem, for `field_contracts` and for each contract.
+and `Quot.sound` for the step theorem, for `field_contracts` and for each contract.
+`lake env lean Sim/AxiomsFull.lean` gives the same three for `mul_clamped_refines` and for
+the ported `from_bytes_spec`, `to_bytes_spec` and `invert_spec`.
 
 ## 5. Proof structure
 
@@ -195,22 +235,35 @@ and `Quot.sound` for the theorem, for `field_contracts` and for each contract.
    dalek computes `z2` as `E * (121666 E + BB)` and RFC 7748 as `E * (AA + 121665 E)`.
 
 The two control flows match call for call at the level of field operations. This does not
-extend to the ladder. The reference runs 256 iterations, with a conditional swap before
-and after each step. dalek runs 255 iterations with lazy swaps and a final swap. After the first
-iteration, the two states agree only up to a common projective factor, so a ladder theorem
-needs a hand-written invariant.
+extend to the ladder, so the full theorem needs five more files:
+
+| File | Lines | Content |
+|---|---|---|
+| `Sim/LadderMath.lean` | 178 | The ladder as a pure function over any commutative ring. The scaling invariant `Rel`, the case `u = 0`, and `enc_ladder_extra_step` over a field |
+| `Sim/RefSide.lean` | 108 | The reference `scalar_bit`, `ladder_step`, `ladder_loop`, `montgomery_ladder` and `encode_point` in closed form |
+| `Sim/Bytes.lean` | 115 | Base-256 digits: `fe_to_bytes`, `fe_from_bytes` and the top-bit mask against `U8x32_as_Nat` |
+| `Sim/RealSide.lean` | 233 | `conditional_select`, `conditional_swap`, the bit read with `Isize` operations, and `mul_loop_spec` |
+| `Sim/Full.lean` | 221 | Clamping, decoding, `as_affine`, dalek's `mul`, and `mul_clamped_refines` |
+
+`mul_loop_spec` is an induction on the number of remaining bits. The loop body reads a bit,
+swaps, calls the step theorem and recurses. A fold lemma, `mul_loop_unfold`, moves the bit
+read into a separate function, `read_bit`, with its own spec. That spec needs one lemma on
+`Isize`: `i &&& 7 = i % 8` for `0 ≤ i ≤ 254`. The lemma holds on 32-bit and 64-bit
+platforms. The reference loop is tail recursion, and `ladder_loop_eq` is an induction of
+the same shape. The math in `LadderMath.lean` uses no Aeneas definitions.
 
 No proof sets `maxHeartbeats`. Two carry stages of `curve25519-dalek-lean-verify` used
 about 335,000 heartbeats on our pin, above the default 200,000. They now step over three
 calls to `carry_block`, with its own spec, and use about 55,000. The largest proof in the
-track, `mul_product_stage_spec`, uses 151,845. Some proofs set `maxRecDepth 4096`.
+track, `mul_product_stage_spec`, uses 151,845. The new files and the four newly ported
+specs build with a limit of 151,845. Some proofs set `maxRecDepth 4096`.
 
 ## 6. Checks
 
 1. `lake build` in `lean/` passes. No file in `lean/Sim/` or `lean/Curve25519Dalek/` has a
    `sorry`.
-2. `lake env lean Sim/Axioms.lean` and `lake env lean Sim/AxiomsDischarge.lean` print the
-   axiom lists of section 4.
+2. `lake env lean Sim/Axioms.lean`, `lake env lean Sim/AxiomsDischarge.lean` and
+   `lake env lean Sim/AxiomsFull.lean` print the axiom lists of section 4.
 3. `cargo test` in `ref-plain/` passes both RFC tests.
 4. `lake env lean Sim/RefVectors.lean` runs the Lean reference, with the `ZMod` model, on
    the same two RFC vectors and prints `true` twice. This trusts the Lean compiler, and it
@@ -226,21 +279,27 @@ Strengths:
 1. The step is the cleanest lockstep of the three tracks. The two sides match operation
    for operation.
 2. No primitive is opaque. Both sides reduce to arithmetic mod p.
-3. The premises are only limb bounds, and the axioms are only the standard three.
+3. The track proves full refinement of `mul_clamped`. The theorem has no premises, and
+   the axioms are only the standard three.
 4. The relation is total, and the output bound carries to the next step.
 5. The Lean reference reproduces two RFC test vectors.
-6. The proved step and field code are the code that libsignal runs on 64-bit targets,
-   apart from the extraction edits.
+6. The proved step and field arithmetic are the code that libsignal runs on 64-bit
+   targets, apart from the extraction edits.
+7. The ladder argument is pure algebra over a ring. The Aeneas parts of the proof only
+   connect each program to it.
 
 Weaknesses:
 
-1. The unit is one step. The ladder needs a hand-written projective invariant.
+1. The ladder needed a hand-written invariant and a scaling argument. No generic lockstep
+   rule produces them.
 2. The reference is a port, and the field model is hand-written. Their faithfulness rests
    on review and on two test vectors.
 3. The real code is a modified copy of dalek. The theorem covers upstream dalek only if
    the 361-line diff preserves meaning.
 4. The field proofs are ports of another project's proofs. Every Aeneas update can break
    them again, because they depend on the goal shapes after `step*`.
+5. The theorem does not cover `mul_base_clamped`, the `x25519-dalek` wrappers or the
+   constant-time behavior of the real code.
 
 ## 8. Reproduce
 
@@ -250,6 +309,7 @@ From the repository root, run `scripts/fetch-upstreams.sh` once. Then:
 cd tracks/x25519/ref-plain && cargo test
 cd ../lean && lake build
 lake env lean Sim/Axioms.lean && lake env lean Sim/AxiomsDischarge.lean
+lake env lean Sim/AxiomsFull.lean
 lake env lean Sim/RefVectors.lean
 for d in X25519Ref Curve25519Dalek; do ../../../scripts/check-short-names.py $(ls $d/*.lean | grep -v _Template); done
 ```

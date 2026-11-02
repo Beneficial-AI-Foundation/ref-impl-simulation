@@ -25,4 +25,5 @@ lean_lib DalekPort where
   globs := #[.submodules `Curve25519Dalek.Specs]
 
 @[default_target] lean_lib Sim where
-  globs := #[.one `Sim.Pilot, .one `Sim.Discharge]
+  globs := #[.one `Sim.Pilot, .one `Sim.Discharge, .one `Sim.LadderMath, .one `Sim.RefSide,
+    .one `Sim.Bytes, .one `Sim.RealSide, .one `Sim.Full]
