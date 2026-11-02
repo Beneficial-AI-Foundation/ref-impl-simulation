@@ -4,7 +4,8 @@ This repository tests one question. Take an RFC, a small Rust reference implemen
 it and a real Rust implementation. Aeneas translates both Rust programs to Lean. Can Lean
 then prove that the real implementation computes what the reference computes? Three
 feasibility studies, one per RFC, answer this for one unit of each implementation. Each
-study ends in a Lean theorem with no `sorry`.
+study ends in a Lean theorem with no `sorry`. No study proves a theorem about the whole
+public API. Section 2 shows where each unit sits in that larger goal.
 
 ## 1. Problem
 
@@ -47,6 +48,20 @@ that satisfies the premises.
 Each track README is self-contained. It gives the sources, the translation and its edits,
 and the exact theorem. It also gives the assumptions, the proof structure, the checks, and
 the strengths and weaknesses of the track.
+
+The unit is not the end goal. The end goal is full refinement: a theorem that relates the
+public API of the real implementation to the public API of the reference. Each track
+proves one unit inside that API. The unit is a small part of the API, so it tests the
+method at a low cost. A full theorem needs the unit theorem and
+one more result for each layer between the unit and the API. Section 1 of each track
+README has the subsection "The unit in full refinement". It shows the call path from the
+API down to the unit and the status of each layer. It also lists the missing results:
+
+| Track | Public API pair | Main missing result |
+|---|---|---|
+| [A](tracks/chacha20poly1305/README.md#the-unit-in-full-refinement) | `chacha20_encrypt` against `chacha20`, then the AEAD | the key setup, the message loop, and a Poly1305 reference |
+| [B](tracks/x25519/README.md#the-unit-in-full-refinement) | `mul_clamped` against `x25519_scalarmult` | the ladder invariant up to a projective factor |
+| [C](tracks/hpke/README.md#the-unit-in-full-refinement) | `Hpke::seal` and `open` against `HpkeSeal` and `HpkeOpen` | extraction of the reference API, the KEM, and the context as a forward simulation |
 
 ## 3. Method
 
@@ -117,9 +132,11 @@ agree.
    the shim are trusted.
 2. No reference is checked against its RFC by proof. Only track B runs RFC test vectors,
    and only two.
-3. Each unit is small: a block core, one ladder step, one key schedule mode. Loops whose
-   shapes differ between the two sides need hand-written invariants. An example is the
-   ladder of track B, where the two states agree only up to a projective factor.
+3. No track proves full refinement of the public API. Each unit is small: a block core,
+   one ladder step, one key schedule mode. Section 2 lists what each track still needs.
+   Loops whose shapes differ between the two sides need hand-written invariants. An
+   example is the ladder of track B, where the two states agree only up to a projective
+   factor.
 4. Opaque primitives limit what a theorem says. In track C, HMAC and SHA-2 are opaque,
    and the provider premises stay assumptions because the RustCrypto provider does not
    extract.

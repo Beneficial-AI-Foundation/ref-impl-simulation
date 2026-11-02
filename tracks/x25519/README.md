@@ -11,15 +11,60 @@ All paths are relative to `tracks/x25519/`.
 | Real | [curve25519-dalek 4.2.0 as modified by `curve25519-dalek-lean-verify`](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-lean-verify/tree/26d49052347e52cb3923952ea225d28faf48fe72/curve25519-dalek) | `26d49052` |
 
 The unit is one step of the Montgomery ladder: the reference `point_add_and_double`
-against the real `montgomery::differential_add_and_double`. Both whole ladders are
-extracted too, but no theorem covers them. Scalar clamping, byte encoding and decoding,
-field inversion and the X25519 API are out of scope.
+against the real `montgomery::differential_add_and_double`. The theorem covers this step
+only. The next subsection shows where the step sits in the full X25519 function.
 
 libsignal computes X25519 through `x25519-dalek` 3.0.0 and curve25519-dalek 5.0.0. On
 2026-10-30, against libsignal `fc90b90f`, `differential_add_and_double` in 5.0.0 was
 textually identical to the version proved here. The field functions that it calls were
 identical too, apart from the extraction edits in `pow2k` and `add_assign` (section 2).
 These functions are `add`, `sub`, `mul`, `square` and `reduce`.
+
+### The unit in full refinement
+
+Full refinement is a theorem about the X25519 function itself. It relates the real
+`MontgomeryPoint::mul_clamped` to the reference `x25519_scalarmult` on all 32-byte inputs.
+Both functions take a scalar and a u-coordinate as bytes and return the result as bytes.
+The table follows the call path from this pair down to the unit. A full proof relates
+each pair of functions in the table.
+
+| Layer | Reference (`lean/X25519Ref`) | Real (`lean/Curve25519Dalek`) | Status |
+|---|---|---|---|
+| X25519 function | `x25519_scalarmult` | `MontgomeryPoint::mul_clamped` | extracted, no theorem |
+| Scalar clamping | `decode_scalar`, `mask_scalar` | `scalar::clamp_integer` | extracted, no theorem |
+| Point decoding | `decode_point` | `FieldElement51::from_bytes` | extracted, no theorem |
+| Ladder | `montgomery_ladder` | `Mul<&Scalar> for &MontgomeryPoint` | extracted, no theorem |
+| Ladder step (the unit) | `point_add_and_double` | `differential_add_and_double` | proved |
+| Point encoding | `encode_point` | `ProjectivePoint::as_affine` | extracted, no theorem |
+
+The step theorem also proves the field operations that the step calls (section 2).
+`x25519_secret_to_public` calls `x25519_scalarmult` with the base point 9. Its real
+counterpart, `MontgomeryPoint::mul_base_clamped`, goes through Edwards base point tables
+and is not extracted. libsignal calls `x25519-dalek`, which wraps `mul_clamped`. These
+wrappers are not extracted either.
+
+Full refinement needs four more results:
+
+1. Clamping and decoding. `mask_scalar` and `clamp_integer` apply the same three bit
+   operations. `decode_point` and `from_bytes` both clear the top bit and read the rest
+   in little-endian order. These lemmas are short.
+2. The ladder. This is the main open problem. The reference runs 256 iterations, with a
+   swap before and after each step. dalek starts at bit 254, runs 255 iterations with
+   lazy swaps and swaps once at the end. After the first iteration, the two states agree
+   only up to a common projective factor. The ladder invariant must state this, and it
+   must carry the limb bounds from one step to the next. The step theorem gives the
+   field-level part of each iteration.
+3. Encoding. Both sides compute `U / W` and encode the canonical representative. The
+   projective factor cancels in the quotient. This needs a proof that dalek's `invert` and
+   `to_bytes` compute `fe_inv` and `fe_to_bytes` of the field model.
+4. Composition. The theorem for the X25519 function chains the results of all layers.
+
+`curve25519-dalek-lean-verify` already covers most of the real side. At commit
+`26d49052`, it has specs for `clamp_integer`, `from_bytes`, `to_bytes`, `invert`,
+`as_affine` and `mul_clamped`. Their files have no `sorry`. These specs state what dalek
+computes on the curve. They do not refer to a reference program. The ladder loop spec,
+`mul_loop_spec`, has three `sorry`s at that commit. To use these specs, this track must
+port them to the Aeneas version of this project, as it did for the field proofs.
 
 ## 2. Translation
 
