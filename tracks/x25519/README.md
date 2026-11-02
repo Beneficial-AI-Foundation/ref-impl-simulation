@@ -42,19 +42,21 @@ The port:
 as `fe_sq` and `from_literal` as `fe_lit`. In Lean, the field module is written by hand
 over `ZMod (2^255 - 19)` (`lean/X25519Ref/FunsExternal.lean`, section 4).
 
-Real. The real code is the copy of curve25519-dalek in `curve25519-dalek-lean-verify`.
+Real. The real code is the copy of curve25519-dalek in
+[`curve25519-dalek-lean-verify`](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-lean-verify).
 It differs from upstream 4.2.0 by 361 changed lines that make the code extractable: loops
 become `while` loops, some `debug_assert!`s are removed, and the ladder `mul` avoids
 iterator adapters. On the step's path, the changes touch `pow2k`, which `square` calls,
 and `add_assign`, which `add` calls. Charon starts from the Montgomery functions
 (`--start-from`). The Lean side needs one shadowing fix in `Funs.lean`, in `mul`, outside
-the step. It also needs 6 hand definitions for `subtle` and `zeroize` from `lean-verify`.
+the step. It also needs 6 hand definitions for `subtle` and `zeroize` from
+`curve25519-dalek-lean-verify`.
 
-Field proofs. `lean-verify` proves the field operations on Aeneas `6e167c9b`. This track
-uses `d119a474`. The proofs are ported in
+Field proofs. `curve25519-dalek-lean-verify` proves the field operations on Aeneas
+`6e167c9b`. This track uses `d119a474`. The proofs are ported in
 `lean/Curve25519Dalek/Specs/Backend/Serial/U64/Field/FieldElement51/`:
 
-| File | `lean-verify` lines | Port lines | `diff` lines | Change |
+| File | `curve25519-dalek-lean-verify` lines | Port lines | `diff` lines | Change |
 |---|---|---|---|---|
 | `Reduce` | 105 | 208 | 205 | New proof, in two stages, with the arithmetic in one lemma |
 | `Sub` | 166 | 144 | 52 | New last part. The offsets add up to `16 * p` |
@@ -128,8 +130,8 @@ Trusted definitions. `#print axioms` does not show them.
 3. The 6 hand definitions for `subtle` and `zeroize` on the real side. The step does not
    use them. `subtle.Choice.from` panics on inputs other than 0 and 1, where Rust has only
    a `debug_assert!`.
-4. The real code is `lean-verify`'s modified copy of dalek. The theorem holds for that
-   copy.
+4. The real code is the modified copy of dalek in `curve25519-dalek-lean-verify`. The
+   theorem holds for that copy.
 
 Axioms. `lake env lean Sim/AxiomsDischarge.lean` gives only `propext`, `Classical.choice`
 and `Quot.sound` for the theorem, for `field_contracts` and for each contract.
@@ -153,10 +155,10 @@ and after each step. dalek runs 255 iterations with lazy swaps and a final swap.
 iteration, the two states agree only up to a common projective factor, so a ladder theorem
 needs a hand-written invariant.
 
-No proof sets `maxHeartbeats`. Two carry stages of `lean-verify` used about 335,000
-heartbeats on our pin, above the default 200,000. They now step over three calls to
-`carry_block`, with its own spec, and use about 55,000. The largest proof in the track,
-`mul_product_stage_spec`, uses 151,845. Some proofs set `maxRecDepth 4096`.
+No proof sets `maxHeartbeats`. Two carry stages of `curve25519-dalek-lean-verify` used
+about 335,000 heartbeats on our pin, above the default 200,000. They now step over three
+calls to `carry_block`, with its own spec, and use about 55,000. The largest proof in the
+track, `mul_product_stage_spec`, uses 151,845. Some proofs set `maxRecDepth 4096`.
 
 ## 6. Checks
 
