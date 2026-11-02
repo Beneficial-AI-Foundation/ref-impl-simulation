@@ -17,21 +17,30 @@ shows the layers.
 
 libsignal computes X25519 agreement through `x25519-dalek` 3.0.0 and curve25519-dalek
 5.0.0 (libsignal `fc90b90f`). `calculate_agreement` calls `StaticSecret::diffie_hellman`,
-which calls `MontgomeryPoint::mul_clamped`. On 2026-11-02, `compare-dalek5.py` compared
-every function on the path of the full theorem in 5.0.0 with the copy proved here. The
+which calls `MontgomeryPoint::mul_clamped`. `compare-dalek5.py` compares 28 functions and
+constants on the path of the full theorem in 5.0.0 with the copy proved here. It finds each
+item by its `impl` block and its name, and fails if an item is missing or ambiguous. The
 crate checksums match libsignal's `Cargo.lock`. After comments and blank lines are removed,
-all bodies are identical except three, and each of the three is an extraction edit:
+24 items are identical. Four items differ through three extraction edits, and the script
+fails on any other difference:
 
 1. `add_assign` uses `while` in place of `for i in 0..5`.
 2. `pow2k` uses `while k > 0` in place of `loop` with `break` at `k == 0`. Its callers
    pass `k ≥ 1`. Its five `debug_assert!`s are removed.
 3. The ladder `mul` calls `mul_bits_be(scalar.bits_le().rev().skip(1))` in 5.0.0. The copy
    inlines this loop as an index loop over bits 254 down to 0, with the same bit read, and
-   writes `prev_bit != cur_bit` in place of `prev_bit ^ cur_bit`.
+   writes `prev_bit != cur_bit` in place of `prev_bit ^ cur_bit`. The script compares the
+   copy's `mul` with 5.0.0's `mul`, and `mul_bits_be` with `mul_bits_be`, which differs by
+   the same `!=`. The copy's `mul_bits_be` is not on its proved path.
 
-The identical bodies include `from_bytes`, `to_bytes`, `reduce`, `invert`, `pow22501`,
-`differential_add_and_double`, `as_affine`, `conditional_select`, `mul_clamped`,
-`clamp_integer` and the multiplication wrappers. libsignal builds dalek with
+The identical items include `from_bytes`, `to_bytes`, `reduce`, `from_limbs`, `invert`,
+`pow22501`, `differential_add_and_double`, `as_affine`, both `conditional_select`s,
+`mul_clamped`, `clamp_integer`, `bits_le` and the multiplication wrappers.
+
+The comparison covers libsignal builds with the serial u64 field backend: every 64-bit
+target, and the 32-bit Android targets, because libsignal's `java/build_jni.sh` sets
+`curve25519_dalek_bits = "64"` there. It does not cover a build with the `fiat` backend or
+with `curve25519_dalek_bits = "32"`. libsignal builds dalek with
 `overflow-checks = false` in release. The theorem shows that no arithmetic on the path
 overflows, so this setting does not change the result.
 
@@ -78,9 +87,10 @@ so this track proves its own.
 The theorem does not cover these paths. `x25519_secret_to_public` calls
 `x25519_scalarmult` with the base point 9. Its real counterpart,
 `MontgomeryPoint::mul_base_clamped`, goes through Edwards base point tables and is not
-extracted, and libsignal uses it to derive public keys (`PublicKey::from`). libsignal
-calls `x25519-dalek`, whose `diffie_hellman` wraps `mul_clamped`. The wrappers are not
-extracted, but each is a single call to `mul_clamped`. The theorem also says nothing about constant time or about the erasure
+extracted. libsignal derives public keys with `x25519-dalek`'s
+`PublicKey::from(&StaticSecret)`, which calls `EdwardsPoint::mul_base_clamped`. This is not
+extracted either. `StaticSecret::diffie_hellman` is a single call to `mul_clamped`, but it
+is not extracted. The theorem also says nothing about constant time or about the erasure
 of secrets by `zeroize`.
 
 ## 2. Translation
@@ -284,24 +294,28 @@ specs build with a limit of 151,845. Some proofs set `maxRecDepth 4096`.
 
 1. `lake build` in `lean/` passes. No file in `lean/Sim/` or `lean/Curve25519Dalek/` has a
    `sorry`.
-2. `lake env lean Sim/Axioms.lean`, `lake env lean Sim/AxiomsDischarge.lean` and
-   `lake env lean Sim/AxiomsFull.lean` check the axiom lists of section 4 with
-   `#guard_msgs`. Each command fails if a list changes.
+2. `Sim/Axioms.lean`, `Sim/AxiomsDischarge.lean` and `Sim/AxiomsFull.lean` check the axiom
+   lists of section 4 with `#guard_msgs`. `lake build` builds them (target `Checks`), and
+   the build fails if a list changes.
 3. `cargo test` in `ref-plain/` passes the two RFC tests and the edge tests of
    `tests/edge.rs`. The edge inputs are the low-order points 0, 1, `p - 1`, `p`, `p + 1` and
    a point of order 8, the values `p + 9` and `2^255 - 1` above `p`, a u-coordinate with bit
    255 set, and a scalar with the clamped bits changed. Three fixed outputs agree with
    OpenSSL's X25519.
-4. `lake env lean Sim/RefVectors.lean` runs the Lean reference, with the `ZMod` model, on
-   the same RFC vectors and edge inputs, with `#guard`. The command fails if an output
-   differs. This trusts the Lean compiler, and it is a test, not a proof.
+4. `Sim/RefVectors.lean` runs the Lean reference, with the `ZMod` model, on the same RFC
+   vectors and edge inputs, with `#guard`. `lake build` builds it, and the build fails if
+   an output differs. This trusts the Lean compiler, and it is a test, not a proof.
 5. `scripts/check-short-names.py` finds no name in `lean/X25519Ref` and
    `lean/Curve25519Dalek` that Lean binds to a different declaration from the crate-level
-   one (Aeneas issue #1458). It reads declarations with the name on the same line as the
-   keyword or on the next line. `scripts/tests/test-check-short-names.sh` tests the second
-   form.
-6. `compare-dalek5.py` compares the functions on the proved path with dalek 5.0.0 and
-   prints `==` for each identical body (section 1).
+   one (Aeneas issue #1458). It reads declarations with the name on the line of the keyword
+   or on a later line, after blank and comment lines. It fails on a keyword whose name it
+   cannot read. `scripts/tests/test-check-short-names.sh` tests both cases.
+6. `compare-dalek5.py` checks the proved path against dalek 5.0.0 (section 1). It fails on a
+   missing or ambiguous item and on any difference other than the three reviewed edits.
+   With `--self-test`, it changes each item of the 5.0.0 tree in memory and checks that the
+   comparison reports the change.
+
+`check.sh` runs checks 1 to 6 and stops at the first failure.
 
 ## 7. Strengths and weaknesses
 
@@ -315,8 +329,8 @@ Strengths:
 4. The relation is total, and the output bound carries to the next step.
 5. The Lean reference reproduces two RFC test vectors and the outputs of the Rust port on
    the edge inputs of `ref-plain/tests/edge.rs`.
-6. The proved path is the code of libsignal's X25519 agreement on 64-bit targets, apart
-   from the extraction edits (section 1).
+6. The proved path is the code of libsignal's X25519 agreement in builds with the serial
+   u64 field backend, apart from the extraction edits (section 1).
 7. The ladder argument is pure algebra over a ring. The Aeneas parts of the proof only
    connect each program to it.
 
@@ -335,25 +349,16 @@ Weaknesses:
 
 ## 8. Reproduce
 
-From the repository root, run `scripts/fetch-upstreams.sh` once. Then:
+From the repository root, run `scripts/fetch-upstreams.sh` once. The comparison with dalek
+5.0.0 needs the crate in the cargo registry, for example after `cargo fetch` in a project
+that depends on `curve25519-dalek = "=5.0.0"`. Then run every check:
 
 ```bash
-cd tracks/x25519/ref-plain && cargo test
-cd ../lean && lake build
-lake env lean Sim/Axioms.lean && lake env lean Sim/AxiomsDischarge.lean
-lake env lean Sim/AxiomsFull.lean
-lake env lean Sim/RefVectors.lean
-for d in X25519Ref Curve25519Dalek; do ../../../scripts/check-short-names.py $(ls $d/*.lean | grep -v _Template); done
-../../../scripts/tests/test-check-short-names.sh
+tracks/x25519/check.sh
 ```
 
-The comparison with dalek 5.0.0 needs the crate in the cargo registry, for example after
-`cargo fetch` in a project that depends on `curve25519-dalek = "=5.0.0"`. From
-`tracks/x25519`:
-
-```bash
-./compare-dalek5.py real-dalek/curve25519-dalek ~/.cargo/registry/src/index.crates.io-*/curve25519-dalek-5.0.0
-```
+To skip the comparison, set `SKIP_DALEK5=1`. To use another copy of 5.0.0, set `DALEK5` to
+its directory.
 
 The extraction commands. Run them in `ref-plain/` and in `real-dalek/`, with the Aeneas
 release of `.aeneas/` on `PATH`:

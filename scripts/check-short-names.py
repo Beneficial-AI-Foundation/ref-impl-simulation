@@ -21,6 +21,7 @@ PREFIX = r"^(?:@\[[^\]]*\]\s*)*(?:(?:noncomputable|private|protected|partial|uns
 NAME = r"([A-Za-z_«][\w'.«»]*)"
 DECL = re.compile(PREFIX + KINDS + r"\s+" + NAME)
 # Aeneas writes long names on the line after the keyword: `def` alone, then `  name`.
+# Blank and comment lines may come between the two. Any other line is an error.
 DECL_KW = re.compile(PREFIX + KINDS + r"\s*$")
 DECL_NAME = re.compile(r"^\s+" + NAME)
 ATTR_ONLY = re.compile(r"^@\[[^\]]*\]\s*$")
@@ -56,13 +57,15 @@ def read_decls(paths):
             if not in_ns:
                 continue
             if pending is not None:
-                m = DECL_NAME.match(line)
-                if m:
-                    cur = [path, lineno, pending, m.group(1), [line[m.end():]]]
-                    decls.append(cur)
-                    pending = None
+                if not line.strip() or line.lstrip().startswith("--"):
                     continue
+                m = DECL_NAME.match(line)
+                if not m:
+                    sys.exit(f"{path}:{lineno}: cannot read the name of a `{pending}` declaration")
+                cur = [path, lineno, pending, m.group(1), [line[m.end():]]]
+                decls.append(cur)
                 pending = None
+                continue
             m = DECL_KW.match(line)
             if m:
                 pending = m.group(1)
