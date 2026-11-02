@@ -56,8 +56,9 @@ def subtle.ConditionallySelectable.conditional_swap.default
   Self) :
   Self → Self → subtle.Choice → Result (Self × Self) :=
   fun a b choice => do
-    let a_new ← ConditionallySelectableInst.conditional_select a b choice
-    let b_new ← ConditionallySelectableInst.conditional_select b a choice
+    -- As in Rust: `let t = *a; a.conditional_assign(&b, choice); b.conditional_assign(&t, choice)`.
+    let a_new ← ConditionallySelectableInst.conditional_assign a b choice
+    let b_new ← ConditionallySelectableInst.conditional_assign b a choice
     ok (a_new, b_new)
 
 /-- [subtle::{impl subtle::ConditionallySelectable for u64}::conditional_select]:

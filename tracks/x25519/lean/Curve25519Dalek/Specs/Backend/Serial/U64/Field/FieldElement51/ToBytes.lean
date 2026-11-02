@@ -237,13 +237,6 @@ theorem byte_packing_eq (L : Array U64 5#usize) (s : Array U8 32#usize)
     hd6, hd12, hd19, hd25]
   linarith
 
-/-- AND with a mask whose value is 2^51-1 gives a value < 2^51. -/
-private lemma and_mask_lt_pow (x mask : U64) (hm : mask.val = 2 ^ 51 - 1) :
-    (x &&& mask).val < 2^51 := by
-  rw [UScalar.val_and, hm]
-  have := @Nat.and_le_right x.val (2^51 - 1)
-  omega
-
 /-- For a U8 value < 128, AND with 128 is 0 (bit 7 is clear). -/
 private lemma u8_and_128_eq_zero_of_lt (x : U8) (h : x.val < 128) :
     (x &&& 128#u8).val = 0 := by
@@ -251,14 +244,6 @@ private lemma u8_and_128_eq_zero_of_lt (x : U8) (h : x.val < 128) :
   have : (128#u8 : U8).val = 2 ^ 7 := by simp
   rw [this, Nat.and_two_pow, Nat.testBit_lt_two_pow (by simpa using h)]
   simp
-
-/-- A 64-bit value AND'd with 2^51-1, then shifted right by 44, fits in 7 bits. -/
-private lemma masked_shift44_lt_128 (x : BitVec 64) :
-    ((x &&& (BitVec.ofNat 64 (2^51 - 1))) >>> 44).toNat < 128 := by
-  simp only [BitVec.toNat_ushiftRight, BitVec.toNat_and, BitVec.toNat_ofNat,
-    Nat.shiftRight_eq_div_pow]
-  have := @Nat.and_le_right x.toNat (2^51 - 1)
-  norm_num at *; omega
 
 /-- Canonical reduction: the q-computation + conditional subtraction + carry chain
     produces a value that is congruent mod p and canonical (< p).
@@ -362,7 +347,8 @@ private lemma canonical_reduction_mod_p
 The stages below are copies of parts of `to_bytes` (see the port note in the header).
 `to_bytes_unfold` and `to_bytes_pack_unfold` prove that the parts compose to `to_bytes`. -/
 
-/-- Stage 1 of `to_bytes`: the carry chain of `fe + 19` that gives `q`. -/
+/-- Stage 1 of `to_bytes`, copied from `Funs.lean`: the carry chain of `fe + 19` that gives
+`q`. `to_bytes_unfold` proves that the stages compose to `to_bytes`. -/
 def to_bytes_q (fe : FieldElement51) (i : U64) : Result U64 := do
   let i1 ← i + 19#u64
   let q ← i1 >>> 51#i32
@@ -380,7 +366,8 @@ def to_bytes_q (fe : FieldElement51) (i : U64) : Result U64 := do
   let q4 ← i9 >>> 51#i32
   ok q4
 
-/-- Stage 2 of `to_bytes`: add `19 * q` and carry, masking each limb to 51 bits. -/
+/-- Stage 2 of `to_bytes`, copied from `Funs.lean`: add `19 * q` and carry, masking each limb
+to 51 bits. -/
 def to_bytes_carry (fe : FieldElement51) (i q4 : U64) : Result FieldElement51 := do
   let i10 ← 19#u64 * q4
   let i11 ← i + i10
@@ -424,7 +411,8 @@ def to_bytes_carry (fe : FieldElement51) (i q4 : U64) : Result FieldElement51 :=
   let limbs9 ← Array.update limbs8 4#usize i38
   ok limbs9
 
-/-- Stage 3 of `to_bytes`: pack five 51-bit limbs into 32 bytes. -/
+/-- Stage 3 of `to_bytes`, copied from `Funs.lean`: pack five 51-bit limbs into 32 bytes.
+`to_bytes_pack_unfold` splits it into `to_bytes_pack0` to `to_bytes_pack4`. -/
 def to_bytes_pack (limbs9 : FieldElement51) : Result (Array U8 32#usize) := do
   let s := Array.repeat 32#usize 0#u8
   let i39 ← Array.index_usize limbs9 0#usize
@@ -541,6 +529,7 @@ def to_bytes_pack (limbs9 : FieldElement51) : Result (Array U8 32#usize) := do
   ok s32
 
 set_option maxRecDepth 4096 in
+/-- `to_bytes` is `reduce`, then `to_bytes_q`, `to_bytes_carry` and `to_bytes_pack`. -/
 theorem to_bytes_unfold (self : FieldElement51) :
     to_bytes self =
       (do let fe ← reduce self
@@ -689,6 +678,7 @@ def to_bytes_pack4 (s26 : Array U8 32#usize) (i99 : U64) : Result (Array U8 32#u
 
 
 set_option maxRecDepth 4096 in
+/-- `to_bytes_pack` is `to_bytes_pack0` to `to_bytes_pack4` in sequence. -/
 theorem to_bytes_pack_unfold (L : FieldElement51) :
     to_bytes_pack L =
       (do let r0 ← to_bytes_pack0 L
@@ -743,12 +733,14 @@ def bm4 (L : Array U64 5#usize) (s : Array U8 32#usize) : Prop :=
   s.val[30]!.val = L.val[4]!.val >>> 36 % 2^8 ∧
   s.val[31]!.val = L.val[4]!.val >>> 44 % 2^8
 
+/-- Setting byte `k` leaves byte `j ≠ k` unchanged. -/
 theorem u8x32_set_ne (s : Array U8 32#usize) (k : Usize) (x : U8) (j : Nat) (h : j ≠ k.val) :
     (s.set k x).val[j]! = s.val[j]! := by
   rw [Array.set_val_eq]
   simp [List.getElem!_eq_getElem?_getD, List.getElem?_set_ne (Ne.symm h)]
 
 
+/-- `to_bytes_pack0 L` writes bytes 0 to 6 as in `bm0`, and returns limb 1. -/
 theorem to_bytes_pack0_spec (L : FieldElement51) :
     to_bytes_pack0 L ⦃ (r : Array U8 32#usize × U64) => r.2 = L.val[1]! ∧ bm0 L r.1 ⦄ := by
   unfold to_bytes_pack0
@@ -766,6 +758,8 @@ theorem to_bytes_pack0_spec (L : FieldElement51) :
       Array.repeat_val, List.length_replicate, Array.length, *]
 
 
+/-- Given limb 1, `to_bytes_pack1` writes bytes 7 to 12 as in `bm1`, keeps bytes 0 to 6,
+and returns limb 2. -/
 theorem to_bytes_pack1_spec (L : FieldElement51) (s7 : Array U8 32#usize) (i52 : U64)
     (h : i52 = L.val[1]!) :
     to_bytes_pack1 L s7 i52 ⦃ (r : Array U8 32#usize × U64) =>
@@ -789,6 +783,8 @@ theorem to_bytes_pack1_spec (L : FieldElement51) (s7 : Array U8 32#usize) (i52 :
     simp only [s13_post, s12_post, s11_post, s10_post, s9_post, s8_post]
     rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)];
 
+/-- Given limb 2, `to_bytes_pack2` writes bytes 13 to 19 as in `bm2`, keeps bytes 0 to 12,
+and returns limb 3. -/
 theorem to_bytes_pack2_spec (L : FieldElement51) (s13 : Array U8 32#usize) (i67 : U64)
     (h : i67 = L.val[2]!) :
     to_bytes_pack2 L s13 i67 ⦃ (r : Array U8 32#usize × U64) =>
@@ -812,6 +808,8 @@ theorem to_bytes_pack2_spec (L : FieldElement51) (s13 : Array U8 32#usize) (i67 
     simp only [s20_post, s19_post, s18_post, s17_post, s16_post, s15_post, s14_post]
     rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)];
 
+/-- Given limb 3, `to_bytes_pack3` writes bytes 20 to 25 as in `bm3`, keeps bytes 0 to 19,
+and returns limb 4. -/
 theorem to_bytes_pack3_spec (L : FieldElement51) (s20 : Array U8 32#usize) (i84 : U64)
     (h : i84 = L.val[3]!) :
     to_bytes_pack3 L s20 i84 ⦃ (r : Array U8 32#usize × U64) =>
@@ -836,6 +834,8 @@ theorem to_bytes_pack3_spec (L : FieldElement51) (s20 : Array U8 32#usize) (i84 
     rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)];
 
 
+/-- Given limb 4 below `2 ^ 51`, `to_bytes_pack4` writes bytes 26 to 31 as in `bm4`, keeps
+bytes 0 to 25, and its top-bit check succeeds. -/
 theorem to_bytes_pack4_spec (L : FieldElement51) (s26 : Array U8 32#usize) (i99 : U64)
     (h : i99 = L.val[4]!) (hb : (L.val[4]! : U64).val < 2 ^ 51) :
     to_bytes_pack4 s26 i99 ⦃ (r : Array U8 32#usize) =>
@@ -867,6 +867,8 @@ theorem to_bytes_pack4_spec (L : FieldElement51) (s26 : Array U8 32#usize) (i99 
     simp only [s32_post, s31_post, s30_post, s29_post, s28_post, s27_post]
     rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)]; rw [u8x32_set_ne _ _ _ _ (by simp; omega)];
 
+/-- For limbs below `2 ^ 51`, `to_bytes_pack L` returns `s` with
+`U8x32_as_Nat s = Field51_as_Nat L`. -/
 theorem to_bytes_pack_spec (L : FieldElement51) (hL : ∀ i < 5, L[i]!.val < 2 ^ 51) :
     to_bytes_pack L ⦃ (s : Array U8 32#usize) => U8x32_as_Nat s = Field51_as_Nat L ⦄ := by
   have hL' : ∀ i < 5, (L.val[i]! : U64).val < 2 ^ 51 := by
@@ -901,6 +903,8 @@ theorem to_bytes_pack_spec (L : FieldElement51) (hL : ∀ i < 5, L[i]!.val < 2 ^
     | assumption
 
 
+/-- For limbs below `2 ^ 52`, `to_bytes_q` returns `q = ⌊(F + 19) / 2 ^ 255⌋` as a carry chain,
+where `F = Field51_as_Nat fe`, and `q ≤ 2`. -/
 theorem to_bytes_q_spec (fe : FieldElement51) (i : U64) (hi : i = fe.val[0]!)
     (hfe : ∀ k < 5, (fe.val[k]! : U64).val < 2 ^ 52) :
     to_bytes_q fe i ⦃ (q4 : U64) =>
@@ -924,6 +928,8 @@ theorem to_bytes_q_spec (fe : FieldElement51) (i : U64) (hi : i = fe.val[0]!)
   all_goals scalar_tac
 
 
+/-- For limbs below `2 ^ 52` and `q ≤ 2`, `to_bytes_carry` returns the carry chain of
+`fe + 19 q`, each limb reduced mod `2 ^ 51`. -/
 theorem to_bytes_carry_spec (fe : FieldElement51) (i q4 : U64) (hi : i = fe.val[0]!)
     (hfe : ∀ k < 5, (fe.val[k]! : U64).val < 2 ^ 52) (hq : q4.val ≤ 2) :
     to_bytes_carry fe i q4 ⦃ (L : FieldElement51) =>

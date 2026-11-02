@@ -11,6 +11,7 @@ open Aeneas Aeneas.Std Result
 
 namespace X25519Sim
 
+/-- A number with `N` base-256 digits is below `256 ^ N`. -/
 theorem digits_lt (f : ℕ → ℕ) (hf : ∀ j, f j < 256) :
     ∀ N, ∑ j ∈ Finset.range N, 256 ^ j * f j < 256 ^ N := by
   intro N
@@ -21,6 +22,7 @@ theorem digits_lt (f : ℕ → ℕ) (hf : ∀ j, f j < 256) :
     have := hf N
     nlinarith [pow_pos (show 0 < 256 by norm_num) N]
 
+/-- For `i < N`, digit `i` of `∑ j < N, 256 ^ j * f j` is `f i`, when every `f j < 256`. -/
 theorem digits_get (f : ℕ → ℕ) (hf : ∀ j, f j < 256) :
     ∀ N, ∀ i < N, (∑ j ∈ Finset.range N, 256 ^ j * f j) / 256 ^ i % 256 = f i := by
   intro N
@@ -46,6 +48,7 @@ theorem U8x32_as_Nat_eq (b : Array U8 32#usize) :
   refine Finset.sum_congr rfl (fun j _ => ?_)
   rw [pow_mul, Array.getElem!_Nat_eq]; norm_num
 
+/-- Every byte is below 256. -/
 theorem byte_lt (b : Array U8 32#usize) (j : ℕ) : (b.val[j]!).val < 256 := by
   have := (b.val[j]!).hBounds
   simpa using this
@@ -72,6 +75,8 @@ theorem fe_to_bytes_eq (a : _root_.field.Fe) (b : Array U8 32#usize)
     rw [UScalar.ofNatCore_val_eq, ← h, U8x32_digit b i (by simpa using h1),
       getElem!_pos b.val i h2]
 
+/-- Horner's rule: `foldr (fun i acc => acc * 256 + g i) c (range n) =
+∑ j < n, 256 ^ j * g j + 256 ^ n * c`. -/
 theorem foldr_horner (g : ℕ → ℕ) (c : ℕ) : ∀ n,
     (List.range n).foldr (fun i acc => acc * 256 + g i) c =
       ∑ j ∈ Finset.range n, 256 ^ j * g j + 256 ^ n * c := by

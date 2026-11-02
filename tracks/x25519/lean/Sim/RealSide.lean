@@ -22,6 +22,7 @@ def toP (P : montgomery.ProjectivePoint) : Pt _root_.field.Fe := (toZ P.U, toZ P
 /-- Both coordinates have limbs below `2 ^ 52`. -/
 def BndP (P : montgomery.ProjectivePoint) : Prop := Bnd 52 P.U ∧ Bnd 52 P.W
 
+/-- Rebuilding a five-limb array from its limbs gives the same array. -/
 theorem fe_eq_make (a : FE) (h0 : 0 < a.val.length) (h1 : 1 < a.val.length)
     (h2 : 2 < a.val.length) (h3 : 3 < a.val.length) (h4 : 4 < a.val.length)
     (hl : [a.val[0], a.val[1], a.val[2], a.val[3], a.val[4]].length = (5#usize).val) :
@@ -33,6 +34,7 @@ theorem fe_eq_make (a : FE) (h0 : 0 < a.val.length) (h1 : 1 < a.val.length)
   simp only [List.length_cons, List.length_nil] at hi
   interval_cases i <;> rfl
 
+/-- `FieldElement51::conditional_select a b c = if c = 1 then b else a`. -/
 theorem fe_select_eq (a b : FE) (c : subtle.Choice) :
     backend.serial.u64.field.FieldElement51.Insts.SubtleConditionallySelectable.conditional_select
       a b c = ok (if c.val = 1#u8 then b else a) := by
@@ -42,15 +44,19 @@ theorem fe_select_eq (a b : FE) (c : subtle.Choice) :
       fe_eq_make]
 
 
+/-- `ProjectivePoint::conditional_swap x0 x1 c = if c = 1 then (x1, x0) else (x0, x1)`. -/
 theorem pp_swap_eq (x0 x1 : montgomery.ProjectivePoint) (c : subtle.Choice) :
     subtle.ConditionallySelectable.conditional_swap.default
       montgomery.ProjectivePoint.Insts.SubtleConditionallySelectable x0 x1 c =
       ok (if c.val = 1#u8 then (x1, x0) else (x0, x1)) := by
   unfold subtle.ConditionallySelectable.conditional_swap.default
-  simp only [montgomery.ProjectivePoint.Insts.SubtleConditionallySelectable.conditional_select,
+  simp only [montgomery.ProjectivePoint.Insts.SubtleConditionallySelectable,
+    subtle.ConditionallySelectable.conditional_assign.default,
+    montgomery.ProjectivePoint.Insts.SubtleConditionallySelectable.conditional_select,
     fe_select_eq, bind_ok]
   by_cases hc : c.val = 1#u8 <;> simp [hc]
 
+/-- For `x ≤ 1`, `Choice::from x` returns the choice with value `x`. -/
 theorem choice_from_spec (x : U8) (hx : x.val ≤ 1) :
     subtle.Choice.Insts.CoreConvertFromU8.from x ⦃ c => c.val = x ⦄ := by
   unfold subtle.Choice.Insts.CoreConvertFromU8.from
@@ -62,18 +68,9 @@ theorem choice_from_spec (x : U8) (hx : x.val ≤ 1) :
       simp; omega
     rw [dif_neg h0, dif_pos h1, spec_ok]
 
-theorem choice_from_bool (b : Bool) :
-    subtle.Choice.Insts.CoreConvertFromU8.from (UScalar.cast_fromBool .U8 b) ⦃ c =>
-      (c.val = 1#u8 ↔ b = true) ⦄ := by
-  unfold subtle.Choice.Insts.CoreConvertFromU8.from
-  cases b <;> simp only [UScalar.cast_fromBool, Bool.false_eq_true, if_false, if_true]
-  · rw [dif_pos (by rfl), spec_ok]; decide
-  · rw [dif_neg (by decide), dif_pos (by rfl), spec_ok]; simp; rfl
-
-/-- `i &&& 7` is `i % 8` on a small nonnegative `Isize`, on 32-bit and 64-bit platforms. -/
-theorem isize_and7 (i : Isize) (h0 : 0 ≤ i.val) (_h1 : i.val ≤ 254) : (i &&& 7#isize).val = i.val % 8 := by
+/-- For `0 ≤ i`, `(i &&& 7).val = i.val % 8`, for both platform widths of `Isize`. -/
+theorem isize_and7 (i : Isize) (h0 : 0 ≤ i.val) : (i &&& 7#isize).val = i.val % 8 := by
   have hw : 32 ≤ System.Platform.numBits := by cases System.Platform.numBits_eq <;> omega
-  have hn : IScalarTy.Isize.numBits = System.Platform.numBits := rfl
   simp only [IScalar.val] at h0 ⊢
   have hand : (i &&& 7#isize).bv = i.bv &&& (7#isize).bv := rfl
   rw [hand]
@@ -90,6 +87,7 @@ theorem isize_and7 (i : Isize) (h0 : 0 ≤ i.val) (_h1 : i.val ≤ 254) : (i &&&
   generalize i.bv.toNat = x at *
   split_ifs at h0 ⊢ <;> push_cast at * <;> omega
 
+/-- For `0 ≤ x < 256`, the cast of `x : Isize` to `usize` keeps its value. -/
 theorem hcast_small (x : Isize) (h0 : 0 ≤ x.val) (h1 : x.val < 256) :
     (IScalar.hcast .Usize x).val = x.val.toNat := by
   have hw : 32 ≤ System.Platform.numBits := by cases System.Platform.numBits_eq <;> omega
@@ -99,7 +97,9 @@ theorem hcast_small (x : Isize) (h0 : 0 ≤ x.val) (h1 : x.val < 256) :
     simpa using this
   rw [IScalar.hcast_val_eq, Int.emod_eq_of_lt h0 (by omega)]
 
-/-- The bit read at the start of each loop iteration. -/
+/-- The bit read at the start of each `mul_loop` iteration: a copy of the first seven lines
+of its body in `Curve25519Dalek/Funs.lean`. `mul_loop_unfold` proves that the copy agrees
+with the extracted code. -/
 def read_bit (scalar_bytes : Array U8 32#usize) (i : Isize) : Result Bool := do
   let i1 ← i >>> 3#i32
   let byte_idx ← lift (IScalar.hcast .Usize i1)
@@ -110,6 +110,7 @@ def read_bit (scalar_bytes : Array U8 32#usize) (i : Isize) : Result Bool := do
   let i5 ← lift (i4 &&& 1#u8)
   ok (i5 = 1#u8)
 
+/-- For `0 ≤ i ≤ 254`, `read_bit k i` returns `kbit k i`. -/
 theorem read_bit_spec (k : Array U8 32#usize) (i : Isize) (h0 : 0 ≤ i.val) (h1 : i.val ≤ 254) :
     read_bit k i ⦃ b => b = kbit k i.val.toNat ⦄ := by
   unfold read_bit
@@ -119,7 +120,7 @@ theorem read_bit_spec (k : Array U8 32#usize) (i : Isize) (h0 : 0 ≤ i.val) (h1
     have hi1 : i1.val = i.val / 8 := by rw [i1_post, Int.shiftRight_eq_div_pow]; norm_num
     have hb : byte_idx.val = i.val.toNat / 8 := by
       rw [byte_idx_post, hcast_small i1 (by omega) (by omega), hi1]; omega
-    have hi2 : i2.val = i.val % 8 := by rw [i2_post, isize_and7 i h0 h1]
+    have hi2 : i2.val = i.val % 8 := by rw [i2_post, isize_and7 i h0]
     have hbit : bit_idx.val = i.val.toNat % 8 := by
       rw [bit_idx_post, hcast_small i2 (by omega) (by omega), hi2]; omega
   · simp only [hb, Array.length]; simp; omega
@@ -134,9 +135,11 @@ theorem read_bit_spec (k : Array U8 32#usize) (i : Isize) (h0 : 0 ≤ i.val) (h1
     cases h : (i5.val == 1) <;> simp_all
 
 
+/-- The extracted ladder loop of `Mul<&Scalar> for &MontgomeryPoint`. -/
 abbrev mulLoop := Shared1MontgomeryPoint.Insts.CoreOpsArithMulShared0ScalarMontgomeryPoint.mul_loop
 
 set_option maxRecDepth 4096 in
+/-- One unfolding of `mul_loop`, with the bit read folded into `read_bit`. -/
 theorem mul_loop_unfold (u : FE) (x0 x1 : montgomery.ProjectivePoint) (k : Array U8 32#usize)
     (prev : Bool) (i : Isize) :
     mulLoop u x0 x1 k prev i =
@@ -158,6 +161,7 @@ theorem mul_loop_unfold (u : FE) (x0 x1 : montgomery.ProjectivePoint) (k : Array
 def toP2 (S : montgomery.ProjectivePoint × montgomery.ProjectivePoint) :
     Pt _root_.field.Fe × Pt _root_.field.Fe := (toP S.1, toP S.2)
 
+/-- `toP2` commutes with `cswap`. -/
 theorem toP2_cswap (b : Bool) (S : montgomery.ProjectivePoint × montgomery.ProjectivePoint) :
     toP2 (cswap b S) = cswap b (toP2 S) := by
   cases b <;> rfl
@@ -177,6 +181,12 @@ theorem dad_spec (P Q : montgomery.ProjectivePoint) (u : FE) (hP : BndP P) (hQ :
   rw [← hs] at h1 h2 h3 h4
   exact Prod.ext (Prod.ext h1 h2) (Prod.ext h3 h4)
 
+/-- **Ladder loop invariant.** Let `i + 1 = n ≤ 255`, let every limb of `x0` and `x1` be
+below `2 ^ 52`, and let `u` have limbs below `2 ^ 54`. Then `mul_loop u x0 x1 k prev i`
+terminates with `(x0', x1', prev')` such that
+`toP2 (cswap prev' (x0', x1')) = ladder (toZ u) (bitsFrom k n) (toP2 (cswap prev (x0, x1)))`,
+and every limb of `x0'` and `x1'` is below `2 ^ 52`. The pair `cswap prev (x0, x1)` is the
+logical state of the lazy swaps. -/
 theorem mul_loop_spec (u : FE) (hu : Bnd 54 u) (k : Array U8 32#usize) :
     ∀ (n : Nat) (i : Isize) (x0 x1 : montgomery.ProjectivePoint) (prev : Bool),
       i.val + 1 = n → n ≤ 255 → BndP x0 → BndP x1 →

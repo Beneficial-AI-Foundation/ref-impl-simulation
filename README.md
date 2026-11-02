@@ -131,8 +131,8 @@ agree.
 1. Old hacspec specifications do not go through Aeneas. Track A uses a
    hax-style spec, track B a port to plain Rust, and track C a library shim. The port and
    the shim are trusted.
-2. No reference is checked against its RFC by proof. Only track B runs RFC test vectors,
-   and only two.
+2. No reference is checked against its RFC by proof. Only track B runs RFC test vectors:
+   two RFC vectors and a set of edge inputs.
 3. Only track B proves full refinement, and only for `mul_clamped`. Tracks A and C prove
    one small unit each: a block core and one key schedule mode. Section 2 lists what they
    still need. Loops whose shapes differ between the two sides need hand-written

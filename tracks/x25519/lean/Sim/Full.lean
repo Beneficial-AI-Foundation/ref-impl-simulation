@@ -4,8 +4,8 @@ import Sim.Bytes
 /-! # Full refinement: dalek's `mul_clamped` against the reference `x25519_scalarmult`
 
 `mul_clamped_refines` states that, for every 32-byte scalar `s` and u-coordinate `u`, the real
-`MontgomeryPoint::mul_clamped u s` returns a value without panic or overflow, and that the
-reference `x25519_scalarmult s u` returns the same bytes. -/
+`MontgomeryPoint::mul_clamped u s` returns without panic, overflow or divergence, and that
+the reference `x25519_scalarmult s u` returns the same bytes. -/
 
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 open curve25519_dalek
@@ -13,11 +13,18 @@ open X25519Sim.LadderMath
 
 namespace X25519Sim
 
-theorem eq_ok_of_spec {α : Type} {m : Result α} {v : α} (h : m ⦃ r => r = v ⦄) : m = ok v := by
+/-- A total-correctness triple gives a returned value: `m ⦃ P ⦄ → ∃ v, m = ok v ∧ P v`. -/
+theorem exists_ok_of_spec {α : Type} {m : Result α} {P : α → Prop} (h : m ⦃ P ⦄) :
+    ∃ v, m = ok v ∧ P v := by
   cases m with
-  | ret a => have := (spec_ok (p := fun r => r = v) a).mp h; rw [this]
-  | vis e k => exact ((spec_vis (p := fun r => r = v) e k).mp h).elim
-  | div => exact ((spec_div (p := fun r => r = v)).mp h).elim
+  | ret a => exact ⟨a, rfl, (spec_ok (p := P) a).mp h⟩
+  | vis e k => exact ((spec_vis (p := P) e k).mp h).elim
+  | div => exact ((spec_div (p := P)).mp h).elim
+
+/-- `m ⦃ r => r = v ⦄ → m = ok v`. -/
+theorem eq_ok_of_spec {α : Type} {m : Result α} {v : α} (h : m ⦃ r => r = v ⦄) : m = ok v := by
+  obtain ⟨w, hw, rfl⟩ := exists_ok_of_spec h
+  exact hw
 
 /-! ## Clamping -/
 
@@ -25,6 +32,7 @@ theorem eq_ok_of_spec {α : Type} {m : Result α} {v : α} (h : m ⦃ r => r = v
 theorem clamp_eq_mask (s : Array U8 32#usize) :
     scalar.clamp_integer s = x25519_ref.mask_scalar s := rfl
 
+/-- The masked scalar has bit 255 cleared: byte 31 is below 128. -/
 theorem mask_scalar_spec (s : Array U8 32#usize) :
     x25519_ref.mask_scalar s ⦃ k => (k.val[31]!).val < 128 ⦄ := by
   unfold x25519_ref.mask_scalar
@@ -38,6 +46,7 @@ theorem mask_scalar_spec (s : Array U8 32#usize) :
   rw [hk, i5_post, UScalar.val_or, h4]
   exact Nat.or_lt_two_pow (n := 7) h3 (by simp)
 
+/-- If byte 31 is below 128, then bit 255 is 0. -/
 theorem kbit_255 (k : Array U8 32#usize) (h : (k.val[31]!).val < 128) : kbit k 255 = false := by
   unfold kbit
   have h' : (k.val[31]!).val >>> 7 = 0 := by
@@ -51,6 +60,7 @@ theorem kbit_255 (k : Array U8 32#usize) (h : (k.val[31]!).val < 128) : kbit k 2
 def decodeU (u : Array U8 32#usize) : _root_.field.Fe :=
   ((U8x32_as_Nat u % 2 ^ 255 : ℕ) : ZMod _root_.field.p)
 
+/-- `decode_point u` returns `(decodeU u, 1)`. -/
 theorem decode_point_spec (u : Array U8 32#usize) :
     x25519_ref.decode_point u ⦃ r => r = (decodeU u, 1) ⦄ := by
   unfold x25519_ref.decode_point
@@ -65,6 +75,7 @@ theorem decode_point_spec (u : Array U8 32#usize) :
   rw [hu1, U8x32_mask_top u i1 hx]
   exact (spec_ok _).mpr rfl
 
+/-- `FieldElement51::from_bytes u` represents `decodeU u`, with limbs below `2 ^ 51`. -/
 theorem from_bytes_z (u : Array U8 32#usize) :
     backend.serial.u64.field.FieldElement51.from_bytes u ⦃ r => toZ r = decodeU u ∧ Bnd 51 r ⦄ := by
   apply spec_mono (backend.serial.u64.field.FieldElement51.from_bytes_spec u)
@@ -73,6 +84,7 @@ theorem from_bytes_z (u : Array U8 32#usize) :
 
 /-! ## Encoding -/
 
+/-- The `invert_spec` postcondition gives `toZ inv = (toZ w)⁻¹` in `ZMod p`, with `0⁻¹ = 0`. -/
 theorem toZ_inv (w inv : FE)
     (hnz : Field51_as_Nat w % p ≠ 0 → (Field51_as_Nat inv % p * (Field51_as_Nat w % p)) % p = 1)
     (hz : Field51_as_Nat w % p = 0 → Field51_as_Nat inv % p = 0) :
@@ -88,6 +100,8 @@ theorem toZ_inv (w inv : FE)
     simp only [ZMod.natCast_mod, Nat.cast_mul, Nat.cast_one] at h1
     exact eq_inv_of_mul_eq_one_left h1
 
+/-- For limbs below `2 ^ 52`, `as_affine P` terminates and returns
+`fe_to_bytes (toZ P.U * (toZ P.W)⁻¹)`, the canonical encoding of `U / W`. -/
 theorem as_affine_spec (P : montgomery.ProjectivePoint) (hP : BndP P) :
     montgomery.ProjectivePoint.as_affine P ⦃ r =>
       _root_.field.fe_to_bytes (toZ P.U * (toZ P.W)⁻¹) = ok r ⦄ := by
@@ -104,25 +118,31 @@ theorem as_affine_spec (P : montgomery.ProjectivePoint) (hP : BndP P) :
 
 /-! ## The constants and the identity -/
 
+/-- `FieldElement51::ONE` as a limb array. -/
 theorem one_eq : backend.serial.u64.field.FieldElement51.ONE =
     ok (Array.make 5#usize [1#u64, 0#u64, 0#u64, 0#u64, 0#u64]) := by
   unfold backend.serial.u64.field.FieldElement51.ONE; rfl
 
+/-- `FieldElement51::ZERO` as a limb array. -/
 theorem zero_eq : backend.serial.u64.field.FieldElement51.ZERO =
     ok (Array.make 5#usize [0#u64, 0#u64, 0#u64, 0#u64, 0#u64]) := by
   unfold backend.serial.u64.field.FieldElement51.ZERO; rfl
 
+/-- `ONE` represents 1. -/
 theorem one_z : toZ (Array.make 5#usize [1#u64, 0#u64, 0#u64, 0#u64, 0#u64]) = 1 := by
   have : Field51_as_Nat (Array.make 5#usize [1#u64, 0#u64, 0#u64, 0#u64, 0#u64]) = 1 := by decide
   simp only [toZ, this, Nat.cast_one]; rfl
 
+/-- `ZERO` represents 0. -/
 theorem zero_z : toZ (Array.make 5#usize [0#u64, 0#u64, 0#u64, 0#u64, 0#u64]) = 0 := by
   have : Field51_as_Nat (Array.make 5#usize [0#u64, 0#u64, 0#u64, 0#u64, 0#u64]) = 0 := by decide
   simp only [toZ, this, Nat.cast_zero]; rfl
 
+/-- `ONE` has limbs below `2 ^ 52`. -/
 theorem one_bnd : Bnd 52 (Array.make 5#usize [1#u64, 0#u64, 0#u64, 0#u64, 0#u64]) := by
   intro i hi; interval_cases i <;> decide
 
+/-- `ZERO` has limbs below `2 ^ 52`. -/
 theorem zero_bnd : Bnd 52 (Array.make 5#usize [0#u64, 0#u64, 0#u64, 0#u64, 0#u64]) := by
   intro i hi; interval_cases i <;> decide
 
@@ -133,6 +153,9 @@ theorem zero_bnd : Bnd 52 (Array.make 5#usize [0#u64, 0#u64, 0#u64, 0#u64, 0#u64
 def dalekLadder (uB k : Array U8 32#usize) : Pt _root_.field.Fe × Pt _root_.field.Fe :=
   ladder (decodeU uB) (bitsFrom k 255) ((1, 0), (decodeU uB, 1))
 
+/-- dalek's `&MontgomeryPoint * &Scalar` on the bytes `uB` and the scalar bytes `k` terminates
+and returns the encoding of the first point of `dalekLadder uB k`: 255 iterations, on bits
+254 down to 0 of `k`. Bit 255 of `k` is not read. -/
 theorem mul_spec (uB k : Array U8 32#usize) :
     Shared1MontgomeryPoint.Insts.CoreOpsArithMulShared0ScalarMontgomeryPoint.mul uB ⟨k⟩ ⦃ r =>
       _root_.field.fe_to_bytes ((dalekLadder uB k).1.1 * (dalekLadder uB k).1.2⁻¹) = ok r ⦄ := by
@@ -179,14 +202,8 @@ theorem mul_spec (uB k : Array U8 32#usize) :
 
 /-! ## The full refinement theorem -/
 
-theorem exists_ok_of_spec {α : Type} {m : Result α} {P : α → Prop} (h : m ⦃ P ⦄) :
-    ∃ v, m = ok v ∧ P v := by
-  cases m with
-  | ret a => exact ⟨a, rfl, (spec_ok (p := P) a).mp h⟩
-  | vis e k => exact ((spec_vis (p := P) e k).mp h).elim
-  | div => exact ((spec_div (p := P)).mp h).elim
-
-theorem four_ne_zero : (4 : ZMod p) ≠ 0 := by
+/-- `4 ≠ 0` in `ZMod p`. -/
+theorem four_ne_zero_zmod : (4 : ZMod p) ≠ 0 := by
   intro h
   have h' : ((4 : ℕ) : ZMod p) = 0 := by exact_mod_cast h
   rw [ZMod.natCast_eq_zero_iff] at h'
@@ -213,7 +230,7 @@ theorem mul_clamped_refines (u s : Array U8 32#usize) :
   have hbits : refBits k = false :: bitsFrom k 255 := by
     rw [refBits, bitsFrom_succ, kbit_255 k hk31]
   have hne : bitsFrom k 255 ≠ [] := by simp [bitsFrom]
-  have key := enc_ladder_extra_step (K := ZMod p) (decodeU u) four_ne_zero (bitsFrom k 255) hne
+  have key := enc_ladder_extra_step (K := ZMod p) (decodeU u) four_ne_zero_zmod (bitsFrom k 255) hne
   simp only [enc] at key
   rw [hbits, dalekLadder]
   exact congrArg _root_.field.fe_to_bytes key

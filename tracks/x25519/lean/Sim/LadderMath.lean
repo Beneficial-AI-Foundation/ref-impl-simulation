@@ -55,6 +55,7 @@ def ladder (x1 : R) (bits : List Bool) (S : Pt R × Pt R) : Pt R × Pt R :=
 @[simp] theorem ladder_cons (x1 : R) (b : Bool) (bits : List Bool) (S : Pt R × Pt R) :
     ladder x1 (b :: bits) S = ladder x1 bits (lstep x1 b S) := rfl
 
+/-- `cswap b ∘ cswap a = cswap (a ^^ b)`. -/
 theorem cswap_cswap {α : Type*} (a b : Bool) (S : α × α) :
     cswap b (cswap a S) = cswap (a ^^ b) S := by
   cases a <;> cases b <;> rfl
@@ -62,13 +63,17 @@ theorem cswap_cswap {α : Type*} (a b : Bool) (S : α × α) :
 /-- Scale a projective point. -/
 def smul (a : R) (P : Pt R) : Pt R := (a * P.1, a * P.2)
 
+/-- Doubling is homogeneous of degree 4: `dbl (a • P) = a⁴ • dbl P`. -/
 theorem dbl_smul (a : R) (P : Pt R) : dbl (smul a P) = smul (a ^ 4) (dbl P) := by
   simp only [dbl, smul, Prod.mk.injEq]; constructor <;> ring
 
+/-- Differential addition is homogeneous of degree 2 in each point:
+`dadd x1 (a • P) (b • Q) = (a b)² • dadd x1 P Q`. -/
 theorem dadd_smul (x1 a b : R) (P Q : Pt R) :
     dadd x1 (smul a P) (smul b Q) = smul ((a * b) ^ 2) (dadd x1 P Q) := by
   simp only [dadd, smul, Prod.mk.injEq]; constructor <;> ring
 
+/-- `dadd_smul` with the points in the order `(Q, P)`. -/
 theorem dadd_smul' (x1 a b : R) (P Q : Pt R) :
     dadd x1 (smul b Q) (smul a P) = smul ((a * b) ^ 2) (dadd x1 Q P) := by
   rw [dadd_smul, mul_comm b a]
@@ -80,6 +85,7 @@ variable [IsDomain R]
 def Rel (S T : Pt R × Pt R) : Prop :=
   ∃ a b : R, a ≠ 0 ∧ b ≠ 0 ∧ S = (smul a T.1, smul b T.2)
 
+/-- One ladder iteration preserves `Rel`. -/
 theorem lstep_rel (x1 : R) (bit : Bool) {S T : Pt R × Pt R} (h : Rel S T) :
     Rel (lstep x1 bit S) (lstep x1 bit T) := by
   obtain ⟨a, b, ha, hb, rfl⟩ := h
@@ -89,6 +95,7 @@ theorem lstep_rel (x1 : R) (bit : Bool) {S T : Pt R × Pt R} (h : Rel S T) :
   · refine ⟨(a * b) ^ 2, b ^ 4, pow_ne_zero _ (mul_ne_zero ha hb), pow_ne_zero _ hb, ?_⟩
     simp only [lstep, cswap, pad, dbl_smul, dadd_smul', if_true]
 
+/-- The ladder preserves `Rel`: if `Rel S T`, then `Rel (ladder x1 bits S) (ladder x1 bits T)`. -/
 theorem ladder_rel (x1 : R) (bits : List Bool) {S T : Pt R × Pt R} (h : Rel S T) :
     Rel (ladder x1 bits S) (ladder x1 bits T) := by
   induction bits generalizing S T with
@@ -99,16 +106,19 @@ end Domain
 
 /-! ## The case `x1 = 0` -/
 
-/-- Each point has `x = 0` or `z = 0`. -/
+/-- Each point satisfies `x * z = 0`. -/
 def Degenerate (S : Pt R × Pt R) : Prop := S.1.1 * S.1.2 = 0 ∧ S.2.1 * S.2.2 = 0
 
+/-- If `x * z = 0`, then the doubled point has `z = 0`. -/
 theorem dbl_z_of_degenerate (P : Pt R) (h : P.1 * P.2 = 0) : (dbl P).2 = 0 := by
   have : (P.1 + P.2) ^ 2 - (P.1 - P.2) * (P.1 - P.2) = 4 * (P.1 * P.2) := by ring
   simp only [dbl, this, h, mul_zero, zero_mul]
 
+/-- With `x1 = 0`, the sum has `z = 0`. -/
 theorem dadd_z_zero (P Q : Pt R) : (dadd 0 P Q).2 = 0 := by
   simp only [dadd, zero_mul]
 
+/-- With `x1 = 0`, one iteration from a degenerate state gives both points `z = 0`. -/
 theorem lstep_zero (bit : Bool) (S : Pt R × Pt R) (h : Degenerate S) :
     (lstep 0 bit S).1.2 = 0 ∧ (lstep 0 bit S).2.2 = 0 := by
   obtain ⟨h1, h2⟩ := h
@@ -118,6 +128,7 @@ theorem lstep_zero (bit : Bool) (S : Pt R × Pt R) (h : Degenerate S) :
   · simp only [lstep, cswap, pad, if_true]
     exact ⟨dadd_z_zero _ _, dbl_z_of_degenerate _ h2⟩
 
+/-- A state whose two points have `z = 0` is degenerate. -/
 theorem degenerate_of_z (S : Pt R × Pt R) (h : S.1.2 = 0 ∧ S.2.2 = 0) : Degenerate S := by
   simp only [Degenerate, h.1, h.2, mul_zero, and_self]
 
@@ -142,11 +153,13 @@ variable {K : Type*} [Field K]
 /-- The affine u-coordinate `x / z`, with `x / 0 = 0` as `fe_inv` gives. -/
 def enc (P : Pt K) : K := P.1 * P.2⁻¹
 
+/-- For `a ≠ 0`, `enc (a • P) = enc P`. -/
 theorem enc_smul (a : K) (ha : a ≠ 0) (P : Pt K) : enc (smul a P) = enc P := by
   simp only [enc, smul, mul_inv]
   calc a * P.1 * (a⁻¹ * P.2⁻¹) = (a * a⁻¹) * (P.1 * P.2⁻¹) := by ring
     _ = P.1 * P.2⁻¹ := by rw [mul_inv_cancel₀ ha, one_mul]
 
+/-- If `z = 0`, then `enc P = 0`. -/
 theorem enc_z_zero (P : Pt K) (h : P.2 = 0) : enc P = 0 := by
   simp only [enc, h, inv_zero, mul_zero]
 

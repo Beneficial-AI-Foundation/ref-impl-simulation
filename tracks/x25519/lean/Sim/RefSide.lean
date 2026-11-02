@@ -17,10 +17,12 @@ def kbit (k : Array U8 32#usize) (j : Nat) : Bool := (k.val[j / 8]!.val >>> (j %
 /-- The key bits from bit `n - 1` down to bit 0. -/
 def bitsFrom (k : Array U8 32#usize) (n : Nat) : List Bool := (List.range n).reverse.map (kbit k)
 
+/-- `bitsFrom k (n + 1) = kbit k n :: bitsFrom k n`. -/
 theorem bitsFrom_succ (k : Array U8 32#usize) (n : Nat) :
     bitsFrom k (n + 1) = kbit k n :: bitsFrom k n := by
   simp [bitsFrom, List.range_succ]
 
+/-- For `i < 256`, `scalar_bit k i` returns `kbit k i`. -/
 @[step]
 theorem scalar_bit_spec (k : Array U8 32#usize) (i : Usize) (hi : i.val < 256) :
     x25519_ref.scalar_bit k i ⦃ b => b = kbit k i.val ⦄ := by
@@ -44,6 +46,7 @@ theorem point_add_and_double_pad (q : _root_.field.Fe × _root_.field.Fe)
   rw [point_add_and_double_eq]
   rfl
 
+/-- For `i < 256`, `ladder_step k init acc i` returns `lstep init.1 (kbit k (255 - i)) acc`. -/
 theorem ladder_step_eq (k : Array U8 32#usize) (init : _root_.field.Fe × _root_.field.Fe)
     (acc : (_root_.field.Fe × _root_.field.Fe) × (_root_.field.Fe × _root_.field.Fe))
     (i : Usize) (hi : i.val < 256) :
@@ -57,6 +60,8 @@ theorem ladder_step_eq (k : Array U8 32#usize) (init : _root_.field.Fe × _root_
     simp_all [x25519_ref.swap, point_add_and_double_pad, lstep, cswap, pad]
 
 
+/-- For `i + n = 256`, `ladder_loop k init acc i` terminates and returns
+`ladder init.1 (bitsFrom k n) acc`: the iterations on bits `n - 1, …, 0`. -/
 theorem ladder_loop_eq (k : Array U8 32#usize) (init : _root_.field.Fe × _root_.field.Fe) :
     ∀ (n : Nat) (i : Usize)
       (acc : (_root_.field.Fe × _root_.field.Fe) × (_root_.field.Fe × _root_.field.Fe)),
@@ -83,12 +88,16 @@ theorem ladder_loop_eq (k : Array U8 32#usize) (init : _root_.field.Fe × _root_
 /-- The reference bits: bit 255 down to bit 0. -/
 abbrev refBits (k : Array U8 32#usize) : List Bool := bitsFrom k 256
 
+/-- `fe_lit 1 = 1`. -/
 theorem fe_lit_one : _root_.field.fe_lit 1#u32 = ok (1 : _root_.field.Fe) := by
   unfold _root_.field.fe_lit; congr 1
 
+/-- `fe_lit 0 = 0`. -/
 theorem fe_lit_zero : _root_.field.fe_lit 0#u32 = ok (0 : _root_.field.Fe) := by
   unfold _root_.field.fe_lit; congr 1
 
+/-- `montgomery_ladder k init` returns the first point of
+`ladder init.1 (refBits k) ((1, 0), init)`: 256 iterations from bit 255. -/
 theorem montgomery_ladder_eq (k : Array U8 32#usize) (init : _root_.field.Fe × _root_.field.Fe) :
     x25519_ref.montgomery_ladder k init ⦃ r => r = (ladder init.1 (refBits k) ((1, 0), init)).1 ⦄ := by
   unfold x25519_ref.montgomery_ladder

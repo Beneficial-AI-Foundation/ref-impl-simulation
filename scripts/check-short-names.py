@@ -16,11 +16,13 @@ suspicious reference and exits 1 if it finds any.
 import re
 import sys
 
-DECL = re.compile(
-    r"^(?:@\[[^\]]*\]\s*)*(?:(?:noncomputable|private|protected|partial|unsafe)\s+)*"
-    r"(def|abbrev|theorem|lemma|opaque|axiom|structure|inductive|instance|class)\s+"
-    r"([A-Za-z_«][\w'.«»]*)"
-)
+KINDS = r"(def|abbrev|theorem|lemma|opaque|axiom|structure|inductive|instance|class|impl_def)"
+PREFIX = r"^(?:@\[[^\]]*\]\s*)*(?:(?:noncomputable|private|protected|partial|unsafe)\s+)*"
+NAME = r"([A-Za-z_«][\w'.«»]*)"
+DECL = re.compile(PREFIX + KINDS + r"\s+" + NAME)
+# Aeneas writes long names on the line after the keyword: `def` alone, then `  name`.
+DECL_KW = re.compile(PREFIX + KINDS + r"\s*$")
+DECL_NAME = re.compile(r"^\s+" + NAME)
 ATTR_ONLY = re.compile(r"^@\[[^\]]*\]\s*$")
 CTOR = re.compile(r"^\s*\|\s*([A-Za-z_][\w']*)")
 FIELD = re.compile(r"^\s+([A-Za-z_][\w']*)\s*:")
@@ -36,6 +38,7 @@ def read_decls(paths):
     for path in paths:
         cur = None
         in_ns = False
+        pending = None  # kind of a keyword whose name is on the next line
         for lineno, raw in enumerate(open(path, encoding="utf-8"), 1):
             line = raw.rstrip("\n")
             m = re.match(r"^namespace\s+(\S+)", line)
@@ -51,6 +54,19 @@ def read_decls(paths):
                 cur = None
                 continue
             if not in_ns:
+                continue
+            if pending is not None:
+                m = DECL_NAME.match(line)
+                if m:
+                    cur = [path, lineno, pending, m.group(1), [line[m.end():]]]
+                    decls.append(cur)
+                    pending = None
+                    continue
+                pending = None
+            m = DECL_KW.match(line)
+            if m:
+                pending = m.group(1)
+                cur = None
                 continue
             m = DECL.match(line)
             if m:
@@ -116,7 +132,7 @@ def main(paths):
     names = declared_names(decls)
     hits = 0
     for path, lineno, kind, name, body in decls:
-        if kind not in ("def", "abbrev", "instance"):
+        if kind not in ("def", "abbrev", "instance", "impl_def"):
             continue
         parts = name.split(".")
         prefixes = [".".join(parts[:k]) for k in range(len(parts) - 1, 0, -1)]
