@@ -11,11 +11,54 @@ All paths are relative to `tracks/hpke/`.
 | Real | [`cryspen/hpke-rs` 0.6.1](https://github.com/cryspen/hpke-rs/tree/e1a4b12d3e630c713a89e97a2a91e4a597f3fc82) | `e1a4b12d` (2026-07-16) |
 
 The unit is the key schedule of RFC 9180 section 5.1 in base mode: `KeySchedule`,
-`LabeledExtract` and `LabeledExpand`. The KEM, the AEAD, the PSK modes and the public API
-are out of scope.
+`LabeledExtract` and `LabeledExpand`. The theorems cover the key schedule only. The next
+subsection shows where it sits in the full HPKE API.
 
 hpke-spec has no license, so this repository does not include it. `make-ref-shim.sh`
 builds the work tree `ref-shim/` from a clone and `patches/hpke-spec.patch`.
+
+### The unit in full refinement
+
+Full refinement for HPKE is a theorem about the public API. For single-shot encryption,
+it relates the real `Hpke::seal` and `Hpke::open` to the reference `HpkeSeal` and
+`HpkeOpen`. The table follows the call path from this pair down to the unit. A full proof
+relates each pair of functions in the table.
+
+| Layer | Reference (`lean/Ref`) | Real (`lean/Real`) | Status |
+|---|---|---|---|
+| Single-shot API | `HpkeSeal`, `HpkeOpen` | `Hpke::seal`, `Hpke::open` | real side extracted only |
+| Setup, base mode | `SetupBaseS`, `SetupBaseR` | `Hpke::setup_sender`, `Hpke::setup_receiver` | real side extracted only |
+| KEM | `Encap`, `Decap` | `kem::encaps`, `kem::decaps` | real side extracted only |
+| Key schedule (the unit) | `KeySchedule` | `Hpke::key_schedule` | proved for base mode and HKDF-SHA256 |
+| Labeled KDF | `LabeledExtract`, `LabeledExpand` | `kdf::labeled_extract`, `kdf::labeled_expand` | proved |
+| Context | `ContextS_Seal`, `ContextR_Open`, `Context_Export` | `Context::seal`, `Context::open`, `Context::export` | real side extracted only |
+| Secret export | `SendExport`, `ReceiveExport` | `Hpke::send_export`, `Hpke::receiver_export` | real side extracted only |
+
+The reference extraction starts from `KeySchedule` (`ref-extract.sh`), so the reference
+functions above it are not in Lean. The real extraction covers the whole public surface
+(section 2).
+
+Full refinement of base-mode HPKE needs five more results:
+
+1. Extraction of the reference API. The reference extraction must start from the
+   functions above `KeySchedule`. This project did not try it.
+2. The KEM. On the reference side, the Diffie-Hellman functions of the crypto library are
+   opaque. On the real side, they are methods of the provider. A shared model of X25519,
+   with premises on the provider, can play the same role as the shared HKDF model. DHKEM
+   derives the shared secret with `LabeledExtract` and `LabeledExpand`, so the KDF
+   theorems apply there.
+3. The context. `seal`, `open` and `export` change the sequence number, so they need a
+   forward simulation: a relation between the two contexts that holds at the start and
+   that every call keeps. `KsRel`, the relation of the key schedule theorem, gives the
+   start.
+4. The AEAD. It is opaque on both sides, like HMAC. The theorem can use a shared AEAD
+   model, with premises on the provider, as it does for HKDF.
+5. Composition. The theorems for `seal` and `open` chain the results of all layers.
+
+The other modes need more. The key schedule theorem covers base mode with an empty PSK
+only. The PSK, Auth and AuthPSK modes need the same chain, with their own setup functions
+and the PSK premises. For the KDFs HKDF-SHA384 and HKDF-SHA512 the reference fails
+(section 4), so no theorem can relate the two sides there.
 
 ## 2. Translation
 

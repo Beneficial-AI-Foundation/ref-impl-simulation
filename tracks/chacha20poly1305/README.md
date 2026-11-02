@@ -11,12 +11,50 @@ All paths are relative to `tracks/chacha20poly1305/`.
 | Real | libcrux HACL ChaCha20-Poly1305, [`crates/algorithms/chacha20poly1305`](https://github.com/cryspen/libcrux/tree/3ade18381ad3144d755507f97994933d8585839b/crates/algorithms/chacha20poly1305) | `3ade1838` |
 
 The unit is the ChaCha20 block core of RFC 8439: the quarter round, the double round, the
-20 rounds, and the core that adds the input state. Key setup (`chacha20_init`), the byte
-encoding, encryption over a message, Poly1305 and the AEAD are out of scope.
+20 rounds, and the core that adds the input state. The theorems cover this core only. The
+next subsection shows where the core sits in full ChaCha20 encryption and in the AEAD.
 
 libsignal does not use libcrux HACL ChaCha20-Poly1305. On 2026-10-30, it used RustCrypto
 `chacha20poly1305`, only for the Noise channel to Signal's enclave services. This track
 tests the method on code that Signal does not ship.
+
+### The unit in full refinement
+
+Full refinement for ChaCha20 is a theorem about encryption of a whole message. It relates
+the real `chacha20_encrypt` to the reference `chacha20` on every key, nonce, counter and
+message. The table follows the call path from this pair down to the unit. A full proof
+relates each pair of functions in the table.
+
+| Layer | Reference (`lean/Ref`) | Real (`lean/Real`) | Status |
+|---|---|---|---|
+| Encryption | `chacha20` | `chacha20_encrypt` | extracted, no theorem |
+| Key setup | `chacha20_init` | `chacha20_init` | extracted, no theorem |
+| Message loop | `chacha20_update` | `chacha20_update` | extracted, no theorem |
+| Block encryption | `chacha20_encrypt_block`, `chacha20_encrypt_last` | `chacha20_encrypt_block`, `chacha20_encrypt_last` | extracted, no theorem |
+| Block core (the unit) | `chacha20_core` | `chacha20_core` | proved |
+| Rounds | `chacha20_rounds`, `chacha20_double_round`, `chacha20_quarter_round` | `rounds`, `double_round`, `quarter_round` | proved |
+| Poly1305 | none | `poly1305_init`, `poly1305_finish` and helpers (`lean/RealAead`) | real only |
+| AEAD | none | `aead_chacha20poly1305::encrypt`, `decrypt` (`lean/RealAead`) | real only |
+
+`core_refines_encrypt_block` applies the core theorem at its call site in the real
+`chacha20_encrypt_block` (section 3). It does not relate the two block functions. The real
+`chacha20_decrypt` is the same function as `chacha20_encrypt`. The reference has no
+separate decryption, because ChaCha20 decrypts with the same XOR.
+
+Full refinement of ChaCha20 needs four more results:
+
+1. Key setup. The two `chacha20_init` functions must build the same 16-word state from
+   the key, nonce and counter. Section 3 notes that no theorem relates them today.
+2. Block encryption. Both sides XOR the key stream with a 64-byte block and serialize the
+   result in little-endian order. The core theorem gives the key stream words.
+3. The message loop. Both loops encrypt one 64-byte block per iteration and then the
+   last partial block. The real loop takes the message length as a `u32`, so the
+   theorem needs a premise that relates this length to the message.
+4. Composition. The theorem for encryption chains the results of all layers.
+
+The AEAD needs more. No Poly1305 or AEAD reference goes through Aeneas (section 2). A
+full AEAD theorem first needs a reference, for example one written by hand. It also needs
+a relation between the limbs of HACL Poly1305 and the field of integers mod `2^130 - 5`.
 
 ## 2. Translation
 
