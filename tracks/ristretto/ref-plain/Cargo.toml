@@ -1,0 +1,18 @@
+[package]
+name = "ristretto-ref"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hacspec-lib = { path = "../../x25519/hacspec-old/lib" }
+
+[dev-dependencies]
+# The unchanged spec, for differential tests of the port.
+hacspec-ristretto = { path = "../../x25519/hacspec-specs/ristretto" }
+# The real code that libsignal fc90b90f uses, for differential tests.
+curve25519-dalek = "=5.0.0"
+
+[patch."https://github.com/hacspec/hacspec.git"]
+hacspec-lib = { path = "../../x25519/hacspec-old/lib" }
+
+[workspace]
