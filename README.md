@@ -9,7 +9,7 @@ study ends in a Lean theorem with no `sorry`.
 ## 1. Problem
 
 A cryptographic RFC often comes with a reference implementation that reads like the
-specification: small, direct and slow. The implementations that ship are different code:
+specification: small, direct and potentially with no focus on optimizations. The implementations that ship are different code:
 optimized, unrolled, with other data representations. A proof that the real code
 computes the same as the reference transfers trust from the readable code to the shipped
 code.
@@ -79,19 +79,6 @@ Rules for the proofs. No `sorry`. No hand-written proof changes `maxHeartbeats`,
 proof fits the default limit of 200,000 heartbeats. A proof that does not fit is split
 into lemmas. The files that Aeneas generates set 1,000,000 for their own definitions.
 
-Checks beyond the proofs:
-
-1. Regeneration. The extractions of tracks A and C run again and give Lean files identical
-   to the committed ones.
-2. Name binding. `scripts/check-short-names.py` scans the generated Lean for names that
-   Lean binds to a different declaration from the Rust item (Aeneas issue #1458). It finds
-   none in the three tracks. It reads text and does not elaborate.
-3. Test vectors. Track B runs its Lean reference on two RFC 7748 test vectors.
-4. Independent review. On 2026-11-02, a separate review of each track checked the theorem
-   statements, the premises, the trusted definitions and the generated code. It also
-   compared the documentation with the code.
-
-## 4. Results
 
 | | A ChaCha20 | B X25519 | C HPKE |
 |---|---|---|---|
@@ -125,7 +112,7 @@ agree.
 
 ## 6. Weaknesses and limits
 
-1. Old hacspec specifications do not go through Aeneas (Aeneas issue #1164). Track A uses a
+1. Old hacspec specifications do not go through Aeneas. Track A uses a
    hax-style spec, track B a port to plain Rust, and track C a library shim. The port and
    the shim are trusted.
 2. No reference is checked against its RFC by proof. Only track B runs RFC test vectors,
@@ -162,21 +149,7 @@ agree.
    the other Lean packages.
 4. Follow section 8 of each track README for the extraction and the axiom checks.
 
-## 9. Upstream issues
-
-The studies found these Aeneas and Charon problems. The track READMEs cite them where they
-matter.
-
-| Issue | Problem |
-|---|---|
-| Aeneas #1164 | internal error on the supertraits of hacspec's `SeqTrait` |
-| Aeneas #1458 | a bare name in generated Lean can bind to a different declaration |
-| Aeneas #1459 | internal error on a loop over a tuple state |
-| Aeneas #1461 | copies of `&mut` borrows inside tuples are rejected |
-| Aeneas #1112 | generic associated types are not supported |
-| Charon #1519 | stack overflow on associated types (`p256`) |
-
-## 10. License
+## 9. License
 
 The code and documentation of this repository are under the MIT license (`LICENSE`). The
 third-party work copies keep their own licenses, which `NOTICE.md` lists.
