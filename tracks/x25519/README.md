@@ -1,8 +1,14 @@
 # Track B: X25519 (RFC 7748)
 
+Track B proves full refinement of X25519. For every 32-byte scalar and u-coordinate,
+dalek's `MontgomeryPoint::mul_clamped` returns without panic, overflow or divergence, and
+the reference `x25519_scalarmult` returns the same 32 bytes. The theorem is
+`X25519Sim.mul_clamped_refines` (section 3). It has no premises and uses only the three
+standard axioms.
+
 All paths are relative to `tracks/x25519/`.
 
-## 1. Unit and sources
+## 1. Scope and sources
 
 | Role | Code | Commit |
 |---|---|---|
@@ -10,10 +16,12 @@ All paths are relative to `tracks/x25519/`.
 | Reference library | [`hacspec/hacspec` `lib/`](https://github.com/hacspec/hacspec/tree/4ecc847fc944fe996e19423aa41f002f2039dab0/lib) | `4ecc847f` |
 | Real | [curve25519-dalek 4.2.0 as modified by `curve25519-dalek-lean-verify`](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-lean-verify/tree/26d49052347e52cb3923952ea225d28faf48fe72/curve25519-dalek) | `26d49052` |
 
-The unit is one step of the Montgomery ladder: the reference `point_add_and_double`
-against the real `montgomery::differential_add_and_double`. The track also proves full
-refinement of the X25519 function, with the step theorem as one layer. The next subsection
-shows the layers.
+The track relates the X25519 function of the two programs: the real `mul_clamped` against
+the reference `x25519_scalarmult`. The proof goes through the layers of the call path:
+clamping, decoding, the ladder, the ladder step and encoding. The ladder step, the
+reference `point_add_and_double` against the real `montgomery::differential_add_and_double`,
+was the first layer proved. The subsection "Layers of the full refinement" shows all
+layers.
 
 libsignal computes X25519 agreement through `x25519-dalek` 3.0.0 and curve25519-dalek
 5.0.0 (libsignal `fc90b90f`). `calculate_agreement` calls `StaticSecret::diffie_hellman`,
@@ -44,12 +52,12 @@ with `curve25519_dalek_bits = "32"`. libsignal builds dalek with
 `overflow-checks = false` in release. The theorem shows that no arithmetic on the path
 overflows, so this setting does not change the result.
 
-### The unit in full refinement
+### Layers of the full refinement
 
 Full refinement is a theorem about the X25519 function itself. It relates the real
 `MontgomeryPoint::mul_clamped` to the reference `x25519_scalarmult` on all 32-byte inputs.
 Both functions take a scalar and a u-coordinate as bytes and return the result as bytes.
-The table follows the call path from this pair down to the unit. The theorem
+The table follows the call path from this pair down to the ladder step. The theorem
 `X25519Sim.mul_clamped_refines` (section 3) relates every pair in the table.
 
 | Layer | Reference (`lean/X25519Ref`) | Real (`lean/Curve25519Dalek`) | Status | Lean |
@@ -58,7 +66,7 @@ The table follows the call path from this pair down to the unit. The theorem
 | Scalar clamping | `decode_scalar`, `mask_scalar` | `scalar::clamp_integer` | proved | `Sim/Full.lean` |
 | Point decoding | `decode_point` | `FieldElement51::from_bytes` | proved | `Sim/Full.lean`, `Sim/Bytes.lean` |
 | Ladder | `montgomery_ladder` | `Mul<&Scalar> for &MontgomeryPoint` | proved | `Sim/LadderMath.lean`, `Sim/RefSide.lean`, `Sim/RealSide.lean` |
-| Ladder step (the unit) | `point_add_and_double` | `differential_add_and_double` | proved | `Sim/Pilot.lean`, `Sim/Discharge.lean` |
+| Ladder step | `point_add_and_double` | `differential_add_and_double` | proved | `Sim/Pilot.lean`, `Sim/Discharge.lean` |
 | Point encoding | `encode_point` | `ProjectivePoint::as_affine` | proved | `Sim/Full.lean`, `Sim/Bytes.lean` |
 
 The layers needed these results:
@@ -160,7 +168,26 @@ limb boundary. An unfolding lemma proves that the parts compose to `to_bytes`. T
 
 ## 3. Statement
 
-The relation maps a real field element to the reference field (`lean/Sim/Pilot.lean`):
+The main theorem is `X25519Sim.mul_clamped_refines` (`lean/Sim/Full.lean`):
+
+```lean
+theorem mul_clamped_refines (u s : Array U8 32#usize) :
+    montgomery.MontgomeryPoint.mul_clamped u s ⦃ r =>
+      x25519_ref.x25519_scalarmult s u = ok r ⦄
+```
+
+`⦃ ⦄` is the Aeneas total-correctness triple. The theorem has no premises. For every
+32-byte scalar `s` and u-coordinate `u`, the real function returns a value with no panic,
+no overflow and no divergence. The reference returns the
+same 32 bytes. The relation on inputs and outputs is equality of bytes.
+
+The theorem relates two Aeneas translations. The real side is the `curve25519-dalek-lean-verify`
+copy of dalek, built with the serial u64 backend (`real-dalek/.cargo/config.toml`). The
+reference side is the plain-Rust port with the `ZMod p` field model. The theorem rests on
+the trusted definitions of section 4.
+
+Inside the proof, a relation maps a real field element to the reference field
+(`lean/Sim/Pilot.lean`):
 
 ```lean
 def toZ (f : FE) : _root_.field.Fe := ((Field51_as_Nat f : Nat) : ZMod p)
@@ -171,8 +198,8 @@ A `FieldElement51` has five 64-bit limbs. `Field51_as_Nat` reads them in radix `
 `toZ` reduces the result mod `p = 2^255 - 19`. `Bnd k f` states that every limb is below
 `2^k`.
 
-The main theorem is `X25519Sim.differential_add_and_double_refines_proved`
-(`lean/Sim/Discharge.lean`):
+The ladder step layer is `X25519Sim.differential_add_and_double_refines_proved`
+(`lean/Sim/Discharge.lean`). `mul_loop_spec` applies it once per ladder iteration:
 
 ```lean
 theorem differential_add_and_double_refines_proved
@@ -187,29 +214,11 @@ theorem differential_add_and_double_refines_proved
         Bnd 52 r.1.U ∧ Bnd 52 r.1.W ∧ Bnd 52 r.2.U ∧ Bnd 52 r.2.W ⦄
 ```
 
-`⦃ ⦄` is the Aeneas total-correctness triple. Under limb bounds on the inputs, the real
-step returns a value with no panic, no overflow and no divergence. The reference step on
+Under limb bounds on the inputs, the real step returns a value with no panic, no overflow and no divergence. The reference step on
 the mapped inputs also returns a value. The four output coordinates are equal under `toZ`,
 and every output limb is below `2^52`. The output bound implies the input bounds, so the
 invariant carries from one step to the next. The reference step does not read the `z`
 coordinate of the base point, so `z1` is arbitrary.
-
-The full refinement theorem is `X25519Sim.mul_clamped_refines` (`lean/Sim/Full.lean`):
-
-```lean
-theorem mul_clamped_refines (u s : Array U8 32#usize) :
-    montgomery.MontgomeryPoint.mul_clamped u s ⦃ r =>
-      x25519_ref.x25519_scalarmult s u = ok r ⦄
-```
-
-It has no premises. For every 32-byte scalar `s` and u-coordinate `u`, the real function
-returns a value with no panic, no overflow and no divergence. The reference returns the
-same 32 bytes. The relation on inputs and outputs is equality of bytes.
-
-The theorem relates two Aeneas translations. The real side is the `curve25519-dalek-lean-verify`
-copy of dalek, built with the serial u64 backend (`real-dalek/.cargo/config.toml`). The
-reference side is the plain-Rust port with the `ZMod p` field model. The theorem rests on
-the trusted definitions of section 4.
 
 The step theorem is a corollary of `differential_add_and_double_refines` (`lean/Sim/Pilot.lean`),
 which takes the four field contracts `C : FieldContracts` as a premise.
@@ -255,19 +264,8 @@ the ported `from_bytes_spec`, `to_bytes_spec` and `invert_spec`.
 
 ## 5. Proof structure
 
-`Pilot.lean` (204 lines) has three parts:
-
-1. Lockstep. 19 `step with` calls, one per real field operation (18) and one for the
-   constant `APLUS2_OVER_FOUR`. Each uses a contract restated over `toZ` (`add_z`,
-   `sub_z`, `mul_z`, `square_z`).
-2. Bounds. 21 goals of the form `exact bnd_mono h (by norm_num)`. The bounds were chosen
-   by hand: 53 for `add`, 63 or 54 for `sub`, 54 for `mul` and `square`.
-3. Representation. `point_add_and_double_eq` computes the reference step in closed form.
-   Four ring identities in `ZMod p` close the output goals. One needs `AA = BB + E`, because
-   dalek computes `z2` as `E * (121666 E + BB)` and RFC 7748 as `E * (AA + 121665 E)`.
-
-The two control flows match call for call at the level of field operations. This does not
-extend to the ladder, so the full theorem needs five more files:
+The full proof has five files besides the step layer (`Pilot.lean`, `Discharge.lean`) and
+the ported field specs:
 
 | File | Lines | Content |
 |---|---|---|
@@ -283,6 +281,20 @@ read into a separate function, `read_bit`, with its own spec. That spec needs on
 `Isize`: `i &&& 7 = i % 8` for `0 ≤ i ≤ 254`. The lemma holds on 32-bit and 64-bit
 platforms. The reference loop is tail recursion, and `ladder_loop_eq` is an induction of
 the same shape. The math in `LadderMath.lean` uses no Aeneas definitions.
+
+The ladder step layer, `Pilot.lean` (204 lines), has three parts:
+
+1. Lockstep. 19 `step with` calls, one per real field operation (18) and one for the
+   constant `APLUS2_OVER_FOUR`. Each uses a contract restated over `toZ` (`add_z`,
+   `sub_z`, `mul_z`, `square_z`).
+2. Bounds. 21 goals of the form `exact bnd_mono h (by norm_num)`. The bounds were chosen
+   by hand: 53 for `add`, 63 or 54 for `sub`, 54 for `mul` and `square`.
+3. Representation. `point_add_and_double_eq` computes the reference step in closed form.
+   Four ring identities in `ZMod p` close the output goals. One needs `AA = BB + E`, because
+   dalek computes `z2` as `E * (121666 E + BB)` and RFC 7748 as `E * (AA + 121665 E)`.
+
+In the step, the two control flows match call for call at the level of field operations.
+This does not extend to the ladder, which needs the invariant above.
 
 No proof sets `maxHeartbeats`. Two carry stages of `curve25519-dalek-lean-verify` used
 about 335,000 heartbeats on our pin, above the default 200,000. They now step over three
@@ -321,11 +333,11 @@ specs build with a limit of 151,845. Some proofs set `maxRecDepth 4096`.
 
 Strengths:
 
-1. The step is the cleanest lockstep of the three tracks. The two sides match operation
-   for operation.
-2. No primitive is opaque. Both sides reduce to arithmetic mod p.
-3. The track proves full refinement of `mul_clamped`. The theorem has no premises, and
+1. The track proves full refinement of `mul_clamped`. The theorem has no premises, and
    the axioms are only the standard three.
+2. No primitive is opaque. Both sides reduce to arithmetic mod p.
+3. The ladder step is the cleanest lockstep of the three tracks. The two sides match
+   operation for operation.
 4. The relation is total, and the output bound carries to the next step.
 5. The Lean reference reproduces two RFC test vectors and the outputs of the Rust port on
    the edge inputs of `ref-plain/tests/edge.rs`.
