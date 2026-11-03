@@ -415,6 +415,13 @@ The limb bound `Bnd`, `bnd_mono` and the `Result` lemmas `exists_ok_of_spec` and
 `eq_ok_of_spec` do not depend on the reference. They are in
 `shared/dalek/lean/DalekSim/Basic.lean`, which track D also uses.
 
+`Sim/EdwardsBridge.lean` (179 lines) is a prototype for step X2, the public key. It is not part
+of the proofs above. `toU_dblY` shows that the u-coordinate `(1 + y) / (1 - y)` of an Edwards
+double is the encoding of the ladder doubling `dbl`, and `dadd_core` is the polynomial identity
+behind the differential addition. Both come from the curve equation, without the Edwards
+group law. `toU_dblY_curve25519` instantiates `toU_dblY` for Curve25519. The file checks
+that the three theorems have the standard axioms only.
+
 `mul_loop_spec` is an induction on the number of remaining bits. The loop body reads a bit,
 swaps, calls the step theorem and recurses. A fold lemma, `mul_loop_unfold`, moves the bit
 read into a separate function, `read_bit`, with its own spec. That spec needs one lemma on
