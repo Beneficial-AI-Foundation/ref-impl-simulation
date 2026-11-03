@@ -61,7 +61,8 @@ ITEMS = [
 ]
 
 # The items of x25519-dalek on the paths of `x25519_refines` and of the `diffie_hellman`
-# theorems. The two `from` functions are not in the extraction (README section 4).
+# theorems. The two `from` functions are not in the extraction (README, section 2,
+# "Real wrapper").
 X_ITEMS = [
     ("src/x25519.rs", None, "fn", "x25519"),
     ("src/x25519.rs", ["impl StaticSecret {"], "fn", "diffie_hellman"),
