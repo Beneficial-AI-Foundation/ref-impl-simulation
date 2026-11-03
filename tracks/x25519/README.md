@@ -115,32 +115,40 @@ x25519-dalek 2.0.1 offers. It covers the Curve25519 part of the RFC.
 
 | RFC 7748 | hacspec `curve25519` | x25519-dalek 2.0.1 | Status |
 |---|---|---|---|
-| Section 5: the function `X25519(k, u)`. Mask bit 255 of `u` (MUST), accept non-canonical `u` (MUST) | `x25519_scalarmult` | `x25519` | proved (`x25519_refines`). The MUST rules hold for the reference by review and tests, not by proof |
+| Section 5: the function `X25519(k, u)`. Mask bit 255 of `u` (MUST), accept non-canonical `u` (MUST) | `x25519_scalarmult` | `x25519` | proved (`x25519_refines`). For the translated reference, `decode_point_spec` (`lean/Sim/Full.lean`) proves both MUST rules under the trusted field model: it reads `u` as `u mod 2^255` in `ZMod p`. That the unchanged hacspec spec and the field model match the RFC rests on review and tests |
 | Section 6.1: the shared secret `X25519(a, K_B)` | `x25519_scalarmult` (no function of its own) | `diffie_hellman` on `EphemeralSecret`, `ReusableSecret`, `StaticSecret` | not proved. Each method is one call to `mul_clamped`, which is proved, but the methods are not extracted |
-| Section 6.1: the public key `X25519(a, 9)` | `x25519_secret_to_public` | `PublicKey::from(&secret)` for the three secret types | not proved. The real code goes through `EdwardsPoint::mul_base_clamped` and its base point tables, and is not extracted |
+| Section 6.1: the public key `X25519(a, 9)` | `x25519_secret_to_public` | `PublicKey::from(&secret)` for the three secret types | not proved. The real code goes through `EdwardsPoint::mul_base_clamped`, with precomputed base point tables if the feature `precomputed-tables` is on, and is not extracted |
 | Section 6.1: the base point 9 | inside `x25519_secret_to_public` | `X25519_BASEPOINT_BYTES` | not proved |
-| Section 6.1: Alice generates 32 random bytes | missing | `new`, `random_from_rng`, `random` on the three secret types | not covered. The reference does not describe it, and functional refinement cannot state that bytes are random |
-| Sections 6.1 and 7: check for the all-zero shared secret (MAY), for example by an OR of all bytes | missing | `SharedSecret::was_contributory` | not covered. dalek decodes the bytes and compares with 0 mod p, so it also reports 0 for non-canonical encodings of 0 |
+| Section 6.1: Alice generates 32 random bytes | missing | `random_from_rng`, `random` (feature `getrandom`) and the deprecated `new` on the three secret types | not covered. The reference does not describe it, and functional refinement cannot state that bytes are random |
+| Sections 6.1 and 7: check for the all-zero shared secret (MAY), for example by an OR of all bytes | missing | `SharedSecret::was_contributory` | not covered. dalek ignores bit 255 and compares with 0 mod p, so it also reports 0 for non-canonical encodings of 0. `SharedSecret` has no public constructor, and `diffie_hellman` returns canonical bytes, so this case does not occur through the API |
+| Sections 6.1 and 7: a key-derivation function of `K`, `K_A` and `K_B`, and public keys bound into it | missing | missing | outside the track. The caller derives the symmetric key |
 | Sections 5.1 and 7: side channels | not expressible | constant-time code through `subtle` | outside functional refinement |
 | Sections 5.2 and 6.1: test vectors | some, in its tests | its tests | the track runs section 5.2 vector 1 and the section 6.1 test (section 6). It does not run vector 2, the iterated tests, or the other values of section 6.1 |
 | Sections 4.2, 5 and 6.2: X448 | missing | missing | outside the track |
 
-So the reference misses two parts of the RFC: key generation and the all-zero check. It
-also has no X448.
+So the reference misses two parts of Curve25519 Diffie-Hellman in the RFC: key generation
+and the all-zero check. It also has no X448. Key derivation is missing on both sides and is
+left to the caller.
 
 x25519-dalek has these public APIs that the RFC does not describe:
 
 1. Three secret types instead of 32 private bytes: `EphemeralSecret`, `ReusableSecret`
-   (feature `reusable_secrets`) and `StaticSecret` (feature `static_secrets`). They differ in
-   how long a secret can live and how often it can be used. That is a usage rule, not a
-   computation.
+   (feature `reusable_secrets`) and `StaticSecret` (feature `static_secrets`).
+   `EphemeralSecret::diffie_hellman` consumes the secret, and the type has no `Clone` and
+   no accessor. `ReusableSecret` can be used many times and cloned, but it has no accessor
+   and no `serde`. `StaticSecret` can also be read, built from bytes and serialized. These
+   are usage rules, not computations.
 2. Conversions and accessors: `From<[u8; 32]>` for `PublicKey` and `StaticSecret`, and
-   `to_bytes`, `as_bytes` and `AsRef<[u8]>` on the key types and on `SharedSecret`. They
-   wrap and unwrap 32 bytes. `StaticSecret::to_bytes` returns the private bytes.
-3. Derived traits: `PartialEq`, `Eq`, `Hash`, `Copy`, `Clone` and `Debug` on `PublicKey`,
-   `Clone` on `ReusableSecret` and `StaticSecret`, `Zeroize` and erasure on drop (feature
-   `zeroize`), and `serde` (feature `serde`). `PublicKey` equality compares the two points
-   mod p, so two keys with different bytes can be equal. The RFC defines no equality of
+   `to_bytes`, `as_bytes` and `AsRef<[u8]>` on `PublicKey`, `StaticSecret` and
+   `SharedSecret`. They wrap and unwrap 32 bytes. `StaticSecret::to_bytes` returns the
+   private bytes.
+3. Traits: `PartialEq`, `Eq`, `Hash`, `Copy`, `Clone` and `Debug` on `PublicKey`, and
+   `Clone` on `ReusableSecret` and `StaticSecret`. With the feature `zeroize`, all five
+   types implement `Zeroize`, and the three secret types and `SharedSecret` also erase
+   their bytes on drop. `PublicKey` does not. With the feature `serde`, `PublicKey` and
+   `StaticSecret` implement `Serialize` and `Deserialize`. `PublicKey` equality ignores
+   bit 255 and compares mod p, so two keys with different bytes can be equal. `Hash` uses
+   the canonical bytes, so it agrees with this equality. The RFC defines no equality of
    keys.
 
 The theorem also says nothing about constant time or about the erasure of secrets.

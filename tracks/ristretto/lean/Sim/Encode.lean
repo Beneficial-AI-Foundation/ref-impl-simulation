@@ -27,8 +27,7 @@ def encTail (X Y Z u1 u2 I zinv : _root_.field.Fe) (rot : Prop) [Decidable rot] 
 /-- `u1` of encoding. -/
 def encU1 (Y Z : _root_.field.Fe) : _root_.field.Fe := (Z + Y) * (Z - Y)
 
-/-- The `z_inv` of `encode`, for the inverse square root `I`: `(I u1) (I u2) T`. It is `1 / Z`
-only for a valid point. -/
+/-- The `z_inv` of `encode`, for the inverse square root `I`: `(I u1) (I u2) T`. -/
 def encZinv (X Y Z T I : _root_.field.Fe) : _root_.field.Fe := I * encU1 Y Z * (I * (X * Y)) * T
 
 /-- The value that `encode` writes as bytes. -/

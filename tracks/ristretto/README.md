@@ -228,12 +228,13 @@ the shared library set `maxRecDepth 4096`, as in track B.
    from a fixed seed. The edge inputs are values near 0 and `p`, and values with the top
    bit set. A further test compares `encode` of the port and of the spec on tuples that
    `decode` does not return: each A.1 point scaled by 20 random factors, and 500 random
-   tuples.
+   tuples. A last test runs the port's `sqrt_ratio_m1` on the 6 vectors of RFC 9496 A.4.
+   The spec and dalek keep this function private, so the test checks only the port.
 2. `lake build` in `lean/` passes. No file in `lean/` or in
    `shared/dalek/lean/Curve25519Dalek/` has a `sorry`.
 3. `Sim/Axioms.lean` checks the axiom lists of section 4 with `#guard_msgs`.
 4. `Sim/RefVectors.lean` runs the Lean reference, with the `ZMod` model, on the vectors of
-   RFC 9496 A.1 and A.2, with `#guard`. This trusts the Lean compiler, and it is a test,
+   RFC 9496 A.1, A.2 and A.4, with `#guard`. This trusts the Lean compiler, and it is a test,
    not a proof.
 5. `check.sh` makes sure that the Lean copies of the reference Aeneas output are the same
    as `ref-plain/Ref/`. It runs `shared/dalek/check.sh` first. That script makes sure that

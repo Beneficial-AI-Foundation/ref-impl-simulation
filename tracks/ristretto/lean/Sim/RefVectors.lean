@@ -2,7 +2,8 @@ import RistrettoRef.Funs
 
 /-! Runs the Lean reference (`ristretto_ref`, with the `ZMod p` field model) on the RFC 9496
 Appendix A test vectors that `ref-plain/tests/rfc.rs` tests in Rust: the 16 encodings of
-`i B` decode and encode back to the same bytes, and the 29 invalid encodings are rejected.
+`i B` decode and encode back to the same bytes, the 29 invalid encodings are rejected, and
+`sqrt_ratio_m1` returns the 6 results of A.4.
 This is a test with `#guard`, not a proof. `lake build` builds it (target `Sim`), and the build
 fails if a check fails. -/
 
@@ -87,5 +88,40 @@ def rejected (s : String) : Bool :=
 #guard rejected "5c37cc491da847cfeb9281d407efc41e15144c876e0170b499a96a22ed31e01e" -- Negative x * y value.
 #guard rejected "445425117cb8c90edcbc7c1cc0e74f747f2c1efa5630a967c64f287792a48a4b" -- Negative x * y value.
 #guard rejected "ecffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f" -- s = -1, which causes y = 0.
+
+/-- The reference field element with the little-endian bytes `s`. -/
+def fe (s : String) : _root_.field.Fe :=
+  match (_root_.field.fe_from_bytes (bytes s)).match with
+  | .ok x => x
+  | _ => 0
+
+/-- `sqrt_ratio_m1 u v` returns `was_square` and the field element with the bytes `r`. -/
+def sqrtRatio (u v : String) (ws : Bool) (r : String) : Bool :=
+  match (ristretto_ref.sqrt_ratio_m1 (fe u) (fe v)).match with
+  | .ok (w, x) =>
+    w == ws && match (_root_.field.fe_to_bytes x).match with
+      | .ok o => toNats o == toNats (bytes r)
+      | _ => false
+  | _ => false
+
+-- RFC 9496 A.4: SQRT_RATIO_M1(u, v).
+#guard sqrtRatio "0000000000000000000000000000000000000000000000000000000000000000"
+  "0000000000000000000000000000000000000000000000000000000000000000" true
+  "0000000000000000000000000000000000000000000000000000000000000000"
+#guard sqrtRatio "0000000000000000000000000000000000000000000000000000000000000000"
+  "0100000000000000000000000000000000000000000000000000000000000000" true
+  "0000000000000000000000000000000000000000000000000000000000000000"
+#guard sqrtRatio "0100000000000000000000000000000000000000000000000000000000000000"
+  "0000000000000000000000000000000000000000000000000000000000000000" false
+  "0000000000000000000000000000000000000000000000000000000000000000"
+#guard sqrtRatio "0200000000000000000000000000000000000000000000000000000000000000"
+  "0100000000000000000000000000000000000000000000000000000000000000" false
+  "3c5ff1b5d8e4113b871bd052f9e7bcd0582804c266ffb2d4f4203eb07fdb7c54"
+#guard sqrtRatio "0400000000000000000000000000000000000000000000000000000000000000"
+  "0100000000000000000000000000000000000000000000000000000000000000" true
+  "0200000000000000000000000000000000000000000000000000000000000000"
+#guard sqrtRatio "0100000000000000000000000000000000000000000000000000000000000000"
+  "0400000000000000000000000000000000000000000000000000000000000000" true
+  "f6ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff3f"
 
 end RistrettoRefVectors

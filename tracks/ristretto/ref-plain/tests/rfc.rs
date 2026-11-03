@@ -7,7 +7,7 @@ use curve25519_dalek::ristretto::CompressedRistretto;
 use hacspec_lib::*;
 use hacspec_ristretto as h;
 use ristretto_ref::field::{fe_from_bytes, fe_mul, fe_to_bytes, Fe};
-use ristretto_ref::{decode, encode, DECODING_ERROR};
+use ristretto_ref::{decode, encode, sqrt_ratio_m1, DECODING_ERROR};
 
 /// The four coordinates of a point as canonical little-endian bytes.
 type Coords = [[u8; 32]; 4];
@@ -176,5 +176,21 @@ fn encode_other_tuples() {
     for _ in 0..500 {
         let c = [bytes(), bytes(), bytes(), bytes()];
         check_encode(c);
+    }
+}
+
+fn hex32(s: &str) -> [u8; 32] {
+    let mut r = [0u8; 32];
+    for i in 0..32 { r[i] = u8::from_str_radix(&s[2 * i..2 * i + 2], 16).unwrap(); }
+    r
+}
+
+/// RFC 9496 A.4: the port's `sqrt_ratio_m1` on the six vectors. The spec and dalek keep
+/// this function private, so only the port is tested here.
+#[test]
+fn rfc9496_sqrt_ratio() {
+    for (u, v, was_square, r) in vectors::SQRT_RATIO.iter() {
+        let (w, x) = sqrt_ratio_m1(fe_from_bytes(hex32(u)), fe_from_bytes(hex32(v)));
+        assert_eq!((w, fe_to_bytes(x)), (*was_square, hex32(r)), "u = {u}, v = {v}");
     }
 }

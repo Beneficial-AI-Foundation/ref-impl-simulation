@@ -81,9 +81,9 @@ namespaces. All tracks use one tool version: Aeneas `nightly-2026.10.12-d119a47`
 edit and every hand-written Lean definition.
 
 Relation. Each track defines its own relation between the two representations. Track A
-compares 32-bit word lists. Tracks B and D map five 64-bit limbs in radix `2^51` to an element
-of `ZMod (2^255 - 19)` and also bounds the limbs. Track C compares byte strings and maps
-algorithm identifiers.
+compares 32-bit word lists. Tracks B and D map five 64-bit limbs in radix `2^51` to an
+element of `ZMod (2^255 - 19)` and also bound the limbs. Track C compares byte strings and
+maps algorithm identifiers.
 
 Proof. The proofs use the Aeneas `step` tactics on each side. Where the two control flows
 reach a matching point, a lockstep rule takes one step on each side and relates the
@@ -109,7 +109,7 @@ into lemmas. The files that Aeneas generates set 1,000,000 for their own definit
 |---|---|---|---|---|
 | Main theorem | `Sim.core_refines` | `X25519Sim.x25519_refines` (full refinement for one API pair), with `X25519Sim.mul_clamped_refines` and the ladder step `X25519Sim.differential_add_and_double_refines_proved` as layers | `Sim.key_schedule_base_refines` | `RistrettoSim.decompress_refines` and `RistrettoSim.compress_refines` (full refinement for two API pairs) |
 | Premises | output buffer of 16 words, `ctx` equals the reference state | none | the provider computes the shared HKDF model and the RFC lengths, and its PRNG call succeeds. Base mode with empty PSK, HKDF-SHA256, matching identifiers, a bound on the length of `info` | none for decoding. For encoding, every limb of the point is below `2^53` |
-| Trusted definitions | none | the plain-Rust port, the `ZMod p` field model, 6 `subtle` and `zeroize` models | the shared HKDF model (HMAC opaque), the cryptolib model, the `hacspec_lib` shim, 6 `std` models | the plain-Rust port, the `ZMod p` field model, the `subtle` models on the path (6 functions and `Choice`, shared with track B) |
+| Trusted definitions | none | the plain-Rust port, the `ZMod p` field model, 6 `subtle` and `zeroize` models | the shared HKDF model (HMAC opaque), the cryptolib model, the `hacspec_lib` shim, 6 `std` models | the plain-Rust port, the `ZMod p` field model, 7 `subtle` models and the type `Choice` from the shared library |
 | Axioms beyond the standard 3 | none | none | 4 formatting declarations, 24 `native_decide` auxiliary axioms | none |
 | Source edits | reference 33 lines, real 0 lines | reference port 166 changed lines and a 32-line field module, real 0 lines here (361 lines in `curve25519-dalek-lean-verify`, 0 in x25519-dalek) | reference 0 lines (shim 179 lines), real 1 line | reference port of 172 lines with a 50-line field module, real 0 lines here (the copy of track B) |
 | Lockstep | at the call level: 18 of 18 calls | in the ladder step, at the level of field operations: 19 steps. The ladder needs a hand-written invariant | only at the shared HKDF calls | at the level of field operations, in `sqrt_ratio_i`, `decompress` and `compress`. The rejection tests need two hand-written arguments |
@@ -145,13 +145,14 @@ agree.
    ports and the shim are trusted.
 2. No reference is checked against its RFC by proof. Only tracks B and D run RFC test
    vectors. Track B runs two RFC vectors and a set of edge inputs. Track D runs the 45
-   vectors of RFC 9496, Appendix A. The reference of track D is modelled on dalek, so a
-   shared error of the two programs is not found. Track B's reference also misses two
+   cases of RFC 9496, Appendix A.1 and A.2, and the 6 cases of A.4. The reference of
+   track D is modelled on dalek, so a shared error of the two programs is not found.
+   Track B's reference also misses two
    parts of RFC 7748: key generation and the check for the all-zero shared secret. The
-   track B README lists every gap between the RFC, the reference and x25519-dalek.
+   track B README lists the gaps between the RFC, the reference and x25519-dalek.
 3. Only tracks B and D prove full refinement, and only for some API pairs. Track B covers
-   x25519-dalek's `x25519` against `x25519_scalarmult`. It does not cover the reference's `x25519_secret_to_public`
-   or the other public functions of x25519-dalek, for example
+   x25519-dalek's `x25519` against `x25519_scalarmult`. It does not cover the reference's
+   `x25519_secret_to_public` or the other public functions of x25519-dalek, for example
    `StaticSecret::diffie_hellman`, which libsignal calls. Track D covers Ristretto
    decoding and encoding, but not the group operations. Tracks A and C prove one small
    unit each: a block core and one key schedule mode. Section 2 lists what they
