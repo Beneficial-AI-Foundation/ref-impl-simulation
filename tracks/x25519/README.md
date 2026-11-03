@@ -1,11 +1,12 @@
 # Track B: X25519 (RFC 7748)
 
-Track B proves full refinement of X25519. For every 32-byte scalar and u-coordinate,
-x25519-dalek's `x25519` returns without panic, overflow or divergence, and the reference
-`x25519_scalarmult` returns the same 32 bytes. The theorem is `X25519Sim.x25519_refines`
+Track B proves full refinement for one API pair of X25519. For every 32-byte scalar and
+u-coordinate, x25519-dalek's `x25519` returns without panic, overflow or divergence, and
+the reference `x25519_scalarmult` returns the same 32 bytes. The theorem is `X25519Sim.x25519_refines`
 (section 3). It has no premises and uses only the three standard axioms. `x25519` calls
 curve25519-dalek's `MontgomeryPoint::mul_clamped`, and `X25519Sim.mul_clamped_refines`
-proves the same result for that function.
+proves the same result for that function. The other public functions of the reference and
+of x25519-dalek are not covered. Section 1 lists them under "APIs not covered".
 
 All paths are relative to `tracks/x25519/`, except the paths that start with `shared/` or
 `scripts/`. Those are relative to the repository root.
@@ -62,7 +63,7 @@ overflows, so this setting does not change the result.
 
 ### Layers of the full refinement
 
-Full refinement is a theorem about the X25519 function itself. It relates the real
+Full refinement here is a theorem about one API pair. It relates the real
 `x25519_dalek::x25519` to the reference `x25519_scalarmult` on all 32-byte inputs. Both
 functions take a scalar and a u-coordinate as bytes and return the result as bytes. The
 table follows the call path from this pair down to the ladder step. The theorem
@@ -104,14 +105,43 @@ The real side reuses specs of `curve25519-dalek-lean-verify` at commit `26d49052
 project (section 2). Its ladder spec, `mul_loop_spec`, has three `sorry`s at that commit,
 so this track proves its own.
 
-The theorem does not cover these paths. `x25519_secret_to_public` calls
-`x25519_scalarmult` with the base point 9. Its real counterpart,
-`MontgomeryPoint::mul_base_clamped`, goes through Edwards base point tables and is not
-extracted. libsignal derives public keys with `x25519-dalek`'s
-`PublicKey::from(&StaticSecret)`, which calls `EdwardsPoint::mul_base_clamped`. This is not
-extracted either. `StaticSecret::diffie_hellman` is a single call to `mul_clamped`, but it
-is not extracted. It needs the `static_secrets` feature of x25519-dalek. The theorem also
-says nothing about constant time or about the erasure of secrets by `zeroize`.
+### APIs not covered
+
+`x25519_refines` covers one public function of each program. The reference, hacspec
+`curve25519`, has two public functions:
+
+1. `x25519_scalarmult` is covered.
+2. `x25519_secret_to_public` is not covered. It calls `x25519_scalarmult` with the base
+   point 9. Its real counterparts are curve25519-dalek's `MontgomeryPoint::mul_base_clamped`
+   and x25519-dalek's `PublicKey::from` (item 2 below). They go through
+   `EdwardsPoint::mul_base_clamped` and its base point tables, and they are not extracted.
+
+The reference has no Diffie-Hellman function and no key types. In RFC 7748, section 6.1,
+the shared secret is the X25519 function of one secret and the other public key. So the
+counterpart of each `diffie_hellman` method below is `x25519_scalarmult`.
+
+x25519-dalek 2.0.1 has these other public functions. None of them is covered:
+
+1. `diffie_hellman` on `EphemeralSecret`, `ReusableSecret` (feature `reusable_secrets`) and
+   `StaticSecret` (feature `static_secrets`). Each one is
+   `SharedSecret(their_public.0.mul_clamped(self.0))`, so `mul_clamped_refines` proves its
+   computation. The methods themselves are not extracted. libsignal calls the
+   `StaticSecret` method.
+2. `PublicKey::from` on `&EphemeralSecret`, `&ReusableSecret` and `&StaticSecret`. Each one
+   is `EdwardsPoint::mul_base_clamped(secret).to_montgomery()`. The counterpart is
+   `x25519_secret_to_public`. libsignal derives its public keys with the `StaticSecret`
+   case.
+3. Key generation: `new`, `random_from_rng` and `random` (feature `getrandom`) on the three
+   secret types. They read a random number generator. The reference has no counterpart.
+4. Conversions and accessors: `From<[u8; 32]>` for `PublicKey` and `StaticSecret`, and
+   `to_bytes`, `as_bytes` and `AsRef<[u8]>` on the key types and on `SharedSecret`. They copy
+   or borrow 32 bytes. The reference has no counterpart.
+5. `SharedSecret::was_contributory`, which tests that the shared point is not the
+   identity. The reference has no counterpart.
+6. The constant `X25519_BASEPOINT_BYTES`.
+
+The theorem also says nothing about constant time or about the erasure of secrets by
+`zeroize`.
 
 ## 2. Translation
 
@@ -379,7 +409,8 @@ specs build with a limit of 151,845. Some proofs set `maxRecDepth 4096`.
 
 Strengths:
 
-1. The track proves full refinement of x25519-dalek's `x25519`. The theorem has no
+1. The track proves full refinement for one API pair: x25519-dalek's `x25519` against
+   `x25519_scalarmult`. The theorem has no
    premises, and the axioms are only the standard three.
 2. No primitive is opaque. Both sides reduce to arithmetic mod p.
 3. The ladder step is the cleanest lockstep of the three tracks. The two sides match
@@ -402,9 +433,11 @@ Weaknesses:
    the 361-line diff preserves meaning.
 4. The field proofs are ports of another project's proofs. Every Aeneas update can break
    them again, because they depend on the goal shapes after `step*`.
-5. The theorem does not cover `mul_base_clamped`, the `x25519-dalek` types
-   `StaticSecret` and `PublicKey`, the constant-time behavior of the real code or the
-   erasure of secrets. libsignal calls `StaticSecret::diffie_hellman`, not `x25519`.
+5. The theorem covers one API pair only. It does not cover `x25519_secret_to_public`,
+   `mul_base_clamped` or the other public functions of x25519-dalek (section 1, "APIs not
+   covered"). libsignal calls `StaticSecret::diffie_hellman`, not `x25519`. The theorem
+   also does not cover the constant-time behavior of the real code or the erasure of
+   secrets.
 6. The proved x25519-dalek is 2.0.1. libsignal uses 3.0.0, whose `x25519` has the same
    text but builds on curve25519-dalek 5.0.0.
 
