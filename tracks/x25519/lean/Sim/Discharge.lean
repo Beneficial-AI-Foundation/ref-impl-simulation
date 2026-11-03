@@ -14,6 +14,8 @@ open Aeneas Aeneas.Std Result Aeneas.Std.WP curve25519_dalek
 
 namespace X25519Sim
 
+open DalekSim
+
 theorem add_contract_holds (a b : FE) (ha : Bnd 53 a) (hb : Bnd 53 b) :
     Shared0FieldElement51.Insts.CoreOpsArithAddSharedAFieldElement51FieldElement51.add a b
       ⦃ r => (∀ i < 5, (r[i]!).val = (a[i]!).val + (b[i]!).val) ∧ Bnd 54 r ⦄ :=

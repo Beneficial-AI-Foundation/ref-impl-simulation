@@ -12,6 +12,8 @@ open curve25519_dalek
 
 namespace RistrettoSim
 
+open DalekSim
+
 /-- The value of `p`. -/
 theorem p_val : p = 2 ^ 255 - 19 := rfl
 

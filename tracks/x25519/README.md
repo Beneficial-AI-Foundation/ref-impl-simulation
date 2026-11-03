@@ -265,8 +265,9 @@ The theorems relate two Aeneas translations. The real side is x25519-dalek 2.0.1
 reference side is the plain-Rust port with the `ZMod p` field model. The theorem rests on
 the trusted definitions of section 4.
 
-Inside the proof, a relation maps a real field element to the reference field
-(`lean/Sim/Pilot.lean`):
+Inside the proof, a relation maps a real field element to the reference field. `toZ` is
+in `lean/Sim/Pilot.lean`, and the limb bound `Bnd` is in
+`shared/dalek/lean/DalekSim/Basic.lean`. `FE` is `FieldElement51`:
 
 ```lean
 def toZ (f : FE) : _root_.field.Fe := ((Field51_as_Nat f : Nat) : ZMod p)
@@ -352,10 +353,14 @@ the ported field specs:
 |---|---|---|
 | `Sim/LadderMath.lean` | 191 | The ladder as a pure function over any commutative ring. The scaling invariant `Rel`, the case `u = 0`, and `enc_ladder_extra_step` over a field |
 | `Sim/RefSide.lean` | 117 | The reference `scalar_bit`, `ladder_step`, `ladder_loop`, `montgomery_ladder` and `encode_point` in closed form |
-| `Sim/Bytes.lean` | 120 | Base-256 digits: `fe_to_bytes`, `fe_from_bytes` and the top-bit mask against `U8x32_as_Nat` |
-| `Sim/RealSide.lean` | 243 | `conditional_select`, `conditional_swap`, the bit read with `Isize` operations, and `mul_loop_spec` |
-| `Sim/Full.lean` | 238 | Clamping, decoding, `as_affine`, dalek's `mul`, and `mul_clamped_refines` |
-| `Sim/X25519.lean` | 26 | `x25519_refines`, from `mul_clamped_refines` and `to_bytes` |
+| `Sim/Bytes.lean` | 38 | `fe_to_bytes` and `fe_from_bytes` against `U8x32_as_Nat`. The base-256 digits and the top-bit mask are in `shared/dalek/lean/DalekSim/Bytes.lean` |
+| `Sim/RealSide.lean` | 245 | `conditional_select`, `conditional_swap`, the bit read with `Isize` operations, and `mul_loop_spec` |
+| `Sim/Full.lean` | 227 | Clamping, decoding, `as_affine`, dalek's `mul`, and `mul_clamped_refines` |
+| `Sim/X25519.lean` | 28 | `x25519_refines`, from `mul_clamped_refines` and `to_bytes` |
+
+The limb bound `Bnd`, `bnd_mono` and the `Result` lemmas `exists_ok_of_spec` and
+`eq_ok_of_spec` do not depend on the reference. They are in
+`shared/dalek/lean/DalekSim/Basic.lean`, which track D also uses.
 
 `mul_loop_spec` is an induction on the number of remaining bits. The loop body reads a bit,
 swaps, calls the step theorem and recurses. A fold lemma, `mul_loop_unfold`, moves the bit
@@ -364,7 +369,7 @@ read into a separate function, `read_bit`, with its own spec. That spec needs on
 platforms. The reference loop is tail recursion, and `ladder_loop_eq` is an induction of
 the same shape. The math in `LadderMath.lean` uses no Aeneas definitions.
 
-The ladder step layer, `Pilot.lean` (204 lines), has three parts:
+The ladder step layer, `Pilot.lean` (201 lines), has three parts:
 
 1. Lockstep. 19 `step with` calls, one per real field operation (18) and one for the
    constant `APLUS2_OVER_FOUR`. Each uses a contract restated over `toZ` (`add_z`,

@@ -2,6 +2,7 @@ import X25519Ref.Funs
 import Curve25519Dalek.Funs
 import Curve25519Dalek.Math.Basic
 import Curve25519Dalek.Auxiliary
+import DalekSim.Basic
 
 /-! # Pilot: one Montgomery ladder step, real against reference
 
@@ -22,13 +23,12 @@ open curve25519_dalek
 
 namespace X25519Sim
 
+open DalekSim
+
 abbrev FE := backend.serial.u64.field.FieldElement51
 
 /-- The representation relation: limbs to the reference field. -/
 def toZ (f : FE) : _root_.field.Fe := ((Field51_as_Nat f : Nat) : ZMod p)
-
-/-- Every limb is below `2 ^ k`. -/
-def Bnd (k : Nat) (f : FE) : Prop := ∀ i < 5, (f[i]!).val < 2 ^ k
 
 /-- The four field operation contracts used by the ladder step, as proved upstream. -/
 structure FieldContracts : Prop where
@@ -44,9 +44,6 @@ structure FieldContracts : Prop where
   square : ∀ a : FE, Bnd 54 a →
     backend.serial.u64.field.FieldElement51.square a
       ⦃ r => Field51_as_Nat r ≡ Field51_as_Nat a ^ 2 [MOD p] ∧ Bnd 52 r ⦄
-
-theorem bnd_mono {j k : Nat} {f : FE} (h : Bnd j f) (hjk : j ≤ k) : Bnd k f :=
-  fun i hi => lt_of_lt_of_le (h i hi) (Nat.pow_le_pow_right (by norm_num) hjk)
 
 /-- The constant `(A + 2) / 4 = 121666`. -/
 theorem aplus2_over_four_eq :
