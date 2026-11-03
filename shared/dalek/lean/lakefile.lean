@@ -15,6 +15,6 @@ curve25519-dalek-lean-verify (Math, Auxiliary), and the field specs (Specs). -/
 
 /-- Lemmas about the real code that do not depend on a reference program: bytes and their
 value (`DalekSim.Bytes`), limb bounds and `Result` lemmas (`DalekSim.Basic`), the slice
-`ct_eq` on 32 bytes (`DalekSim.Choice`) and the Edwards parameter `d` (`DalekSim.Edwards`). -/
+`ct_eq` on 32 bytes (`DalekSim.Choice`) and the Edwards group law (`DalekSim.Edwards`). -/
 @[default_target] lean_lib DalekSim where
   globs := #[.submodules `DalekSim]
