@@ -38,15 +38,18 @@ libsignal computes X25519 agreement through `x25519-dalek` 3.0.0 and curve25519-
 `StaticSecret` that `PrivateKey` built earlier with `StaticSecret::from`. `diffie_hellman`
 calls `MontgomeryPoint::mul_clamped`. libsignal does not call `x25519_dalek::x25519`.
 x25519-dalek 3.0.0 needs curve25519-dalek 5, so the track extracts x25519-dalek 2.0.1, which
-builds on the 4.2.0 copy. `compare-dalek5.py` compares 35 functions and constants on the
-paths of the full theorems: 30 items of curve25519-dalek 5.0.0 against the copy proved
-here, and 5 items of x25519-dalek 3.0.0 against 2.0.1 (`x25519`,
-`StaticSecret::diffie_hellman`, `SharedSecret::as_bytes` and the two `From<[u8; 32]>`
-impls of `StaticSecret` and `PublicKey`). It finds each item by its `impl` block and its
-name, and fails if an item is missing or ambiguous. The crate checksums of 5.0.0 and 3.0.0
-match libsignal's `Cargo.lock`. After comments and blank lines are removed, 31 items are
-identical, the 5 items of x25519-dalek among them. Four items differ through three
-extraction edits, and the script fails on any other difference:
+builds on the 4.2.0 copy. `compare-dalek5.py` compares 83 functions, constants, macros and
+structs: 65 items of curve25519-dalek 5.0.0 against the copy proved here, and 18 items of
+x25519-dalek 3.0.0 against 2.0.1. It finds each item by its `impl` block and its name, and
+fails if an item is missing or ambiguous. The crate checksums of 5.0.0 and 3.0.0 match
+libsignal's `Cargo.lock`. After comments and blank lines are removed, 69 items are
+identical, 13 differ and 1 is absent in 5.0.0. The script fails on any difference that it
+does not list as reviewed.
+
+30 items of curve25519-dalek and 5 of x25519-dalek are on the paths of the full theorems
+(`x25519`, `StaticSecret::diffie_hellman`, `SharedSecret::as_bytes` and the two
+`From<[u8; 32]>` impls of `StaticSecret` and `PublicKey`). Of these, 31 are identical, the 5
+items of x25519-dalek among them. Four items differ through three extraction edits:
 
 1. `add_assign` uses `while` in place of `for i in 0..5`.
 2. `pow2k` uses `while k > 0` in place of `loop` with `break` at `k == 0`. Its callers
@@ -60,9 +63,73 @@ extraction edits, and the script fails on any other difference:
 The identical items include `from_bytes`, `to_bytes`, `reduce`, `from_limbs`, `invert`,
 `pow22501`, `differential_add_and_double`, `as_affine`, both `conditional_select`s,
 `mul_clamped`, `MontgomeryPoint::to_bytes`, `MontgomeryPoint::as_bytes`, `clamp_integer`,
-`bits_le`, the multiplication wrappers and the 5 items of x25519-dalek. The script does not
-compare the struct definitions. In both versions, `StaticSecret` wraps `[u8; 32]`, and
-`PublicKey` and `SharedSecret` wrap a `MontgomeryPoint`.
+`bits_le`, the multiplication wrappers and the 5 items of x25519-dalek.
+
+The other 35 items of curve25519-dalek and 13 of x25519-dalek are on the paths of work that
+is not proved yet: `diffie_hellman` of `EphemeralSecret` and `ReusableSecret`, and the
+public key `PublicKey::from(&secret)`, which goes through `MontgomeryPoint::mul_base_clamped`,
+`EdwardsPoint::mul_base`, the basepoint table and `to_montgomery`. The result is in
+the next list. "Matters" says whether the difference changes what a proof about the copy
+shows for 5.0.0.
+
+Identical, 30 items of curve25519-dalek: `MontgomeryPoint::mul_base`, `mul_base_clamped`,
+`ct_eq` and `identity`, and `is_identity` of the blanket `IsIdentity` impl. Of
+`EdwardsPoint`: `mul_base`, `mul_base_clamped`, `to_montgomery`, `double`,
+`as_affine_niels`, `ct_eq`, `identity` and the struct. The macro `impl_basepoint_table` and
+its call for `EdwardsBasepointTable` (`Radix = 4`, `Additions = 64`). The call of
+`impl_lookup_table` for `LookupTable`. For `AffineNielsPoint`: `identity`,
+`conditional_select`, `conditional_assign`, `Neg for &AffineNielsPoint`, `&EdwardsPoint +
+&AffineNielsPoint` and the struct. `ProjectivePoint::as_extended` and `double`,
+`CompletedPoint::as_projective` and `as_extended`. The constants `EDWARDS_D2` and
+`ED25519_BASEPOINT_POINT`, and the basepoint table: `ED25519_BASEPOINT_TABLE` and its data
+`ED25519_BASEPOINT_TABLE_INNER_DOC_HIDDEN`, 5,954 lines of limbs. So a check of the table
+limbs of the copy also holds for 5.0.0. The copy's `mul_base` of the table still has the
+iterator `filter`, and so has 5.0.0, so an edit that removes it applies to both.
+
+Identical, 8 items of x25519-dalek: `EphemeralSecret::diffie_hellman`,
+`ReusableSecret::diffie_hellman`, the three `PublicKey::from(&secret)`,
+`SharedSecret::was_contributory`, `SharedSecret::to_bytes` and `X25519_BASEPOINT_BYTES`.
+
+Changed, 4 items of curve25519-dalek, 5 of x25519-dalek, and 1 absent:
+
+1. `EdwardsPoint::mul_by_pow_2`: the copy has a `while` loop with a counter, and 5.0.0 has
+   `for _ in 0..(k - 1)`. This is an extraction edit of the copy, like `add_assign`. Matters:
+   no. The loop is the same. A port needs the same edit.
+2. `Scalar::as_radix_16`: the copy has two `while` loops with counters in place of
+   `for i in 0..32` and `for i in 0..63`. Matters: no. A port needs the same edit.
+3. `Scalar::as_radix_2w`: the copy writes `(256 + w - 1) / w` where 5.0.0 has
+   `256_usize.div_ceil(w)`, and `if w == 8` where 5.0.0 has `match w`. Both agree for every
+   `w > 0`, and the table passes `w = 4`. Matters: no. A port needs the same two edits.
+4. `impl_lookup_table`, which holds `select` of the table: 5.0.0 calls
+   `t.conditional_negate(neg_mask)` and requires `ConditionallyNegatable`. The copy
+   writes `let t_neg = -t; t.conditional_assign(&t_neg, neg_mask)`. This is the default
+   method of `subtle::ConditionallyNegatable` (`subtle` 2.6.1), with `-&t`. Matters: yes,
+   for the port. A proof about the copy's `select` does not cover the call of
+   `conditional_negate`. The proof for 5.0.0 needs a model of that method, as in track D, or
+   the edit of the copy. 5.0.0 has no owned `Neg for AffineNielsPoint` any more, and the
+   script lists it as absent. It only calls `-&self`, so nothing is lost.
+5. The structs `PublicKey`, `EphemeralSecret`, `ReusableSecret`, `StaticSecret` and
+   `SharedSecret`: 2.0.1 has `derive(Zeroize)` and `zeroize(drop)` under the feature
+   `zeroize`. 3.0.0 has explicit `impl Drop` blocks that call `self.0.zeroize()`, plus
+   `impl ZeroizeOnDrop`, and for `PublicKey` an explicit `impl Zeroize`. Matters: not for
+   the returned bytes. For `EphemeralSecret::diffie_hellman`, which takes `self` by value,
+   the drop of the secret is on the path. The 3.0.0 `Drop` impls exist even without the
+   feature `zeroize`, with an empty body. So the extraction of 3.0.0 has drop code where the
+   extraction of 2.0.1 has none. A theorem about return values does not see the erasure.
+   A theorem about 3.0.0 needs to handle this drop code.
+
+Not compared, because they are not on the path: `random_from_rng`, `random` and the removed
+`new` (3.0.0 uses `getrandom` and takes `&mut R`), `to_montgomery_batch`, and the
+multiscalar and variable-time code. The script does not read `subtle`. libsignal
+`fc90b90f` locks `subtle` 2.6.1 in its `Cargo.lock`, the version that the proofs of the copy
+assume. `check.sh` checks this if you set `LIBSIGNAL_LOCK` to that lock file.
+
+Size of a port of the extraction edits to 5.0.0, as an estimate from this comparison: the
+8 changed items of curve25519-dalek differ from the copy in 67 lines (41 on the ladder path
+and 26 in the table path), and no difference changes a value. The table, its macros and the
+other 56 items accept the edits of the copy as they are. The only new proof work is the
+model of `conditional_negate`. The estimate does not cover edits of the copy outside the
+listed items, which the script does not see. The port is not started.
 
 The comparison covers libsignal builds with the serial u64 field backend: every 64-bit
 target, and the 32-bit Android targets, because libsignal's `java/build_jni.sh` sets
@@ -462,11 +529,11 @@ specs build with a limit of 151,845. Some proofs set `maxRecDepth 4096`.
    declaration from the crate-level one (Aeneas issue #1458). It reads declarations with the name on the line of the keyword
    or on a later line, after blank and comment lines. It fails on a keyword whose name it
    cannot read. `scripts/tests/test-check-short-names.sh` tests both cases.
-6. `compare-dalek5.py` checks the proved path against curve25519-dalek 5.0.0 and
-   x25519-dalek 3.0.0 (section 1). It fails on a missing or ambiguous item and on any
-   difference other than the three reviewed edits. With `--self-test`, it changes each item
-   of the 5.0.0 and 3.0.0 trees in memory and checks that the comparison reports the
-   change.
+6. `compare-dalek5.py` checks 83 items, among them the proved path, against
+   curve25519-dalek 5.0.0 and x25519-dalek 3.0.0 (section 1). It fails on a missing or
+   ambiguous item and on any difference other than the reviewed ones. With `--self-test`,
+   it changes each item of the 5.0.0 and 3.0.0 trees in memory and checks that the
+   comparison reports the change.
 7. `shared/dalek/check.sh` makes sure that the Lean files of the shared library are the
    Aeneas output in `shared/dalek/extract/` with the patches of the library, and it builds
    the library.
@@ -516,8 +583,9 @@ Weaknesses:
 6. The reference misses two parts of RFC 7748, section 6.1: key generation and the check
    for the all-zero shared secret. So no refinement theorem against it can cover
    `random_from_rng` or `was_contributory`.
-7. The proved x25519-dalek is 2.0.1. libsignal uses 3.0.0, whose 5 compared items have
-   the same text but build on curve25519-dalek 5.0.0.
+7. The proved x25519-dalek is 2.0.1. libsignal uses 3.0.0, whose 5 items on the proved path
+   have the same text but build on curve25519-dalek 5.0.0. For the paths that are not
+   proved yet, 3.0.0 has different drop and zeroize code for the secret types (section 1).
 
 ## 8. Reproduce
 

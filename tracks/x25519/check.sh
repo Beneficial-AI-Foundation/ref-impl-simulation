@@ -2,8 +2,10 @@
 # Runs every check of track B and stops at the first failure.
 # The comparison with libsignal's versions needs the sources of curve25519-dalek 5.0.0 and
 # x25519-dalek 3.0.0 (README section 8). Set DALEK5 and X25519_DALEK3 to their directories,
-# or SKIP_DALEK5=1 to skip that check. Set REPLAY_EXTRACTION=1 to also run Charon and Aeneas
-# again on x25519-dalek and on the shared library, and compare their output with the files.
+# or SKIP_DALEK5=1 to skip that check. Set LIBSIGNAL_LOCK to libsignal's Cargo.lock to also
+# check that it locks the same `subtle` version as real-dalek/Cargo.lock. Set
+# REPLAY_EXTRACTION=1 to also run Charon and Aeneas again on x25519-dalek and on the shared
+# library, and compare their output with the files.
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 root="$here/../.."
@@ -60,7 +62,17 @@ else
   fi
   "$here/compare-dalek5.py" --self-test "$here/real-dalek/curve25519-dalek" "$dalek5" \
     "$here/real-x25519/x25519-dalek" "$x25519dalek3" > /dev/null
-  echo "the proved path agrees, and the self-test reports every change"
+  echo "the compared items agree apart from the reviewed differences, and the self-test reports every change"
+  if [ -n "${LIBSIGNAL_LOCK:-}" ]; then
+    subtle_of() { grep -A1 '^name = "subtle"$' "$1" | sed -n 's/^version = "\(.*\)"$/\1/p'; }
+    want=$(subtle_of "$here/real-dalek/Cargo.lock")
+    got=$(subtle_of "$LIBSIGNAL_LOCK")
+    if [ -z "$want" ] || [ "$want" != "$got" ]; then
+      echo "subtle: libsignal locks '$got', the proofs assume '$want'" >&2
+      exit 1
+    fi
+    echo "libsignal locks subtle $got, as the proofs assume"
+  fi
 fi
 
 echo "== All checks passed"

@@ -8,8 +8,9 @@ OTHER_DIR is curve25519-dalek 5.0.0, the version that libsignal uses. X_COPY_DIR
 x25519-dalek copy that this track extracts (`real-x25519/x25519-dalek`, version 2.0.1).
 X_OTHER_DIR is x25519-dalek 3.0.0, the version that libsignal uses. For each item in `ITEMS`
 and `X_ITEMS`, the script extracts its text from both trees, removes comments and blank
-lines, and compares the results. An item is a function or a constant, found by its `impl`
-block and its name.
+lines, and compares the results. An item is a function, a constant, a static, a struct, a
+macro or a macro call, found by its `impl` block and its name. For a struct, the
+attribute lines (`#[...]`) right above it belong to it.
 
 The script prints `==` for an identical item and `!=` with the diff otherwise. It exits 1
 if an item is missing or ambiguous in either tree, or if a diff differs from the reviewed
@@ -24,6 +25,15 @@ import sys
 FIELD = "src/backend/serial/u64/field.rs"
 MONT = "src/montgomery.rs"
 SCALAR = "src/scalar.rs"
+EDW = "src/edwards.rs"
+CM = "src/backend/serial/curve_models/mod.rs"
+WIN = "src/window.rs"
+U64C = "src/backend/serial/u64/constants.rs"
+
+# Files that 5.0.0 moved: path in the copy -> path in 5.0.0.
+MOVED = {
+    "src/backend/serial/curve_models/mod.rs": "src/backend/serial/curve_models.rs",
+}
 
 # (file, impl block, kind, name). The impl block is a list of substrings that must all occur
 # in the `impl` header line, or None for an item outside any `impl` block.
@@ -58,6 +68,43 @@ ITEMS = [
     (SCALAR, ["impl Scalar {"], "fn", "bits_le"),
     (SCALAR, None, "fn", "clamp_integer"),
     ("src/macros.rs", None, "macro", "define_mul_variants"),
+    # Public-key derivation (steps X1 and X2): `mul_base_clamped` of the Montgomery curve and
+    # of the Edwards curve, the table multiplication and the map back to Montgomery.
+    (MONT, ["impl MontgomeryPoint {"], "fn", "mul_base"),
+    (MONT, ["impl MontgomeryPoint {"], "fn", "mul_base_clamped"),
+    (MONT, ["ConstantTimeEq for MontgomeryPoint"], "fn", "ct_eq"),
+    (MONT, ["Identity for MontgomeryPoint"], "fn", "identity"),
+    ("src/traits.rs", ["IsIdentity for T"], "fn", "is_identity"),
+    (EDW, ["impl EdwardsPoint {"], "fn", "mul_base"),
+    (EDW, ["impl EdwardsPoint {"], "fn", "mul_base_clamped"),
+    (EDW, ["impl EdwardsPoint {"], "fn", "to_montgomery"),
+    (EDW, ["impl EdwardsPoint {"], "fn", "mul_by_pow_2"),
+    (EDW, ["impl EdwardsPoint {"], "fn", "double"),
+    (EDW, ["impl EdwardsPoint {"], "fn", "as_affine_niels"),
+    (EDW, ["ConstantTimeEq for EdwardsPoint"], "fn", "ct_eq"),
+    (EDW, ["Identity for EdwardsPoint"], "fn", "identity"),
+    (EDW, None, "struct", "EdwardsPoint"),
+    (EDW, None, "macro", "impl_basepoint_table"),
+    (EDW, None, "call", "impl_basepoint_table:EdwardsBasepointTable"),
+    (WIN, None, "macro", "impl_lookup_table"),
+    (WIN, None, "call", "impl_lookup_table:LookupTable"),
+    (SCALAR, ["impl Scalar {"], "fn", "as_radix_16"),
+    (SCALAR, ["impl Scalar {"], "fn", "as_radix_2w"),
+    (CM, ["Identity for AffineNielsPoint"], "fn", "identity"),
+    (CM, ["ConditionallySelectable for AffineNielsPoint"], "fn", "conditional_select"),
+    (CM, ["ConditionallySelectable for AffineNielsPoint"], "fn", "conditional_assign"),
+    (CM, ["Neg for &AffineNielsPoint"], "fn", "neg"),
+    (CM, ["Neg for AffineNielsPoint"], "fn", "neg"),
+    (CM, ["Add<", "AffineNielsPoint> for &EdwardsPoint"], "fn", "add"),
+    (CM, ["impl ProjectivePoint {"], "fn", "as_extended"),
+    (CM, ["impl ProjectivePoint {"], "fn", "double"),
+    (CM, ["impl CompletedPoint {"], "fn", "as_projective"),
+    (CM, ["impl CompletedPoint {"], "fn", "as_extended"),
+    (CM, None, "struct", "AffineNielsPoint"),
+    (U64C, None, "const", "EDWARDS_D2"),
+    (U64C, None, "const", "ED25519_BASEPOINT_POINT"),
+    (U64C, None, "static", "ED25519_BASEPOINT_TABLE"),
+    (U64C, None, "static", "ED25519_BASEPOINT_TABLE_INNER_DOC_HIDDEN"),
 ]
 
 # The items of x25519-dalek on the paths of `x25519_refines` and of the `diffie_hellman`
@@ -69,7 +116,29 @@ X_ITEMS = [
     ("src/x25519.rs", ["impl SharedSecret {"], "fn", "as_bytes"),
     ("src/x25519.rs", ["From<[u8; 32]> for StaticSecret"], "fn", "from"),
     ("src/x25519.rs", ["From<[u8; 32]> for PublicKey"], "fn", "from"),
+    # Steps X1 and X2: the other two secret wrappers, public-key derivation and the
+    # contributory check.
+    ("src/x25519.rs", ["impl EphemeralSecret {"], "fn", "diffie_hellman"),
+    ("src/x25519.rs", ["impl ReusableSecret {"], "fn", "diffie_hellman"),
+    ("src/x25519.rs", ["From<&'a EphemeralSecret> for PublicKey"], "fn", "from"),
+    ("src/x25519.rs", ["From<&'a ReusableSecret> for PublicKey"], "fn", "from"),
+    ("src/x25519.rs", ["From<&'a StaticSecret> for PublicKey"], "fn", "from"),
+    ("src/x25519.rs", ["impl SharedSecret {"], "fn", "was_contributory"),
+    ("src/x25519.rs", ["impl SharedSecret {"], "fn", "to_bytes"),
+    ("src/x25519.rs", None, "struct", "PublicKey"),
+    ("src/x25519.rs", None, "struct", "EphemeralSecret"),
+    ("src/x25519.rs", None, "struct", "ReusableSecret"),
+    ("src/x25519.rs", None, "struct", "StaticSecret"),
+    ("src/x25519.rs", None, "struct", "SharedSecret"),
+    ("src/x25519.rs", None, "const", "X25519_BASEPOINT_BYTES"),
 ]
+
+# Items of the copy that 5.0.0 does not have, as (file, first impl string, name). 5.0.0
+# keeps only `Neg for &AffineNielsPoint`. Its `select` calls `conditional_negate`, so nothing
+# calls the owned `neg` any more.
+ABSENT = {
+    (CM, "Neg for AffineNielsPoint", "neg"),
+}
 
 # The reviewed diffs, as printed by this script: the extraction edits of
 # `curve25519-dalek-lean-verify`. Any other difference fails the check.
@@ -132,11 +201,92 @@ EXPECTED = {
     "-x0.as_affine()",
     "-}",
     ],
+    # Extraction edit of the copy: a `while` loop with a counter, as in `add_assign`.
+    (EDW, "mul_by_pow_2"): [
+        "@@ -5,2 +5 @@",
+        "-let mut i = 0;",
+        "-while i < k - 1 {",
+        "+for _ in 0..(k - 1) {",
+        "@@ -9 +7,0 @@",
+        "-i += 1;",
+    ],
+    # 5.0.0 calls `conditional_negate` of `subtle`. Its default method (`subtle` 2.6.1) is
+    # `let self_neg = -(&*self); self.conditional_assign(&self_neg, choice)`. The copy writes
+    # this out with the owned `neg`, which 5.0.0 no longer has (`ABSENT`).
+    (WIN, "impl_lookup_table"): [
+        "@@ -7 +7 @@",
+        "-T: Identity + ConditionallySelectable + Copy + Neg<Output = T>,",
+        "+T: Identity + ConditionallySelectable + ConditionallyNegatable,",
+        "@@ -20,2 +20 @@",
+        "-let t_neg = -t;",
+        "-t.conditional_assign(&t_neg, neg_mask);",
+        "+t.conditional_negate(neg_mask);",
+    ],
+    # Extraction edit of the copy: two `while` loops with counters.
+    (SCALAR, "as_radix_16"): [
+        "@@ -13,2 +13 @@",
+        "-let mut i = 0;",
+        "-while i < 32 {",
+        "+for i in 0..32 {",
+        "@@ -17 +15,0 @@",
+        "-i += 1;",
+        "@@ -19,2 +17 @@",
+        "-let mut i = 0;",
+        "-while i < 63 {",
+        "+for i in 0..63 {",
+        "@@ -24 +20,0 @@",
+        "-i += 1;",
+    ],
+    # Extraction edits of the copy: `div_ceil` and `match` written as `/` and `if`.
+    (SCALAR, "as_radix_2w"): [
+        "@@ -13 +13 @@",
+        "-let digits_count = (256 + w - 1) / w;",
+        "+let digits_count = 256_usize.div_ceil(w);",
+        "@@ -28,4 +28,3 @@",
+        "-if w == 8 {",
+        "-digits[digits_count] += carry as i8;",
+        "-} else {",
+        "-digits[digits_count - 1] += (carry << w) as i8;",
+        "+match w {",
+        "+8 => digits[digits_count] += carry as i8,",
+        "+_ => digits[digits_count - 1] += (carry << w) as i8,",
+    ],
+    # x25519-dalek 3.0.0 replaces `derive(Zeroize)` and `zeroize(drop)` by explicit `impl Zeroize`,
+    # `impl Drop` and `impl ZeroizeOnDrop` blocks that call `self.0.zeroize()`. Behavior is the
+    # same. `PublicKey` has no drop in either version.
+    ("src/x25519.rs", "PublicKey"): [
+        "@@ -2 +1,0 @@",
+        "-#[cfg_attr(feature = \"zeroize\", derive(Zeroize))]",
+    ],
+    ("src/x25519.rs", "EphemeralSecret"): [
+        "@@ -1,2 +0,0 @@",
+        "-#[cfg_attr(feature = \"zeroize\", derive(Zeroize))]",
+        "-#[cfg_attr(feature = \"zeroize\", zeroize(drop))]",
+    ],
+    ("src/x25519.rs", "ReusableSecret"): [
+        "@@ -2,2 +1,0 @@",
+        "-#[cfg_attr(feature = \"zeroize\", derive(Zeroize))]",
+        "-#[cfg_attr(feature = \"zeroize\", zeroize(drop))]",
+    ],
+    ("src/x25519.rs", "StaticSecret"): [
+        "@@ -3,2 +2,0 @@",
+        "-#[cfg_attr(feature = \"zeroize\", derive(Zeroize))]",
+        "-#[cfg_attr(feature = \"zeroize\", zeroize(drop))]",
+    ],
+    ("src/x25519.rs", "SharedSecret"): [
+        "@@ -1,2 +0,0 @@",
+        "-#[cfg_attr(feature = \"zeroize\", derive(Zeroize))]",
+        "-#[cfg_attr(feature = \"zeroize\", zeroize(drop))]",
+    ],
 }
 
 
 class Missing(Exception):
     pass
+
+
+# Counts of the reviewed outcomes of the last full run: identical, changed, absent in OTHER.
+COUNT = {"identical": 0, "changed": 0, "absent": 0}
 
 
 def lex(src):
@@ -204,8 +354,9 @@ def close(shape, start, opener="{"):
 
 
 def item_end(shape, start, kind):
-    """End of the item that starts at `start`: its body for a function or macro, its `;`
-    for a constant. Brackets in the signature, such as `[u8; 32]`, are skipped."""
+    """End of the item that starts at `start`: its body for a function, macro or macro call,
+    its `;` for a constant or static. A struct ends at its body or, for a tuple struct, at
+    its `;`. Brackets in the signature, such as `[u8; 32]`, are skipped."""
     depth, j = 0, start
     while True:
         c = shape[j]
@@ -213,13 +364,26 @@ def item_end(shape, start, kind):
             depth += 1
         elif c in ")]":
             depth -= 1
-        elif depth == 0 and c == "{" and kind != "const":
+        elif depth == 0 and c == "{" and kind not in ("const", "static"):
             return close(shape, j)
-        elif depth == 0 and c == ";" and kind == "const":
+        elif depth == 0 and c == ";" and kind in ("const", "static", "struct"):
             return j + 1
         elif depth == 0 and c == "{":
             j = close(shape, j) - 1
         j += 1
+
+
+def with_attributes(shape, start):
+    """Start of the line of `start`, moved up over the blank lines and the one-line `#[...]`
+    lines above it."""
+    ls = shape.rfind("\n", 0, start) + 1
+    while ls > 0:
+        ps = shape.rfind("\n", 0, ls - 1) + 1
+        line = shape[ps:ls - 1].strip()
+        if line and not line.startswith("#["):
+            break
+        ls = ps
+    return ls
 
 
 def locate(shape, impl, kind, name):
@@ -234,17 +398,23 @@ def locate(shape, impl, kind, name):
             raise Missing(f"no impl block {impl}")
     if kind == "macro":
         pattern = rf"^macro_rules!\s+{name}\b"
-    elif kind == "const":
-        pattern = rf"^\s*(?:pub(?:\([^)]*\))?\s+)?const\s+{name}\b"
+    elif kind in ("const", "static"):
+        pattern = rf"^\s*(?:pub(?:\([^)]*\))?\s+)?{kind}\s+{name}\b"
+    elif kind == "struct":
+        pattern = rf"^\s*(?:pub(?:\([^)]*\))?\s+)?struct\s+{name}\b"
+    elif kind == "call":
+        macro, first = name.split(":")
+        pattern = rf"^\s*{macro}!\s*\{{\s*Name\s*=\s*{first}\s*,"
     else:
         pattern = rf"^\s*(?:pub(?:\([^)]*\))?\s+)?(?:const\s+)?fn\s+{name}\b"
     if impl is None:
-        pattern = pattern.replace(r"^\s*", "^")
+        pattern = pattern.replace(r"^\s*", "^[ \t]*" if kind == "call" else "^")
     hits = [lo + m.start() for lo, hi in scopes
             for m in re.finditer(pattern, shape[lo:hi], re.M)]
     if len(hits) != 1:
         raise Missing(f"{kind} {name}: {len(hits)} matches")
-    return hits[0], item_end(shape, hits[0], kind)
+    start = with_attributes(shape, hits[0]) if kind == "struct" else hits[0]
+    return start, item_end(shape, hits[0], kind)
 
 
 def normalized(code, start, end):
@@ -252,10 +422,19 @@ def normalized(code, start, end):
     return [line for line in lines if line]
 
 
-def key(path, impl, name):
-    if impl is not None and impl[0].startswith("Mul<&Scalar>"):
-        return (impl[0], name)
-    return (path, name)
+def verdict_failed(diff, expected):
+    return diff != expected
+
+
+def is_absent(path, impl, name):
+    return impl is not None and (path, impl[0], name) in ABSENT
+
+
+def expected_diff(path, impl, name):
+    """The reviewed diff of an item: under (first impl string, name), or under (path, name)."""
+    if impl is not None and (impl[0], name) in EXPECTED:
+        return EXPECTED[(impl[0], name)]
+    return EXPECTED.get((path, name), [])
 
 
 def compare(copy_dir, other_dir, items, mutate=None):
@@ -268,8 +447,15 @@ def compare(copy_dir, other_dir, items, mutate=None):
         try:
             texts = []
             for d, other in ((copy_dir, False), (other_dir, True)):
-                src = open(f"{d}/{path}", encoding="utf-8").read()
+                src = open(f"{d}/{MOVED.get(path, path) if other else path}",
+                           encoding="utf-8").read()
                 code, shape = lex(src)
+                if other and is_absent(path, impl, name):
+                    try:
+                        locate(shape, impl, kind, name)
+                    except Missing:
+                        break
+                    raise Missing("listed in ABSENT, but 5.0.0 has it")
                 start, end = locate(shape, impl, kind, name)
                 if other and mutate == idx:
                     # Before the closing `}` or `;`, so that the change is inside the item.
@@ -277,13 +463,20 @@ def compare(copy_dir, other_dir, items, mutate=None):
                     code, shape = lex(src)
                     start, end = locate(shape, impl, kind, name)
                 texts.append(normalized(code, start, end))
+            if len(texts) < 2:
+                if mutate is None:
+                    COUNT["absent"] += 1
+                    print(f"-- {label}: absent in 5.0.0 (reviewed)")
+                continue
         except (Missing, OSError, ValueError) as e:
             print(f"?? {label}: {e}")
             failures += 1
             continue
         diff = list(difflib.unified_diff(texts[0], texts[1], lineterm="", n=0))[2:]
-        expected = EXPECTED.get(key(path, impl, name), [])
+        expected = expected_diff(path, impl, name)
         status = "==" if not diff else "!="
+        if mutate is None and not verdict_failed(diff, expected):
+            COUNT["identical" if not diff else "changed"] += 1
         verdict = "" if diff == expected else "  UNEXPECTED"
         if mutate is None or verdict:
             print(f"{status} {label}{verdict}")
@@ -299,6 +492,9 @@ def self_test(pairs):
     missed, total = [], 0
     for copy_dir, other_dir, items in pairs:
         for idx, (path, impl, kind, name) in enumerate(items):
+            if is_absent(path, impl, name):
+                total -= 1
+                continue
             print(f"-- self-test: change {kind} {name} in {path}")
             if compare(copy_dir, other_dir, items, mutate=idx) == 0:
                 missed.append(name)
@@ -317,7 +513,9 @@ def main(argv):
         sys.exit(__doc__)
     pairs = [(args[0], args[1], ITEMS), (args[2], args[3], X_ITEMS)]
     failures = sum(compare(*pair) for pair in pairs)
-    print(f"{len(ITEMS) + len(X_ITEMS)} items, {failures} failures")
+    print(f"{len(ITEMS) + len(X_ITEMS)} items: {COUNT['identical']} identical, "
+          f"{COUNT['changed']} changed as reviewed, {COUNT['absent']} absent in 5.0.0, "
+          f"{failures} failures")
     if failures:
         return 1
     return self_test(pairs) if test else 0
