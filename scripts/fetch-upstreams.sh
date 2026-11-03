@@ -16,11 +16,13 @@ clone tracks/x25519/hacspec-specs  https://github.com/hacspec/specs.git         
 clone tracks/x25519/hacspec-old    https://github.com/hacspec/hacspec.git         4ecc847fc944fe996e19423aa41f002f2039dab0
 clone tracks/x25519/aeneas-src     https://github.com/AeneasVerif/aeneas.git      d119a474f852781f8ae88a85424f2f8ba8407b82
 clone tracks/x25519/lean/primecert https://github.com/b-mehta/PrimeCert.git       f699a3e5d3efb381b9ddfb61a1ca51be25f456bd
+# Track D uses the track B clones of hacspec-specs and hacspec-old.
+clone tracks/ristretto/lean/primecert https://github.com/b-mehta/PrimeCert.git    f699a3e5d3efb381b9ddfb61a1ca51be25f456bd
 
 # Track C: hpke-spec has no license, so the patched tree is built here, not committed.
 tracks/hpke/make-ref-shim.sh
 
 # Each Lean project requires the Aeneas Lean library from lean/aeneas-backend.
-for t in chacha20poly1305 x25519 hpke; do
+for t in chacha20poly1305 x25519 hpke ristretto; do
   [ -d "tracks/$t/lean/aeneas-backend" ] || cp -r .aeneas/backends/lean "tracks/$t/lean/aeneas-backend"
 done

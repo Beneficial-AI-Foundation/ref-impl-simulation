@@ -19,9 +19,11 @@ tracks/chacha20poly1305/upstream/
 **/index.scip
 **/index.scip.json
 tracks/x25519/lean/primecert/
+tracks/ristretto/lean/primecert/
 tracks/x25519/lv-measure/
 
-# Local archive of working notes (not published)
+# Local working notes (not published): open plans, and the archive of finished ones
+plans/
 archive/
 tracks/hpke/ref-shim/
 
