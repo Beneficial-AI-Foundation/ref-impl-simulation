@@ -68,7 +68,7 @@ The comparison covers libsignal builds with the serial u64 field backend: every 
 target, and the 32-bit Android targets, because libsignal's `java/build_jni.sh` sets
 `curve25519_dalek_bits = "64"` there. It does not cover a build with the `fiat` backend or
 with `curve25519_dalek_bits = "32"`. libsignal builds dalek with
-`overflow-checks = false` in release. The theorem shows that no arithmetic on the path
+`overflow-checks = false` in release. The theorems show that no arithmetic on the paths
 overflows, so this setting does not change the result.
 
 ### Layers of the full refinement
@@ -125,7 +125,7 @@ so this track proves its own.
 ### Gaps: RFC 7748, the reference and x25519-dalek
 
 Refinement is relative to the reference. A real function without a counterpart in the
-reference is not covered, and the theorem says nothing about it. This section states the
+reference is not covered, and the theorems say nothing about it. This section states the
 gaps at three levels: what the RFC describes, what the hacspec reference has, and what
 x25519-dalek 2.0.1 offers. It covers the Curve25519 part of the RFC.
 
@@ -169,7 +169,7 @@ x25519-dalek has these public APIs that the RFC does not describe:
    the canonical bytes, so it agrees with this equality. The RFC defines no equality of
    keys.
 
-The theorem also says nothing about constant time or about the erasure of secrets.
+The theorems also say nothing about constant time or about the erasure of secrets.
 
 ## 2. Translation
 
@@ -227,7 +227,7 @@ theorems take bytes for these types. Charon cannot start from a method of a gene
 impl such as `From<[u8; 32]>` ("does not support trait generics"), so the two `from`
 functions are not in the extraction. A start from the whole `x25519` module adds 28
 opaque functions (random number generation, `Debug`, `Hash` and others) as axioms to the
-Lean project. The track keeps the Lean project free of axioms, so it does not do that.
+Lean project. The track admits no axioms beyond the standard three, so it does not do that.
 Section 4 lists the `from` step as a source correspondence.
 
 Field proofs. `curve25519-dalek-lean-verify` proves the field operations on Aeneas
@@ -306,7 +306,7 @@ theorem mul_clamped_refines (u s : Array U8 32#usize) :
 The theorems relate two Aeneas translations. The real side is x25519-dalek 2.0.1 on the
 `curve25519-dalek-lean-verify` copy of dalek, built with the serial u64 backend
 (`real-dalek/.cargo/config.toml`). The
-reference side is the plain-Rust port with the `ZMod p` field model. The theorem rests on
+reference side is the plain-Rust port with the `ZMod p` field model. The theorems rest on
 the trusted definitions of section 4.
 
 Inside the proof, a relation maps a real field element to the reference field. `toZ` is
@@ -366,7 +366,7 @@ Trusted definitions. `#print axioms` does not show them.
    and `fe_sq` are the ring operations. `fe_inv` is the `ZMod` inverse, which maps 0 to 0
    as `nat_mod`'s `inv` does. `fe_from_bytes` decodes little-endian and reduces mod p.
    `fe_to_bytes` encodes the canonical representative. The ladder step uses only the ring
-   operations and `fe_lit`. The full theorem also uses `fe_inv`, `fe_from_bytes` and
+   operations and `fe_lit`. The full theorems also use `fe_inv`, `fe_from_bytes` and
    `fe_to_bytes`.
 3. The 6 hand definitions for `subtle` and `zeroize` on the real side: 5 functions in
    `shared/dalek/lean/Curve25519Dalek/FunsExternal.lean` and the type `subtle.Choice` in
@@ -381,8 +381,9 @@ Trusted definitions. `#print axioms` does not show them.
 4. The real code is the modified copy of dalek in `curve25519-dalek-lean-verify`, and
    x25519-dalek 2.0.1. The theorems hold for that code.
 
-Source correspondence. One step on libsignal's call is not in the extraction. Section 2
-gives the reason. The `From<[u8; 32]>` impls of `StaticSecret` and `PublicKey` are the
+Source correspondence. Two conversions that libsignal uses are not in the extraction.
+`StaticSecret::from` runs when libsignal builds the key, and `PublicKey::from` runs in
+`calculate_agreement`. Section 2 gives the reason. The `From<[u8; 32]>` impls of `StaticSecret` and `PublicKey` are the
 tuple constructors `StaticSecret(bytes)` and `PublicKey(MontgomeryPoint(bytes))`, in
 x25519-dalek 2.0.1 and, with the same text, in 3.0.0 (`compare-dalek5.py`). Aeneas
 translates the three newtypes to `Array U8 32#usize`, so these impls are the identity on
@@ -502,7 +503,7 @@ Weaknesses:
    rule produces them.
 2. The reference is a port, and the field model is hand-written. Their faithfulness rests
    on review, on two RFC vectors and on the edge inputs of `ref-plain/tests/edge.rs`.
-3. The real code is a modified copy of dalek. The theorem covers upstream dalek only if
+3. The real code is a modified copy of dalek. The theorems cover upstream dalek only if
    the 361-line diff preserves meaning.
 4. The field proofs are ports of another project's proofs. Every Aeneas update can break
    them again, because they depend on the goal shapes after `step*`.
@@ -549,7 +550,8 @@ tracks/x25519/extract-real.sh
 ```
 
 The script passes `--remap-path-prefix` to rustc, so that the `Source:` paths of the
-generated files are relative to the repository root.
+curve25519-dalek items are relative to the repository root. The paths of the x25519-dalek
+items are relative to `real-x25519/`.
 
 `lean/X25519Ref` and `lean/X25519Dalek` hold copies of `ref-plain/Ref` and
 `real-x25519/X25519` without hand edits, plus the hand-written files

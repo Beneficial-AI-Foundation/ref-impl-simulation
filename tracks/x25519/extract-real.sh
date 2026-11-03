@@ -40,7 +40,7 @@ have=$(aeneas -version | cut -d' ' -f2)
 start=()
 for e in "${entry_points[@]}"; do start+=(--start-from "$e"); done
 # The name of the .llbc file gives the Lean module prefix. The path remap makes the
-# `Source:` paths relative to the repository root.
+# `Source:` paths of curve25519-dalek relative to the repository root.
 (cd "$workspace" && charon cargo --preset=aeneas --dest-file "$tmp/x25519_dalek.llbc" \
   "${start[@]}" -- --locked --offline -p x25519-dalek --no-default-features \
   --features "$features" --config "build.rustflags=[\"--remap-path-prefix=$root/=\"]") \
@@ -52,5 +52,6 @@ if [ "$mode" = --check ]; then
   for f in "${generated[@]}"; do diff -u "$workspace/X25519/$f" "$tmp/X25519/$f"; done
   echo "the extraction of x25519-dalek gives real-x25519/X25519/"
 else
+  mkdir -p "$workspace/X25519"
   for f in "${generated[@]}"; do cp "$tmp/X25519/$f" "$workspace/X25519/$f"; done
 fi
