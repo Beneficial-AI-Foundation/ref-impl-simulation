@@ -415,8 +415,10 @@ The limb bound `Bnd`, `bnd_mono` and the `Result` lemmas `exists_ok_of_spec` and
 `eq_ok_of_spec` do not depend on the reference. They are in
 `shared/dalek/lean/DalekSim/Basic.lean`, which track D also uses.
 
-`Sim/EdwardsBridge.lean` (179 lines) is a prototype for step X2, the public key. It is not part
-of the proofs above. `toU_dblY` shows that the u-coordinate `(1 + y) / (1 - y)` of an Edwards
+`Sim/EdwardsBridge.lean` (179 lines) is a first step toward a proof of public-key derivation
+(`PublicKey::from`). It is not part of the proofs above. dalek computes the public key on
+the Edwards curve and maps it to the Montgomery u-coordinate, but the reference uses the
+Montgomery ladder, so a proof must relate the two. `toU_dblY` shows that the u-coordinate `(1 + y) / (1 - y)` of an Edwards
 double is the encoding of the ladder doubling `dbl`, and `dadd_core` is the polynomial identity
 behind the differential addition. Both come from the curve equation, without the Edwards
 group law. `toU_dblY_curve25519` instantiates `toU_dblY` for Curve25519. The file checks

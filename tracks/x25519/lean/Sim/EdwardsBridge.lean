@@ -6,8 +6,8 @@ import Mathlib.Tactic.NormNum.LegendreSymbol
 
 /-! # From Edwards to Montgomery form: doubling and differential addition
 
-A prototype for step X2 (public-key derivation). dalek computes the public key on the
-Edwards curve `-x² + y² = 1 + d x² y²` and maps the result to the Montgomery u-coordinate
+A first step toward a proof of public-key derivation (`PublicKey::from`), which no theorem
+of this track covers yet. dalek computes the public key on the Edwards curve `-x² + y² = 1 + d x² y²` and maps the result to the Montgomery u-coordinate
 `u = (1 + y) / (1 - y)` (`EdwardsPoint::to_montgomery`). The reference computes it with the
 Montgomery ladder. This file proves one step of the bridge, directly from the curve equation:
 the u-coordinate of `P + P`, with `P + P` from the unified Edwards addition formula, is the
@@ -116,8 +116,8 @@ theorem toU_dblY (d x y : F) (h2 : (2 : F) ≠ 0) (hi : IsSquare (-1 : F)) (hd :
 curve, write `P + Q` and `P - Q` with the unified formula. Then the numerators and denominators
 of `(1 + y) / (1 - y)` for `P + Q` and `P - Q` satisfy
 `u(P + Q) u(P - Q) = ((y₁ + y₂) / (y₁ - y₂))²`, with the denominators multiplied out. The
-right side is `((u_P u_Q - 1) / (u_P - u_Q))²`, the ladder's differential addition. A later step
-must add the cases with a zero denominator. -/
+right side is `((u_P u_Q - 1) / (u_P - u_Q))²`, the ladder's differential addition. The cases
+with a zero denominator are not covered. -/
 theorem dadd_core (d x1 y1 x2 y2 : F) (hdy1 : 1 + d * y1 ^ 2 ≠ 0) (hdy2 : 1 + d * y2 ^ 2 ≠ 0)
     (hc1 : -x1 ^ 2 + y1 ^ 2 = 1 + d * x1 ^ 2 * y1 ^ 2)
     (hc2 : -x2 ^ 2 + y2 ^ 2 = 1 + d * x2 ^ 2 * y2 ^ 2) :
