@@ -103,6 +103,38 @@
   \end{itemize}
 \end{frame}
 
+% ---------------------------------------------------------------- 2b
+\begin{frame}[t]{We do not start from zero: hacspec}
+  \vspace{0.9em}
+  \centering
+  \begin{tikzpicture}[every node/.append style={font=\scriptsize}]
+    \node[label, anchor=east, text=proofc] at (-0.4, 0) {\textbf{our case}};
+    \node[doc] (rfc1) at (0.8, 0) {RFC};
+    \node[spec, right=0.75cm of rfc1, text width=3.2cm] (hs) {\textbf{hacspec} spec\\Rust code,\\already written};
+    \node[tool, right=0.75cm of hs] (ae) {Aeneas};
+    \node[spec, right=0.75cm of ae] (ls1) {Lean \code{S.f}};
+    \draw[flow] (rfc1) -- (hs);
+    \draw[flow] (hs) -- (ae);
+    \draw[flow] (ae) -- (ls1);
+
+    \node[label, anchor=east, text=trustc] at (-0.4, -1.6) {\textbf{from zero}};
+    \node[doc] (rfc2) at (0.8, -1.6) {RFC};
+    \node[spec, dashed, text width=3.2cm] (ls2) at (ls1 |- rfc2) {Lean \code{S.f}\\written by hand};
+    \draw[flow, dashed] (rfc2) -- node[above, label, text=trustc] {no Rust $S$, no Aeneas for $S$} (ls2);
+  \end{tikzpicture}
+  \vspace{0.8em}
+
+  \begin{itemize}\footnotesize
+    \item hacspec, and the language of the hax toolchain, are subsets of Rust for executable specs.
+    \item So $S$ exists before we start. We reuse it and run Aeneas on it, as on $I$.
+    \item Its fit to the RFC is trusted, and test vectors check it. A spec modelled on
+      the real code (Ristretto follows dalek) cannot find an error that both share.
+    \item Without such a spec, we can write $S$ directly in Lean and skip Aeneas for $S$.
+    \item The price: old hacspec does not go through Aeneas as is.
+      It needs a port or a shim, and both are trusted.
+  \end{itemize}
+\end{frame}
+
 % ---------------------------------------------------------------- 3
 \begin{frame}{The pipeline}
   \centering

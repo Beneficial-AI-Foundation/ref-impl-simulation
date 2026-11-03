@@ -11,9 +11,11 @@ source, the commit, the license and the edits made in this repository.
 | `tracks/chacha20poly1305/ref-hacspec/` | `hacspec/hacspec`, `lib/`, `utils/`, `examples/` | `4ecc847fc944fe996e19423aa41f002f2039dab0` | MIT (`LICENSE`). The crate manifests say MIT OR Apache-2.0 | 1 line, and the manifests |
 | `tracks/hpke/real-work/` | `cryspen/hpke-rs` 0.6.1 | `e1a4b12d3e630c713a89e97a2a91e4a597f3fc82` | MPL-2.0 (manifest). `LICENSE` holds the MPL-2.0 text, added here | 1 line in `src/kdf.rs` |
 | `tracks/x25519/real-dalek/curve25519-dalek/` | curve25519-dalek 4.2.0 as modified by `Beneficial-AI-Foundation/curve25519-dalek-lean-verify` | `26d49052347e52cb3923952ea225d28faf48fe72` | BSD-3-Clause (`LICENSE`) | None in this repository |
-| `tracks/x25519/lean/Curve25519Dalek/` (`Auxiliary.lean`, `Math/`, `Specs/`) | `curve25519-dalek-lean-verify` | `26d49052347e52cb3923952ea225d28faf48fe72` | Apache-2.0 (`LICENSE`) | Ported to Aeneas `d119a474`. Each changed file has a "Port note" in its header. `Specs/.../CarryBlock.lean` is new. `FunsExternal.lean` and `TypesExternal.lean` are Aeneas templates filled with 6 definitions copied from `curve25519-dalek-lean-verify`. `conditional_swap` is changed to call `conditional_assign`, as the Rust default method does |
+| `tracks/x25519/real-x25519/x25519-dalek/` | x25519-dalek 2.0.1 from crates.io, `dalek-cryptography/curve25519-dalek`, `x25519-dalek/` | `4ac84dd0668b1d2e51654fcdffe4ae6a687bef00` | BSD-3-Clause (`LICENSE`) | None. A root `Cargo.toml` outside the copy points its curve25519-dalek dependency to `tracks/x25519/real-dalek/curve25519-dalek/` |
+| `shared/dalek/lean/Curve25519Dalek/` (`Auxiliary.lean`, `Math/`, `Specs/`) | `curve25519-dalek-lean-verify` | `26d49052347e52cb3923952ea225d28faf48fe72` | Apache-2.0 (`LICENSE`) | Ported to Aeneas `d119a474`. Each changed file has a "Port note" in its header. `Specs/.../CarryBlock.lean` is new. `Specs/.../Negate.lean` is unchanged. `FunsExternal.lean` and `TypesExternal.lean` are Aeneas templates filled with 6 definitions copied from `curve25519-dalek-lean-verify` and 7 definitions written for track D. `conditional_swap` is changed to call `conditional_assign`, as the Rust default method does |
 | `tracks/x25519/ref-hacspec/` | `hacspec/specs`, `curve25519` | `c511110d6f4bb4628da193a2c8e44c928d9555b8` | Apache-2.0 (`LICENSE`) | The manifest and a `rust-toolchain`. `src/curve25519.rs` is renamed to `src/lib.rs`, with its text unchanged. Tests and benchmarks are not copied |
 | `tracks/x25519/ref-plain/` | A port to plain Rust of `hacspec/specs` `curve25519` | `c511110d6f4bb4628da193a2c8e44c928d9555b8` | Apache-2.0 (`LICENSE`) | The port itself (track B README, section 2) |
+| `tracks/ristretto/ref-plain/` | A port to plain Rust of `hacspec/specs` `ristretto` | `c511110d6f4bb4628da193a2c8e44c928d9555b8` | Apache-2.0 (`LICENSE`) | The port itself (track D README, section 2) |
 
 `cryspen/hpke-spec` (`85429a9ab519ca6eb5b286294203cefe75399223`), the reference of track C,
 has no license. This repository does not include a copy of it.
@@ -26,5 +28,7 @@ The other upstream repositories that the tracks use are cloned by
 `scripts/fetch-upstreams.sh` and are not part of this repository.
 
 The Lean files that Aeneas generated are translations of the code in the table and of
-hpke-spec. They are in `Ref/`, `Real/`, `RealAead/`, `X25519Ref/`, `real-dalek/Mont/`
-and `ref-plain/Ref/`. They are also `Curve25519Dalek/Funs.lean` and `Types.lean`.
+hpke-spec. They are in `Ref/`, `Real/`, `RealAead/`, `X25519Ref/`, `RistrettoRef/`,
+`shared/dalek/extract/`, `real-x25519/X25519/` and `ref-plain/Ref/`. They are also `Curve25519Dalek/Funs.lean`,
+`Curve25519Dalek/Types.lean`, `X25519Dalek/Funs.lean` and `X25519Dalek/Types.lean`.
+`shared/dalek/patches/` holds the hand edits of `Curve25519Dalek/Funs.lean`.

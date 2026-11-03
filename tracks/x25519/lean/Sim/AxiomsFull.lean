@@ -1,4 +1,5 @@
 import Sim.Full
+import Sim.X25519
 
 /-! Each check fails if the axioms of the theorem differ from the standard three. -/
 
@@ -17,3 +18,7 @@ import Sim.Full
 /-- info: 'curve25519_dalek.field.FieldElement51.invert_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms curve25519_dalek.field.FieldElement51.invert_spec
+
+/-- info: 'X25519Sim.x25519_refines' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms X25519Sim.x25519_refines
