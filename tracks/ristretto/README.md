@@ -1,11 +1,14 @@
-# Track D: Ristretto decoding (RFC 9496)
+# Track D: Ristretto decoding and encoding (RFC 9496)
 
-Track D proves that dalek's Ristretto decoding refines a reference. For every 32-byte
-input, `CompressedRistretto::decompress` returns without panic, overflow or divergence. The
+Track D proves that dalek's Ristretto decoding and encoding refine a reference. For every
+32-byte input, `CompressedRistretto::decompress` returns without panic, overflow or divergence. The
 reference `decode` returns a result, and the results agree. Both reject the same inputs.
 On the other inputs, the two points have the same four coordinates. The theorem is
 `RistrettoSim.decompress_refines` (section 3). It has no premises and uses only the three
-standard axioms.
+standard axioms. For encoding, `RistrettoPoint::compress` returns without panic for every
+point with limbs below `2^53`, and it returns the bytes of the reference `encode`. The
+theorem is `RistrettoSim.compress_refines`. Its only premise is the limb bound, and it uses
+only the three standard axioms.
 
 All paths are relative to `tracks/ristretto/`.
 
@@ -26,24 +29,24 @@ vector checks compare it with the RFC 9496 test vectors (section 6).
 
 libsignal `fc90b90f` uses curve25519-dalek 5.0.0 for Ristretto in `zkgroup`,
 `zkcredential`, `poksho`, `usernames` and `svrb`. `compare-dalek5.py` compares
-the 28 functions and constants on the path of the theorem in 5.0.0 with the copy proved
-here. After comments and blank lines are removed, 23 items are identical. Five items differ
-in four ways, and the script fails on any other difference:
+the 29 functions and constants on the path of the two theorems in 5.0.0 with the copy
+proved here. After comments and blank lines are removed, 23 items are identical. Six items
+differ in four ways, and the script fails on any other difference:
 
 1. `add_assign` and `pow2k`: the two loop edits of track B.
 2. `pow_p58` is `pub(crate)` in 5.0.0. The body is the same.
 3. `sqrt_ratio_i`: 5.0.0 calls `r.conditional_negate(r_is_negative)`. The copy writes
    `let r_neg = -&r; r.conditional_assign(&r_neg, r_is_negative)`. This is the default
    method of `subtle::ConditionallyNegatable` (`subtle` 2.6.1).
-4. `step_2`: the copy binds five subexpressions to names, and writes `conditional_negate`
-   as in item 3. The field operations and their order are the same.
+4. `step_2` and `compress`: the copy binds subexpressions to names, and writes
+   `conditional_negate` as in item 3. The field operations and their order are the same.
 
-Decoding uses only the serial field code. On 64-bit targets, the `simd` backend of dalek
-does not change the field arithmetic. So the theorem covers decoding in every libsignal
-build with 64-bit limbs. It does not cover a build with the `fiat` backend or with
+Decoding and encoding use only the serial field code. On 64-bit targets, the `simd` backend of dalek
+does not change the field arithmetic. So the theorems cover decoding and encoding in every
+libsignal build with 64-bit limbs. It does not cover a build with the `fiat` backend or with
 `curve25519_dalek_bits = "32"`.
 
-The theorem does not cover `RistrettoPoint::compress` (encoding), the group operations,
+The theorems do not cover the group operations,
 scalar multiplication, `from_uniform_bytes`, constant time or the erasure of secrets.
 
 ## 2. Translation
@@ -116,9 +119,32 @@ The second theorem is `RistrettoSim.sqrt_ratio_i_refines` (`lean/Sim/SqrtRatio.l
 the limbs of `u` and `v` are below `2^54`, dalek's `sqrt_ratio_i u v` returns the result of
 the reference `sqrt_ratio_m1 (toZ u) (toZ v)` under `toZ`.
 
+The encoding theorem is `RistrettoSim.compress_refines` (`lean/Sim/Encode.lean`):
+
+```lean
+theorem compress_refines (P : ristretto.RistrettoPoint) (hP : BndPt 53 P) :
+    ristretto.RistrettoPoint.compress P ⦃ c =>
+      ristretto_ref.encode (toZPt P) = ok c ⦄
+```
+
+The premise states that every limb of the four coordinates is below `2^53`. This is the
+bound of `EdwardsPoint.IsValid` in `curve25519-dalek-lean-verify`. The proof needs it
+because the spec of `add` (for `Z + Y`) requires limbs below `2^53`. The theorem does not
+need the curve equation, because both programs do the same field operations. So it holds
+also for tuples that are not points. The two results are equal bytes.
+
+`RistrettoSim.decompress_compress_refines` composes the two theorems. For every input, it
+states the result of `decompress_refines`. In addition, if `decompress` returns a point,
+`compress` of that point returns the bytes of `encode` on the point of `decode`. A decoded
+point has limbs below `2^52`, so the premise of `compress_refines` holds.
+
+The theorems do not prove that `encode (decode b) = b` for an accepted `b`. That is a
+fact about the reference alone, and only the tests of section 6 check it.
+
 ## 4. Assumptions
 
-Premises. The main theorem has none.
+Premises. `decompress_refines` has none. `compress_refines` has the limb bound of
+section 3.
 
 Trusted definitions. `#print axioms` does not show them.
 
@@ -142,8 +168,8 @@ Trusted definitions. `#print axioms` does not show them.
 4. The real code is the modified copy of dalek in `curve25519-dalek-lean-verify`. The
    theorem holds for that copy.
 
-Axioms. `lean/Sim/Axioms.lean` checks with `#guard_msgs` that `decompress_refines` and
-`sqrt_ratio_i_refines` depend only on `propext`, `Classical.choice` and `Quot.sound`.
+Axioms. `lean/Sim/Axioms.lean` checks with `#guard_msgs` that `decompress_refines`,
+`compress_refines`, `decompress_compress_refines` and `sqrt_ratio_i_refines` depend only on `propext`, `Classical.choice` and `Quot.sound`.
 
 ## 5. Proof structure
 
@@ -156,6 +182,7 @@ Axioms. `lean/Sim/Axioms.lean` checks with `#guard_msgs` that `decompress_refine
 | `Sim/SqrtRatio.lean` | 159 | The reference `sqrt_ratio_m1` in closed form, and `sqrt_ratio_i_refines` |
 | `Sim/GeqP.lean` | 124 | The reference `geq_p` loop computes `p ≤ x` |
 | `Sim/Decode.lean` | 368 | `step_1`, `invsqrt`, `step_2`, the reference `decode` in three cases, and `decompress_refines` |
+| `Sim/Encode.lean` | 245 | The reference `encode` in closed form, `compress_refines` and `decompress_compress_refines` |
 
 The proof goes call by call. For each real field operation, a spec gives the value under
 `toZ` and a limb bound. The reference side is a pure computation in `ZMod p`, and a closed
@@ -197,14 +224,15 @@ copied from track B set `maxRecDepth 4096`, as in track B.
 
 Strengths:
 
-1. The theorem covers every 32-byte input. It has no premises, and the axioms are only the
+1. The decoding theorem covers every 32-byte input. It has no premises. The encoding
+   theorem covers every tuple with the limb bound of a valid point. The axioms are only the
    standard three.
 2. The relation is equality of the four coordinates in the field, which is stronger than
    equality in the Ristretto group.
 3. The proof does not depend on the group law of Edwards curves. dalek-lean's statement of
    that law depends on a `sorry` (`add_assoc_Ed25519`).
 4. The real side has no axioms. All `subtle` functions on the path have definitions.
-5. The proved path is the decoding code of libsignal's builds with 64-bit limbs, apart from
+5. The proved path is the decoding and encoding code of libsignal's builds with 64-bit limbs, apart from
    the reviewed edits of section 1.
 
 Weaknesses:
@@ -214,7 +242,8 @@ Weaknesses:
    on review and on the tests of section 6.
 3. The `subtle` definitions state the result of constant-time code. The theorem says
    nothing about constant time.
-4. The theorem covers decoding only. Encoding and scalar multiplication are later stages.
+4. The theorems cover decoding and encoding only. Scalar multiplication is a later stage.
+5. No theorem states that `encode (decode b) = b`. Only tests check it.
 
 ## 8. Reproduce
 

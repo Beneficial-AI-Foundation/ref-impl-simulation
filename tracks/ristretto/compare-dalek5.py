@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Check that two curve25519-dalek trees agree on the path of `decompress_refines`.
+"""Check that two curve25519-dalek trees agree on the path of `decompress_refines` and
+`compress_refines`.
 
 Usage: compare-dalek5.py [--self-test] COPY_DIR OTHER_DIR
 
@@ -54,6 +55,7 @@ ITEMS = [
     (RIST, ["impl CompressedRistretto {"], "fn", "decompress"),
     (RIST, ["mod decompress"], "fn", "step_1"),
     (RIST, ["mod decompress"], "fn", "step_2"),
+    (RIST, ["impl RistrettoPoint {"], "fn", "compress"),
 ]
 
 # The reviewed diffs, as printed by this script: the extraction edits of
@@ -115,6 +117,39 @@ EXPECTED = {
         "-let x_negated = -&x;",
         "-x.conditional_assign(&x_negated, x_neg);",
         "+x.conditional_negate(x_neg);",
+    ],
+    (RIST, "compress"): [
+        "@@ -6,3 +6 @@",
+        "-let z_plus_y = Z + &Y;",
+        "-let z_minus_y = Z - &Y;",
+        "-let u1 = &z_plus_y * &z_minus_y;",
+        "+let u1 = &(Z + &Y) * &(Z - &Y);",
+        "@@ -10,3 +8 @@",
+        "-let u2_sq = u2.square();",
+        "-let u1_u2_sq = &u1 * &u2_sq;",
+        "-let (_, invsqrt) = u1_u2_sq.invsqrt();",
+        "+let (_, invsqrt) = (&u1 * &u2.square()).invsqrt();",
+        "@@ -15,2 +11 @@",
+        "-let i2_T = &i2 * T;",
+        "-let z_inv = &i1 * &i2_T;",
+        "+let z_inv = &i1 * &(&i2 * T);",
+        "@@ -22,2 +17 @@",
+        "-let t_z_inv = T * &z_inv;",
+        "-let rotate = t_z_inv.is_negative();",
+        "+let rotate = (T * &z_inv).is_negative();",
+        "@@ -27,6 +21,2 @@",
+        "-let x_z_inv = &X * &z_inv;",
+        "-let y_sign = x_z_inv.is_negative();",
+        "-let y_neg = -&Y;",
+        "-Y.conditional_assign(&y_neg, y_sign);",
+        "-let z_minus_y2 = Z - &Y;",
+        "-let mut s = &den_inv * &z_minus_y2;",
+        "+Y.conditional_negate((&X * &z_inv).is_negative());",
+        "+let mut s = &den_inv * &(Z - &Y);",
+        "@@ -34,2 +24 @@",
+        "-let s_neg = -&s;",
+        "-s.conditional_assign(&s_neg, s_is_negative);",
+        "+s.conditional_negate(s_is_negative);",
     ],
 }
 
