@@ -79,6 +79,7 @@ not depend on a reference, in the namespace `DalekSim`:
 |---|---|
 | `Bytes.lean` | `U8x32_as_Nat` as base-256 digits (`digits_lt`, `digits_get`, `U8x32_as_Nat_eq`, `byte_lt`, `U8x32_digit`), Horner's rule (`foldr_horner`), and clearing bit 255 (`U8x32_mask_top`) |
 | `Basic.lean` | the limb bound `Bnd` and `bnd_mono`, and the `Result` lemmas `exists_ok_of_spec` and `eq_ok_of_spec` |
+| `Edwards.lean` | the Edwards parameter `dEd` as an element of `ZMod p`, `dEd_not_square` and `dEd_rel` (`121666 d = -121665`). Track B uses them in `Sim/EdwardsBridge.lean` |
 
 Tracks B and D open the namespace `DalekSim` in their proofs.
 
