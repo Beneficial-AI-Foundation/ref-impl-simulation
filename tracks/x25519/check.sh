@@ -7,6 +7,16 @@ set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 root="$here/../.."
 
+# Tracks B and D build into the same shared library, Aeneas copy and package directory.
+# The lock makes a second check wait until the first one ends.
+if command -v flock > /dev/null; then
+  mkdir -p "$root/shared/dalek/lean/.lake"
+  exec 9> "$root/shared/dalek/lean/.lake/check.lock"
+  flock 9
+fi
+
+"$root/shared/dalek/check.sh"
+
 echo "== Rust reference tests"
 (cd "$here/ref-plain" && cargo test --quiet)
 
@@ -16,7 +26,7 @@ echo "== Lean build, with the axiom and vector checks"
 echo "== Name-binding check"
 "$root/scripts/tests/test-check-short-names.sh"
 (cd "$here/lean"
-  for d in X25519Ref Curve25519Dalek X25519Dalek; do
+  for d in X25519Ref X25519Dalek; do
     "$root/scripts/check-short-names.py" $(ls "$d"/*.lean | grep -v _Template)
   done)
 

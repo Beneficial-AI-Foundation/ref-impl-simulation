@@ -151,7 +151,8 @@ agree.
 | Path | Content |
 |---|---|
 | `tracks/<track>/README.md` | the full description of the track |
-| `tracks/<track>/lean/` | the Lake project: generated code, hand-written models, proofs in `Sim/` (track B also in `Curve25519Dalek/Specs/`) |
+| `tracks/<track>/lean/` | the Lake project: generated code, hand-written models, proofs in `Sim/` |
+| `shared/dalek/` | the curve25519-dalek extraction and Lean library that tracks B and D import, with the field specs in `lean/Curve25519Dalek/Specs/` ([README](shared/dalek/README.md)) |
 | `tracks/<track>/` other directories | work copies of the Rust sources and extraction scripts |
 | `scripts/fetch-upstreams.sh` | clones the upstream repositories at the recorded commits and prepares the Lean projects |
 | `scripts/check-short-names.py` | the name-binding scan of section 3 |

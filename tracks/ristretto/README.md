@@ -10,7 +10,8 @@ point with limbs below `2^53`, and it returns the bytes of the reference `encode
 theorem is `RistrettoSim.compress_refines`. Its only premise is the limb bound, and it uses
 only the three standard axioms.
 
-All paths are relative to `tracks/ristretto/`.
+All paths are relative to `tracks/ristretto/`, except the paths that start with `shared/` or
+`scripts/`. Those are relative to the repository root.
 
 ## 1. Scope and sources
 
@@ -51,8 +52,9 @@ scalar multiplication, `from_uniform_bytes`, constant time or the erasure of sec
 
 ## 2. Translation
 
-Both programs go through Charon and Aeneas into one Lake project (`lean/`), with the tool
-versions of track B.
+Both programs go through Charon and Aeneas, with the tool versions of track B. The Lake
+project `lean/` holds the reference and the proofs. It requires the shared library of the
+real side.
 
 Reference. Aeneas fails on the original spec, because of `hacspec_lib` (Aeneas issue
 #1164). `ref-plain/src/lib.rs` ports `decode`, `encode` and their helpers to plain Rust. The
@@ -70,16 +72,21 @@ the spec. It also makes these changes:
 In Lean, the field module is written by hand over `ZMod (2^255 - 19)`
 (`lean/RistrettoRef/FunsExternal.lean`, section 4).
 
-Real. Charon starts from `CompressedRistretto::decompress` and `RistrettoPoint::compress` in
-the dalek copy of track B, with the serial u64 backend. The Aeneas output needs no hand
-edits. `lean/Curve25519Dalek/Funs.lean` and `Types.lean` are copies of `real/Rist/`, and
-`check.sh` makes sure that they stay the same. The output has 7 external functions and the
-external type `subtle.Choice`. `lean/Curve25519Dalek/FunsExternal.lean` defines all of them
-(section 4).
+Real. The real side comes from the shared library of tracks B and D
+([`shared/dalek`](../../shared/dalek/README.md)), which the Lake project requires. The
+library holds one extraction of the dalek copy of track B, with the serial u64 backend.
+Charon starts from the entry points of both tracks. For this track, they are
+`CompressedRistretto::decompress` and `RistrettoPoint::compress`. The definitions on the
+path of this track have the same text as in the earlier extraction from these two entry
+points alone. That extraction needed no hand edits. The one hand edit of the library is in
+the Montgomery `mul` of track B, off this path. The path has 7 external functions and the
+external type `subtle.Choice`. `shared/dalek/lean/Curve25519Dalek/FunsExternal.lean` defines
+all of them (section 4).
 
-Field proofs. The track copies the field specs that track B ported to Aeneas `d119a474`
-(`lean/Curve25519Dalek/Specs/`), without changes. It also copies `negate_spec` from
-`curve25519-dalek-lean-verify` `26d49052`. That proof checks on `d119a474` without changes.
+Field proofs. The track uses the field specs of the shared library
+(`shared/dalek/lean/Curve25519Dalek/Specs/`). Track B ported them to Aeneas `d119a474`. The
+library also has `negate_spec`, copied from `curve25519-dalek-lean-verify` `26d49052` for this
+track. That proof checks on `d119a474` without changes.
 The other specs of the path are new proofs in `lean/Sim/` (section 5). They do not use the
 `sqrt_ratio_i`, `step_1`, `step_2` or `decompress` specs of `curve25519-dalek-lean-verify`.
 Those specs depend on axioms for `subtle` and on `bv_decide` native code.
@@ -157,10 +164,10 @@ Trusted definitions. `#print axioms` does not show them.
    `(p - 5) / 8`. `fe_from_bytes` decodes all 256 bits little-endian and reduces mod `p`.
    `fe_to_bytes` encodes the canonical representative. `fe_lit` is the cast of a number.
 3. The 7 hand definitions for `subtle` on the real side
-   (`lean/Curve25519Dalek/FunsExternal.lean`) and the type `subtle.Choice`
-   (`lean/Curve25519Dalek/TypesExternal.lean`). A `Choice` carries a proof that its value is
-   0 or 1. The definitions follow `subtle` 2.6.1 on these values:
-   `Choice::from(u8)` (copied from track B), `bool::from(Choice)`, `not`, `bitor`, `ct_eq` on
+   (`shared/dalek/lean/Curve25519Dalek/FunsExternal.lean`) and the type `subtle.Choice`
+   (`shared/dalek/lean/Curve25519Dalek/TypesExternal.lean`). A `Choice` carries a proof that
+   its value is 0 or 1. The definitions follow `subtle` 2.6.1 on these values:
+   `Choice::from(u8)` (shared with track B), `bool::from(Choice)`, `not`, `bitor`, `ct_eq` on
    `u8` and on slices, and `conditional_assign` on `u64`. Rust computes them with bit
    operations in constant time. If the lengths differ, the slice `ct_eq` returns 0.
    Otherwise it starts from the value 1 and folds `&=` over the elementwise `ct_eq`, as
@@ -195,8 +202,8 @@ the loop `geq_p`. `step_1_z` and `geq_p_spec` show that both tests reject exactl
 `≥ p`. Second, the `subtle` tests return a `Choice`, and the reference returns a `bool`.
 For each `Choice` lemma, the statement gives the condition for the value 1.
 
-No proof in `lean/Sim/` sets `maxHeartbeats` or `maxRecDepth`. Some of the field specs
-copied from track B set `maxRecDepth 4096`, as in track B.
+No proof in `lean/Sim/` sets `maxHeartbeats` or `maxRecDepth`. Some of the field specs of
+the shared library set `maxRecDepth 4096`, as in track B.
 
 ## 6. Checks
 
@@ -205,15 +212,19 @@ copied from track B set `maxRecDepth 4096`, as in track B.
    results. The cases are the 16 encodings of RFC 9496 A.1 and the 29 invalid encodings of
    A.2. There are also 44 edge inputs and 2000 random inputs from a fixed seed. The edge
    inputs are values near 0 and `p`, and values with the top bit set.
-2. `lake build` in `lean/` passes. No file in `lean/` has a `sorry`.
+2. `lake build` in `lean/` passes. No file in `lean/` or in
+   `shared/dalek/lean/Curve25519Dalek/` has a `sorry`.
 3. `Sim/Axioms.lean` checks the axiom lists of section 4 with `#guard_msgs`.
 4. `Sim/RefVectors.lean` runs the Lean reference, with the `ZMod` model, on the vectors of
    RFC 9496 A.1 and A.2, with `#guard`. This trusts the Lean compiler, and it is a test,
    not a proof.
-5. `check.sh` makes sure that the Lean copies of the Aeneas output are the same as
-   `ref-plain/Ref/` and `real/Rist/`.
+5. `check.sh` makes sure that the Lean copies of the reference Aeneas output are the same
+   as `ref-plain/Ref/`. It runs `shared/dalek/check.sh` first. That script makes sure that
+   the Lean files of the library are the Aeneas output in `shared/dalek/extract/` with the
+   patches of the library, and it builds the library.
 6. `scripts/check-short-names.py` finds no name in `lean/RistrettoRef` and
-   `lean/Curve25519Dalek` that Lean binds to a different declaration (Aeneas issue #1458).
+   `shared/dalek/lean/Curve25519Dalek` that Lean binds to a different declaration (Aeneas
+   issue #1458).
 7. `compare-dalek5.py` checks the proved path against dalek 5.0.0 (section 1). With
    `--self-test`, it changes each item of the 5.0.0 tree in memory and checks that the
    comparison reports the change.
@@ -256,20 +267,18 @@ tracks/ristretto/check.sh
 
 To skip the comparison with 5.0.0, set `SKIP_DALEK5=1`.
 
-The extraction commands. Run the first two in `ref-plain/`, with the Aeneas release of
-`.aeneas/` on `PATH`:
+The extraction commands of the reference. Run them in `ref-plain/`, with the Aeneas release
+of `.aeneas/` on `PATH`:
 
 ```bash
 charon cargo --preset=aeneas --start-from crate::decode --start-from crate::encode --opaque crate::field -- --offline
 aeneas -backend lean -split-files -loops-to-rec -namespace ristretto_ref -dest Ref ristretto_ref.llbc
 ```
 
-Run the next two in `../x25519/real-dalek/`. Then copy `Rist/` to `real/Rist/`:
+`lean/RistrettoRef` holds a copy of `ref-plain/Ref` without hand edits, plus the
+hand-written external files of section 4. `shared/dalek/extract.sh` replays the extraction
+of the real side (`shared/dalek/README.md`, section 1).
 
-```bash
-charon cargo --preset=aeneas --start-from 'crate::ristretto::CompressedRistretto::decompress' --start-from 'crate::ristretto::RistrettoPoint::compress' -- --locked --offline -p curve25519-dalek --no-default-features --features alloc,zeroize
-aeneas -backend lean -loops-to-rec -split-files -dest Rist curve25519_dalek.llbc
-```
-
-`lean/RistrettoRef` and `lean/Curve25519Dalek` hold copies of `ref-plain/Ref` and
-`real/Rist` without hand edits, plus the hand-written external files of section 4.
+`check.sh` and the shared library share build directories with track B. `check.sh` takes a
+lock, so a second check waits. Do not run `lake build` by hand in both tracks at the same
+time.

@@ -28,6 +28,28 @@ namespace curve25519_dalek
 structure subtle.ConstantTimeEq (Self : Type) where
   ct_eq : Self → Self → Result subtle.Choice
 
+/-- Trait declaration: [subtle::ConditionallySelectable]
+    Source: '/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/subtle-2.6.1/src/lib.rs', lines 393:0-393:39
+    Name pattern: [subtle::ConditionallySelectable]
+    Visibility: public -/
+@[rust_trait "subtle::ConditionallySelectable"
+  (parentClauses := ["coremarkerCopyInst"])]
+structure subtle.ConditionallySelectable (Self : Type) where
+  coremarkerCopyInst : core.marker.Copy Self
+  conditional_select : Self → Self → subtle.Choice → Result Self
+  conditional_assign : Self → Self → subtle.Choice → Result Self
+  conditional_swap : Self → Self → subtle.Choice → Result (Self × Self)
+
+/-- Trait declaration: [zeroize::DefaultIsZeroes]
+    Source: '/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/zeroize-1.8.2/src/lib.rs', lines 282:0-282:49
+    Name pattern: [zeroize::DefaultIsZeroes]
+    Visibility: public -/
+@[rust_trait "zeroize::DefaultIsZeroes"
+  (parentClauses := ["coremarkerCopyInst", "coredefaultDefaultInst"])]
+structure zeroize.DefaultIsZeroes (Self : Type) where
+  coremarkerCopyInst : core.marker.Copy Self
+  coredefaultDefaultInst : core.default.Default Self
+
 /-- [curve25519_dalek::backend::serial::u64::field::FieldElement51]
     Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 43:0-43:47
     Visibility: public -/
@@ -42,6 +64,24 @@ structure edwards.EdwardsPoint where
   Y : backend.serial.u64.field.FieldElement51
   Z : backend.serial.u64.field.FieldElement51
   T : backend.serial.u64.field.FieldElement51
+
+/-- [curve25519_dalek::scalar::Scalar]
+    Source: 'curve25519-dalek/src/scalar.rs', lines 195:0-232:1
+    Visibility: public -/
+structure scalar.Scalar where
+  bytes : Array Std.U8 32#usize
+
+/-- [curve25519_dalek::montgomery::ProjectivePoint]
+    Source: 'curve25519-dalek/src/montgomery.rs', lines 290:0-293:1 -/
+structure montgomery.ProjectivePoint where
+  U : backend.serial.u64.field.FieldElement51
+  W : backend.serial.u64.field.FieldElement51
+
+/-- [curve25519_dalek::montgomery::MontgomeryPoint]
+    Source: 'curve25519-dalek/src/montgomery.rs', lines 75:0-75:41
+    Visibility: public -/
+@[reducible]
+def montgomery.MontgomeryPoint := Array Std.U8 32#usize
 
 /-- [curve25519_dalek::ristretto::CompressedRistretto]
     Source: 'curve25519-dalek/src/ristretto.rs', lines 220:0-220:45

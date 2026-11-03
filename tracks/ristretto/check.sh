@@ -6,23 +6,29 @@ set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 root="$here/../.."
 
+# Tracks B and D build into the same shared library, Aeneas copy and package directory.
+# The lock makes a second check wait until the first one ends.
+if command -v flock > /dev/null; then
+  mkdir -p "$root/shared/dalek/lean/.lake"
+  exec 9> "$root/shared/dalek/lean/.lake/check.lock"
+  flock 9
+fi
+
+"$root/shared/dalek/check.sh"
+
 echo "== Rust reference tests"
 (cd "$here/ref-plain" && cargo test --quiet)
 
-echo "== The Lean copies of the Aeneas output have no hand edits"
+echo "== The Lean copies of the reference Aeneas output have no hand edits"
 diff -q "$here/ref-plain/Ref/Funs.lean" "$here/lean/RistrettoRef/Funs.lean"
 diff -q "$here/ref-plain/Ref/Types.lean" "$here/lean/RistrettoRef/Types.lean"
-diff -q "$here/real/Rist/Funs.lean" "$here/lean/Curve25519Dalek/Funs.lean"
-diff -q "$here/real/Rist/Types.lean" "$here/lean/Curve25519Dalek/Types.lean"
 
 echo "== Lean build, with the axiom and vector checks"
 (cd "$here/lean" && lake build)
 
 echo "== Name-binding check"
 (cd "$here/lean"
-  for d in RistrettoRef Curve25519Dalek; do
-    "$root/scripts/check-short-names.py" $(ls "$d"/*.lean | grep -v _Template)
-  done)
+  "$root/scripts/check-short-names.py" RistrettoRef/*.lean)
 
 echo "== Comparison with curve25519-dalek 5.0.0"
 if [ "${SKIP_DALEK5:-0}" = 1 ]; then

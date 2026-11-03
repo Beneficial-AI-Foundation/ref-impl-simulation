@@ -7,7 +7,8 @@ x25519-dalek's `x25519` returns without panic, overflow or divergence, and the r
 curve25519-dalek's `MontgomeryPoint::mul_clamped`, and `X25519Sim.mul_clamped_refines`
 proves the same result for that function.
 
-All paths are relative to `tracks/x25519/`.
+All paths are relative to `tracks/x25519/`, except the paths that start with `shared/` or
+`scripts/`. Those are relative to the repository root.
 
 ## 1. Scope and sources
 
@@ -67,7 +68,7 @@ functions take a scalar and a u-coordinate as bytes and return the result as byt
 table follows the call path from this pair down to the ladder step. The theorem
 `X25519Sim.x25519_refines` (section 3) relates every pair in the table.
 
-| Layer | Reference (`lean/X25519Ref`) | Real (`lean/X25519Dalek`, `lean/Curve25519Dalek`) | Status | Lean |
+| Layer | Reference (`lean/X25519Ref`) | Real (`lean/X25519Dalek`, `shared/dalek/lean/Curve25519Dalek`) | Status | Lean |
 |---|---|---|---|---|
 | X25519 function | `x25519_scalarmult` | `x25519_dalek::x25519` | proved | `Sim/X25519.lean` |
 | Clamped multiplication | `x25519_scalarmult` | `MontgomeryPoint::mul_clamped` | proved | `Sim/Full.lean` |
@@ -114,7 +115,9 @@ says nothing about constant time or about the erasure of secrets by `zeroize`.
 
 ## 2. Translation
 
-Both programs go through Charon and Aeneas into one Lake project (`lean/`).
+Both programs go through Charon and Aeneas. The Lake project `lean/` holds the reference,
+the x25519-dalek wrapper and the proofs. It requires the shared library of curve25519-dalek
+([`shared/dalek`](../../shared/dalek/README.md)).
 
 Reference. Aeneas fails on the original spec, because of the supertraits of
 `hacspec_lib::SeqTrait` (Aeneas issue #1164). The track uses a port to plain Rust
@@ -138,11 +141,14 @@ Real. The real code is the copy of curve25519-dalek in
 It differs from upstream 4.2.0 by 361 changed lines that make the code extractable: loops
 become `while` loops, some `debug_assert!`s are removed, and the ladder `mul` avoids
 iterator adapters. On the step's path, the changes touch `pow2k`, which `square` calls,
-and `add_assign`, which `add` calls. Charon starts from the Montgomery functions
-(`--start-from`). The Lean side needs one shadowing fix in `Funs.lean`, in `mul`, outside
-the step. It also needs 6 hand definitions for `subtle` and `zeroize` from
-`curve25519-dalek-lean-verify` (section 4). The extraction also starts from
-`MontgomeryPoint::to_bytes`, which `x25519` calls. This adds one definition to `Funs.lean`.
+and `add_assign`, which `add` calls. The shared library holds one extraction of this copy
+for tracks B and D. Charon starts from the entry points of both tracks. For this track,
+they are `differential_add_and_double`, `mul_clamped` and `MontgomeryPoint::to_bytes`, which
+`x25519` calls. The definitions on the path of this track have the same text as in the
+earlier extraction from these three entry points alone. The Lean side needs one shadowing
+fix in `Funs.lean`, in `mul`, outside the step. `shared/dalek/extract.sh` applies it as a
+patch to the clean Aeneas output. The path also needs 6 hand definitions for `subtle` and
+`zeroize` from `curve25519-dalek-lean-verify` (section 4).
 
 Real wrapper. `real-x25519/` holds x25519-dalek 2.0.1 from crates.io, with no source edits.
 Its `Cargo.toml` makes x25519-dalek use the curve25519-dalek copy above, and its
@@ -150,14 +156,14 @@ Its `Cargo.toml` makes x25519-dalek use the curve25519-dalek copy above, and its
 curve25519-dalek functions that `x25519` calls, `mul_clamped` and `to_bytes`, belong to
 another crate, so Charon leaves them opaque. Aeneas declares them as axioms in
 `FunsExternal_Template.lean`. `lean/X25519Dalek/FunsExternal.lean` replaces the axioms: it
-imports `Curve25519Dalek.Funs`, which defines both functions with the same names. The
-generated `Types.lean` defines `MontgomeryPoint` as `Array U8 32#usize`, as
+imports `Curve25519Dalek.Funs` of the shared library, which defines both functions with the
+same names. The generated `Types.lean` defines `MontgomeryPoint` as `Array U8 32#usize`, as
 `Curve25519Dalek.Types` does. The proof of `x25519_refines` rewrites with
 `mul_clamped_refines`, so it fails if the name in `x25519` binds to another declaration.
 
 Field proofs. `curve25519-dalek-lean-verify` proves the field operations on Aeneas
 `6e167c9b`. This track uses `d119a474`. The proofs are ported in
-`lean/Curve25519Dalek/Specs/Backend/Serial/U64/Field/FieldElement51/`:
+`shared/dalek/lean/Curve25519Dalek/Specs/Backend/Serial/U64/Field/FieldElement51/`:
 
 | File | `curve25519-dalek-lean-verify` lines | Port lines | `diff` lines | Change |
 |---|---|---|---|---|
@@ -173,8 +179,8 @@ Field proofs. `curve25519-dalek-lean-verify` proves the field operations on Aene
 header. The statements of the spec theorems did not change.
 
 Byte and inversion proofs. The full theorem also uses four more specs, ported in
-`lean/Curve25519Dalek/Specs/Backend/Serial/U64/Field/FieldElement51/` and
-`lean/Curve25519Dalek/Specs/Field/FieldElement51/`:
+`shared/dalek/lean/Curve25519Dalek/Specs/Backend/Serial/U64/Field/FieldElement51/` and
+`shared/dalek/lean/Curve25519Dalek/Specs/Field/FieldElement51/`:
 
 | File | `curve25519-dalek-lean-verify` lines | Port lines | `diff` lines | Change |
 |---|---|---|---|---|
@@ -278,9 +284,9 @@ Trusted definitions. `#print axioms` does not show them.
    operations and `fe_lit`. The full theorem also uses `fe_inv`, `fe_from_bytes` and
    `fe_to_bytes`.
 3. The 6 hand definitions for `subtle` and `zeroize` on the real side: 5 functions in
-   `lean/Curve25519Dalek/FunsExternal.lean` and the type `subtle.Choice` in
-   `lean/Curve25519Dalek/TypesExternal.lean`. The step does not use them. The full theorem
-   uses all of them. A `Choice` carries a proof that its value is 0 or 1. Every `Choice`
+   `shared/dalek/lean/Curve25519Dalek/FunsExternal.lean` and the type `subtle.Choice` in
+   `shared/dalek/lean/Curve25519Dalek/TypesExternal.lean`. The step does not use them. The
+   full theorem uses all of them. A `Choice` carries a proof that its value is 0 or 1. Every `Choice`
    that the ladder builds has this property, and the proof shows it. `conditional_select`
    returns `b` if the choice is 1 and `a` otherwise. Rust computes the same with a bit mask,
    in constant time, and the mask is correct only for 0 and 1. `conditional_swap` calls
@@ -340,8 +346,8 @@ specs build with a limit of 151,845. Some proofs set `maxRecDepth 4096`.
 
 ## 6. Checks
 
-1. `lake build` in `lean/` passes. No file in `lean/Sim/` or `lean/Curve25519Dalek/` has a
-   `sorry`.
+1. `lake build` in `lean/` passes. No file in `lean/Sim/` or
+   `shared/dalek/lean/Curve25519Dalek/` has a `sorry`.
 2. `Sim/Axioms.lean`, `Sim/AxiomsDischarge.lean` and `Sim/AxiomsFull.lean` check the axiom
    lists of section 4 with `#guard_msgs`. `lake build` builds them (target `Checks`), and
    the build fails if a list changes.
@@ -354,8 +360,8 @@ specs build with a limit of 151,845. Some proofs set `maxRecDepth 4096`.
    vectors and edge inputs, with `#guard`. `lake build` builds it, and the build fails if
    an output differs. This trusts the Lean compiler, and it is a test, not a proof.
 5. `scripts/check-short-names.py` finds no name in `lean/X25519Ref`,
-   `lean/Curve25519Dalek` and `lean/X25519Dalek` that Lean binds to a different declaration from the crate-level
-   one (Aeneas issue #1458). It reads declarations with the name on the line of the keyword
+   `shared/dalek/lean/Curve25519Dalek` and `lean/X25519Dalek` that Lean binds to a different
+   declaration from the crate-level one (Aeneas issue #1458). It reads declarations with the name on the line of the keyword
    or on a later line, after blank and comment lines. It fails on a keyword whose name it
    cannot read. `scripts/tests/test-check-short-names.sh` tests both cases.
 6. `compare-dalek5.py` checks the proved path against curve25519-dalek 5.0.0 and
@@ -363,8 +369,11 @@ specs build with a limit of 151,845. Some proofs set `maxRecDepth 4096`.
    difference other than the three reviewed edits. With `--self-test`, it changes each item
    of the 5.0.0 and 3.0.0 trees in memory and checks that the comparison reports the
    change.
+7. `shared/dalek/check.sh` makes sure that the Lean files of the shared library are the
+   Aeneas output in `shared/dalek/extract/` with the patches of the library, and it builds
+   the library.
 
-`check.sh` runs checks 1 to 6 and stops at the first failure.
+`check.sh` runs check 7 first, then checks 1 to 6, and stops at the first failure.
 
 ## 7. Strengths and weaknesses
 
@@ -413,7 +422,7 @@ tracks/x25519/check.sh
 To skip the comparison, set `SKIP_DALEK5=1`. To use other copies of the two crates, set
 `DALEK5` and `X25519_DALEK3` to their directories.
 
-The extraction commands. Run them in `ref-plain/`, in `real-dalek/` and in `real-x25519/`, with the Aeneas
+The extraction commands. Run them in `ref-plain/` and in `real-x25519/`, with the Aeneas
 release of `.aeneas/` on `PATH`:
 
 ```bash
@@ -422,15 +431,17 @@ aeneas -backend lean -split-files -loops-to-rec -namespace x25519_ref -dest Ref 
 ```
 
 ```bash
-charon cargo --preset=aeneas --start-from 'crate::montgomery::differential_add_and_double' --start-from 'crate::montgomery::MontgomeryPoint::mul_clamped' --start-from 'crate::montgomery::MontgomeryPoint::to_bytes' -- --locked -p curve25519-dalek --no-default-features --features alloc,zeroize
-aeneas -backend lean -loops-to-rec -split-files -dest Mont curve25519_dalek.llbc
-```
-
-```bash
 charon cargo --preset=aeneas --start-from 'x25519_dalek::x25519::x25519' -- --locked -p x25519-dalek --no-default-features --features alloc,zeroize
 aeneas -backend lean -loops-to-rec -split-files -dest X25519 x25519_dalek.llbc
 ```
 
-`lean/X25519Ref`, `lean/Curve25519Dalek` and `lean/X25519Dalek` hold copies of
-`ref-plain/Ref`, `real-dalek/Mont` and `real-x25519/X25519` with the hand edits of
-section 2.
+`lean/X25519Ref` and `lean/X25519Dalek` hold copies of `ref-plain/Ref` and
+`real-x25519/X25519` without hand edits, plus the hand-written files
+`X25519Ref/TypesExternal.lean`, `X25519Ref/FunsExternal.lean` and
+`X25519Dalek/FunsExternal.lean` (sections 2 and 4).
+`shared/dalek/extract.sh` replays the extraction of curve25519-dalek and applies the hand
+edit of section 2 (`shared/dalek/README.md`, section 1).
+
+`check.sh` and the shared library share build directories with track D. `check.sh` takes a
+lock, so a second check waits. Do not run `lake build` by hand in both tracks at the same
+time.

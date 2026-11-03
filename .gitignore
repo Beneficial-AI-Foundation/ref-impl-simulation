@@ -18,8 +18,7 @@ tracks/x25519/hacspec-specs/
 tracks/chacha20poly1305/upstream/
 **/index.scip
 **/index.scip.json
-tracks/x25519/lean/primecert/
-tracks/ristretto/lean/primecert/
+shared/dalek/lean/primecert/
 tracks/x25519/lv-measure/
 
 # Local working notes (not published): open plans, and the archive of finished ones
