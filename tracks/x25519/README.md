@@ -305,8 +305,9 @@ The theorems relate two Aeneas translations. The real side is x25519-dalek 2.0.1
 reference side is the plain-Rust port with the `ZMod p` field model. The theorem rests on
 the trusted definitions of section 4.
 
-Inside the proof, a relation maps a real field element to the reference field
-(`lean/Sim/Pilot.lean`):
+Inside the proof, a relation maps a real field element to the reference field. `toZ` is
+in `lean/Sim/Pilot.lean`, and the limb bound `Bnd` is in
+`shared/dalek/lean/DalekSim/Basic.lean`. `FE` is `FieldElement51`:
 
 ```lean
 def toZ (f : FE) : _root_.field.Fe := ((Field51_as_Nat f : Nat) : ZMod p)

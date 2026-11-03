@@ -1,4 +1,4 @@
-import Curve25519Dalek.Funs
+import Curve25519Dalek.Types
 
 /-! # Limb bounds and `Result` lemmas
 
@@ -10,7 +10,8 @@ open curve25519_dalek
 
 namespace DalekSim
 
-/-- Every limb of a `FieldElement51` is below `2 ^ k`. -/
+/-- Every limb of a `FieldElement51` is below `2 ^ k`. `Bnd 54` is
+`FieldElement51.IsValid` of `Curve25519Dalek.Math.Basic`. The proofs also use other exponents. -/
 def Bnd (k : Nat) (f : backend.serial.u64.field.FieldElement51) : Prop :=
   ∀ i < 5, (f[i]!).val < 2 ^ k
 

@@ -5,7 +5,7 @@ import DalekSim.Bytes
 
 `U8x32_as_Nat` reads 32 bytes in little-endian order. The reference field model reads and
 writes bytes with its own formulas (`fe_from_bytes`, `fe_to_bytes`). This file shows that the
-two readings agree, and that clearing bit 255 is `% 2 ^ 255`. -/
+two readings agree. The digit lemmas and the top-bit mask are in `DalekSim.Bytes`. -/
 
 open Aeneas Aeneas.Std Result
 open DalekSim
