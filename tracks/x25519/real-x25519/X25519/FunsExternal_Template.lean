@@ -21,7 +21,7 @@ set_option maxRecDepth 2048
 open x25519_dalek
 
 /-- [curve25519_dalek::montgomery::{curve25519_dalek::montgomery::MontgomeryPoint}::mul_clamped]:
-    Source: '/home/lacra/git_repos/baif/ref-impl-simulation/tracks/x25519/real-dalek/curve25519-dalek/src/montgomery.rs', lines 134:4-134:53
+    Source: 'tracks/x25519/real-dalek/curve25519-dalek/src/montgomery.rs', lines 134:4-134:53
     Name pattern: [curve25519_dalek::montgomery::{curve25519_dalek::montgomery::MontgomeryPoint}::mul_clamped]
     Visibility: public -/
 @[rust_fun
@@ -32,7 +32,7 @@ axiom curve25519_dalek.montgomery.MontgomeryPoint.mul_clamped
     Result curve25519_dalek.montgomery.MontgomeryPoint
 
 /-- [curve25519_dalek::montgomery::{curve25519_dalek::montgomery::MontgomeryPoint}::to_bytes]:
-    Source: '/home/lacra/git_repos/baif/ref-impl-simulation/tracks/x25519/real-dalek/curve25519-dalek/src/montgomery.rs', lines 204:4-204:44
+    Source: 'tracks/x25519/real-dalek/curve25519-dalek/src/montgomery.rs', lines 204:4-204:44
     Name pattern: [curve25519_dalek::montgomery::{curve25519_dalek::montgomery::MontgomeryPoint}::to_bytes]
     Visibility: public -/
 @[rust_fun

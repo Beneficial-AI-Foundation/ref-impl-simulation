@@ -2,11 +2,12 @@
 
 Track B proves full refinement for one API pair of X25519. For every 32-byte scalar and
 u-coordinate, x25519-dalek's `x25519` returns without panic, overflow or divergence, and
-the reference `x25519_scalarmult` returns the same 32 bytes. The theorem is `X25519Sim.x25519_refines`
-(section 3). It has no premises and uses only the three standard axioms. `x25519` calls
-curve25519-dalek's `MontgomeryPoint::mul_clamped`, and `X25519Sim.mul_clamped_refines`
-proves the same result for that function. The other public functions of the reference and
-of x25519-dalek are not covered. Section 1 lists them under "APIs not covered".
+the reference `x25519_scalarmult` returns the same 32 bytes. The theorem is
+`X25519Sim.x25519_refines` (section 3). It has no premises and uses only the three
+standard axioms. `x25519` calls curve25519-dalek's `MontgomeryPoint::mul_clamped`, and
+`X25519Sim.mul_clamped_refines` proves the same result for that function. The other public
+functions of the reference and of x25519-dalek are not covered. Section 1 lists them, with
+the gaps between RFC 7748, the reference and x25519-dalek.
 
 All paths are relative to `tracks/x25519/`, except the paths that start with `shared/` or
 `scripts/`. Those are relative to the repository root.
@@ -105,43 +106,44 @@ The real side reuses specs of `curve25519-dalek-lean-verify` at commit `26d49052
 project (section 2). Its ladder spec, `mul_loop_spec`, has three `sorry`s at that commit,
 so this track proves its own.
 
-### APIs not covered
+### Gaps: RFC 7748, the reference and x25519-dalek
 
-`x25519_refines` covers one public function of each program. The reference, hacspec
-`curve25519`, has two public functions:
+Refinement is relative to the reference. A real function without a counterpart in the
+reference is not covered, and the theorem says nothing about it. This section states the
+gaps at three levels: what the RFC describes, what the hacspec reference has, and what
+x25519-dalek 2.0.1 offers. It covers the Curve25519 part of the RFC.
 
-1. `x25519_scalarmult` is covered.
-2. `x25519_secret_to_public` is not covered. It calls `x25519_scalarmult` with the base
-   point 9. Its real counterparts are curve25519-dalek's `MontgomeryPoint::mul_base_clamped`
-   and x25519-dalek's `PublicKey::from` (item 2 below). They go through
-   `EdwardsPoint::mul_base_clamped` and its base point tables, and they are not extracted.
+| RFC 7748 | hacspec `curve25519` | x25519-dalek 2.0.1 | Status |
+|---|---|---|---|
+| Section 5: the function `X25519(k, u)`. Mask bit 255 of `u` (MUST), accept non-canonical `u` (MUST) | `x25519_scalarmult` | `x25519` | proved (`x25519_refines`). The MUST rules hold for the reference by review and tests, not by proof |
+| Section 6.1: the shared secret `X25519(a, K_B)` | `x25519_scalarmult` (no function of its own) | `diffie_hellman` on `EphemeralSecret`, `ReusableSecret`, `StaticSecret` | not proved. Each method is one call to `mul_clamped`, which is proved, but the methods are not extracted |
+| Section 6.1: the public key `X25519(a, 9)` | `x25519_secret_to_public` | `PublicKey::from(&secret)` for the three secret types | not proved. The real code goes through `EdwardsPoint::mul_base_clamped` and its base point tables, and is not extracted |
+| Section 6.1: the base point 9 | inside `x25519_secret_to_public` | `X25519_BASEPOINT_BYTES` | not proved |
+| Section 6.1: Alice generates 32 random bytes | missing | `new`, `random_from_rng`, `random` on the three secret types | not covered. The reference does not describe it, and functional refinement cannot state that bytes are random |
+| Sections 6.1 and 7: check for the all-zero shared secret (MAY), for example by an OR of all bytes | missing | `SharedSecret::was_contributory` | not covered. dalek decodes the bytes and compares with 0 mod p, so it also reports 0 for non-canonical encodings of 0 |
+| Sections 5.1 and 7: side channels | not expressible | constant-time code through `subtle` | outside functional refinement |
+| Sections 5.2 and 6.1: test vectors | some, in its tests | its tests | the track runs section 5.2 vector 1 and the section 6.1 test (section 6). It does not run vector 2, the iterated tests, or the other values of section 6.1 |
+| Sections 4.2, 5 and 6.2: X448 | missing | missing | outside the track |
 
-The reference has no Diffie-Hellman function and no key types. In RFC 7748, section 6.1,
-the shared secret is the X25519 function of one secret and the other public key. So the
-counterpart of each `diffie_hellman` method below is `x25519_scalarmult`.
+So the reference misses two parts of the RFC: key generation and the all-zero check. It
+also has no X448.
 
-x25519-dalek 2.0.1 has these other public functions. None of them is covered:
+x25519-dalek has these public APIs that the RFC does not describe:
 
-1. `diffie_hellman` on `EphemeralSecret`, `ReusableSecret` (feature `reusable_secrets`) and
-   `StaticSecret` (feature `static_secrets`). Each one is
-   `SharedSecret(their_public.0.mul_clamped(self.0))`, so `mul_clamped_refines` proves its
-   computation. The methods themselves are not extracted. libsignal calls the
-   `StaticSecret` method.
-2. `PublicKey::from` on `&EphemeralSecret`, `&ReusableSecret` and `&StaticSecret`. Each one
-   is `EdwardsPoint::mul_base_clamped(secret).to_montgomery()`. The counterpart is
-   `x25519_secret_to_public`. libsignal derives its public keys with the `StaticSecret`
-   case.
-3. Key generation: `new`, `random_from_rng` and `random` (feature `getrandom`) on the three
-   secret types. They read a random number generator. The reference has no counterpart.
-4. Conversions and accessors: `From<[u8; 32]>` for `PublicKey` and `StaticSecret`, and
-   `to_bytes`, `as_bytes` and `AsRef<[u8]>` on the key types and on `SharedSecret`. They copy
-   or borrow 32 bytes. The reference has no counterpart.
-5. `SharedSecret::was_contributory`, which tests that the shared point is not the
-   identity. The reference has no counterpart.
-6. The constant `X25519_BASEPOINT_BYTES`.
+1. Three secret types instead of 32 private bytes: `EphemeralSecret`, `ReusableSecret`
+   (feature `reusable_secrets`) and `StaticSecret` (feature `static_secrets`). They differ in
+   how long a secret can live and how often it can be used. That is a usage rule, not a
+   computation.
+2. Conversions and accessors: `From<[u8; 32]>` for `PublicKey` and `StaticSecret`, and
+   `to_bytes`, `as_bytes` and `AsRef<[u8]>` on the key types and on `SharedSecret`. They
+   wrap and unwrap 32 bytes. `StaticSecret::to_bytes` returns the private bytes.
+3. Derived traits: `PartialEq`, `Eq`, `Hash`, `Copy`, `Clone` and `Debug` on `PublicKey`,
+   `Clone` on `ReusableSecret` and `StaticSecret`, `Zeroize` and erasure on drop (feature
+   `zeroize`), and `serde` (feature `serde`). `PublicKey` equality compares the two points
+   mod p, so two keys with different bytes can be equal. The RFC defines no equality of
+   keys.
 
-The theorem also says nothing about constant time or about the erasure of secrets by
-`zeroize`.
+The theorem also says nothing about constant time or about the erasure of secrets.
 
 ## 2. Translation
 
@@ -402,8 +404,11 @@ specs build with a limit of 151,845. Some proofs set `maxRecDepth 4096`.
 7. `shared/dalek/check.sh` makes sure that the Lean files of the shared library are the
    Aeneas output in `shared/dalek/extract/` with the patches of the library, and it builds
    the library.
+8. `check.sh` makes sure that `Funs.lean` and `Types.lean` in `lean/X25519Ref` and
+   `lean/X25519Dalek` are the same as the Aeneas output in `ref-plain/Ref` and
+   `real-x25519/X25519`.
 
-`check.sh` runs check 7 first, then checks 1 to 6, and stops at the first failure.
+`check.sh` runs all eight checks, check 7 first, and stops at the first failure.
 
 ## 7. Strengths and weaknesses
 
@@ -434,11 +439,14 @@ Weaknesses:
 4. The field proofs are ports of another project's proofs. Every Aeneas update can break
    them again, because they depend on the goal shapes after `step*`.
 5. The theorem covers one API pair only. It does not cover `x25519_secret_to_public`,
-   `mul_base_clamped` or the other public functions of x25519-dalek (section 1, "APIs not
-   covered"). libsignal calls `StaticSecret::diffie_hellman`, not `x25519`. The theorem
-   also does not cover the constant-time behavior of the real code or the erasure of
-   secrets.
-6. The proved x25519-dalek is 2.0.1. libsignal uses 3.0.0, whose `x25519` has the same
+   `mul_base_clamped` or the other public functions of x25519-dalek (section 1, "Gaps: RFC
+   7748, the reference and x25519-dalek"). libsignal calls `StaticSecret::diffie_hellman`,
+   not `x25519`. The theorem also does not cover the constant-time behavior of the real
+   code or the erasure of secrets.
+6. The reference misses two parts of RFC 7748, section 6.1: key generation and the check
+   for the all-zero shared secret. So no refinement theorem against it can cover
+   `random_from_rng` or `was_contributory`.
+7. The proved x25519-dalek is 2.0.1. libsignal uses 3.0.0, whose `x25519` has the same
    text but builds on curve25519-dalek 5.0.0.
 
 ## 8. Reproduce
@@ -464,9 +472,12 @@ aeneas -backend lean -split-files -loops-to-rec -namespace x25519_ref -dest Ref 
 ```
 
 ```bash
-charon cargo --preset=aeneas --start-from 'x25519_dalek::x25519::x25519' -- --locked -p x25519-dalek --no-default-features --features alloc,zeroize
+charon cargo --preset=aeneas --start-from 'x25519_dalek::x25519::x25519' -- --locked -p x25519-dalek --no-default-features --features alloc,zeroize --config "build.rustflags=[\"--remap-path-prefix=$(cd ../../.. && pwd)/=\"]"
 aeneas -backend lean -loops-to-rec -split-files -dest X25519 x25519_dalek.llbc
 ```
+
+The `--remap-path-prefix` flag makes the `Source:` paths of the generated files relative to
+the repository root. Cargo adds it to the backend flags of `real-x25519/.cargo/config.toml`.
 
 `lean/X25519Ref` and `lean/X25519Dalek` hold copies of `ref-plain/Ref` and
 `real-x25519/X25519` without hand edits, plus the hand-written files

@@ -14,8 +14,9 @@ namespace RistrettoSim
 /-- `1/sqrt(a - d)` in the reference field. -/
 def zInvAD : _root_.field.Fe := ((nInvsqrtAMinusD : Nat) : _root_.field.Fe)
 
-/-- The value that `encode` writes as bytes, for the inverse square root `I`. The arguments
-after `I` are the intermediate values, so that the statement stays small. -/
+/-- The value that `encode` writes as bytes, for the inverse square root `I`. `u1`, `u2`,
+`zinv` and `rot` are intermediate values of `encode`, passed as arguments so that the
+statement stays small. -/
 def encTail (X Y Z u1 u2 I zinv : _root_.field.Fe) (rot : Prop) [Decidable rot] :
     _root_.field.Fe :=
   let x := if rot then Y * zI else X
@@ -26,7 +27,8 @@ def encTail (X Y Z u1 u2 I zinv : _root_.field.Fe) (rot : Prop) [Decidable rot] 
 /-- `u1` of encoding. -/
 def encU1 (Y Z : _root_.field.Fe) : _root_.field.Fe := (Z + Y) * (Z - Y)
 
-/-- `1 / Z` of encoding, for the inverse square root `I`. -/
+/-- The `z_inv` of `encode`, for the inverse square root `I`: `(I u1) (I u2) T`. It is `1 / Z`
+only for a valid point. -/
 def encZinv (X Y Z T I : _root_.field.Fe) : _root_.field.Fe := I * encU1 Y Z * (I * (X * Y)) * T
 
 /-- The value that `encode` writes as bytes. -/
@@ -98,7 +100,7 @@ theorem ref_encode_eq (X Y Z T I : _root_.field.Fe) (b : Bool)
   simp only [_root_.field.fe_sq, _root_.field.fe_mul, _root_.field.fe_sub, _root_.field.fe_add,
     _root_.field.fe_lit, ref_lit_one, ref_sqrt_m1, ref_invsqrt_a_minus_d, ref_zero_sub, bind_ok]
   rw [show (Z + Y) * (Z - Y) = encU1 Y Z from rfl, hI, bind_ok]
-  simp only [uncurry_apply_pair, ref_is_negative', bind_ok]
+  simp only [uncurry_apply_pair, ref_is_negative, bind_ok]
   rw [show ((nSqrtM1 : Nat) : _root_.field.Fe) = zI from rfl,
     show ((nInvsqrtAMinusD : Nat) : _root_.field.Fe) = zInvAD from rfl,
     show I * encU1 Y Z * (I * (X * Y)) * T = encZinv X Y Z T I from rfl]
@@ -115,10 +117,15 @@ theorem sel_z (a b r : FE) (c : subtle.Choice) (P : Prop) [Decidable P]
   · rw [if_pos h, if_pos (hc.mp h)]
   · rw [if_neg h, if_neg (fun h' => h (hc.mpr h'))]
 
+/-- `conditional_assign` keeps a limb bound that both inputs have. -/
 theorem bnd_sel {k : Nat} (a b r : FE) (c : subtle.Choice) (ha : Bnd k a) (hb : Bnd k b)
     (hr : r = if c.val = 1#u8 then b else a) : Bnd k r := by
   rw [hr]; split <;> assumption
 
+/-- Encoding refines the reference. If every limb of the four coordinates of `P` is below
+`2 ^ 53`, `compress P` returns without panic, overflow or divergence, and the reference
+`encode` returns the same bytes on the four coordinates under `toZ`. `P` does not need to be
+on the curve. -/
 theorem compress_refines (P : ristretto.RistrettoPoint) (hP : BndPt 53 P) :
     ristretto.RistrettoPoint.compress P ⦃ c =>
       ristretto_ref.encode (toZPt P) = ok c ⦄ := by

@@ -37,7 +37,10 @@ def field.fe_is_negative (a : field.Fe) : Result Bool :=
 /-- The exponent `(p - 5) / 8`. Irreducible, so that proofs do not unfold the number. -/
 @[irreducible] def field.p58 : Nat := (field.p - 5) / 8
 
-/-- hacspec `x.pow_felem((P() - fe(5)) / fe(8))`: the exponent is (p - 5) / 8. -/
+/-- hacspec `x.pow_felem((P() - fe(5)) / fe(8))`. In hacspec, `P()` decodes to 0 and `/` is
+field division, so the exponent is `-5 / 8` in the field. Its canonical representative is the
+natural number `(p - 5) / 8`, because 8 divides `p - 5`. `RistrettoSim.p58_field` proves that
+`p58 * 8 = -5` in `ZMod p`. -/
 def field.fe_pow_p58 (a : field.Fe) : Result field.Fe := ok (a ^ field.p58)
 
 /-- hacspec `FieldElement::from_byte_seq_le`: little-endian, all 256 bits, mod p. -/

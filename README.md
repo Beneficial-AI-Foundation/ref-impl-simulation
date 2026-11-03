@@ -2,12 +2,14 @@
 
 This repository tests one question. Take an RFC, a small Rust reference implementation of
 it and a real Rust implementation. Aeneas translates both Rust programs to Lean. Can Lean
-then prove that the real implementation computes what the reference computes? Three
+then prove that the real implementation computes what the reference computes? Four
 studies, one per RFC, answer this. Each study ends in a Lean theorem with no `sorry`.
 Track B proves full refinement for one API pair of X25519: x25519-dalek's `x25519` and the
 reference `x25519_scalarmult` agree on every input. The other public functions of the two
-crates are not covered. Tracks A and C prove one unit of their implementation each.
-Section 2 shows where each unit sits in the larger goal.
+crates are not covered. Track D proves full refinement for two API pairs of Ristretto:
+decoding on every input, and encoding on every input whose limbs are below `2^53`. Tracks
+A and C prove one unit of their implementation each. Section 2 shows where each unit sits
+in the larger goal.
 
 ## 1. Problem
 
@@ -39,13 +41,14 @@ The reference then also returns `ok s`, and `R_out r s` holds. Both
 programs are deterministic, so the theorem states that the results agree on every input
 that satisfies the premises.
 
-## 2. The three studies
+## 2. The four studies
 
 | Track | RFC | Reference | Real implementation | Unit |
 |---|---|---|---|---|
 | [A](tracks/chacha20poly1305/README.md) | RFC 8439 (ChaCha20) | [hax-style ChaCha20 spec](https://github.com/cryspen/hax/tree/a1ddcfffd617a9f29442acb900a01df7339f3ea8/examples/chacha20) (`cryspen/hax`) | [libcrux HACL ChaCha20](https://github.com/cryspen/libcrux/tree/3ade18381ad3144d755507f97994933d8585839b/crates/algorithms/chacha20poly1305) (`cryspen/libcrux`) | block core |
 | [B](tracks/x25519/README.md) | RFC 7748 (X25519) | [hacspec curve25519 spec](https://github.com/hacspec/specs/blob/c511110d6f4bb4628da193a2c8e44c928d9555b8/curve25519/src/curve25519.rs) (`hacspec/specs`), ported to plain Rust | [x25519-dalek 2.0.1](https://github.com/dalek-cryptography/curve25519-dalek/tree/4ac84dd0668b1d2e51654fcdffe4ae6a687bef00/x25519-dalek) on [curve25519-dalek 4.2.0](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-lean-verify/tree/26d49052347e52cb3923952ea225d28faf48fe72/curve25519-dalek), as modified by `curve25519-dalek-lean-verify` | `x25519` against `x25519_scalarmult` (full refinement for this pair) |
 | [C](tracks/hpke/README.md) | RFC 9180 (HPKE) | [hacspec HPKE spec](https://github.com/cryspen/hpke-spec/tree/85429a9ab519ca6eb5b286294203cefe75399223) (`cryspen/hpke-spec`) behind a library shim | [`cryspen/hpke-rs` 0.6.1](https://github.com/cryspen/hpke-rs/tree/e1a4b12d3e630c713a89e97a2a91e4a597f3fc82) | key schedule, base mode, HKDF-SHA256 |
+| [D](tracks/ristretto/README.md) | RFC 9496 (ristretto255) | [hacspec ristretto spec](https://github.com/hacspec/specs/blob/c511110d6f4bb4628da193a2c8e44c928d9555b8/ristretto/src/ristretto.rs) (`hacspec/specs`), ported to plain Rust | [curve25519-dalek 4.2.0](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-lean-verify/tree/26d49052347e52cb3923952ea225d28faf48fe72/curve25519-dalek), as modified by `curve25519-dalek-lean-verify` (the copy of track B) | `CompressedRistretto::decompress` against `decode`, and `RistrettoPoint::compress` against `encode` (full refinement for these pairs) |
 
 Each track README is self-contained. It gives the sources, the translation and its edits,
 and the exact theorem. It also gives the assumptions, the proof structure, the checks, and
@@ -57,16 +60,17 @@ API pair. Full refinement for one pair says nothing about the other public funct
 either program. The end goal is full refinement for every public function of the real
 implementation that has a counterpart in the reference. Each study started from one unit
 below one API pair, a small part that tests the method at a low cost. A full theorem needs
-the unit theorem and one more result for each layer between the unit and the API. Track B
-has all these results for its pair. Section 1 of each track README shows the call path
-from the API down to the unit and the status of each layer. For tracks A and C, it also
-lists the missing results:
+the unit theorem and one more result for each layer between the unit and the API. Tracks
+B and D have all these results for their pairs. Section 1 of each track README shows the
+call path from the API down to the unit and the status of each layer. For tracks A and C,
+it also lists the missing results:
 
 | Track | Public API pair | Main missing result |
 |---|---|---|
 | [A](tracks/chacha20poly1305/README.md#the-unit-in-full-refinement) | `chacha20_encrypt` against `chacha20`, then the AEAD | the key setup, the message loop, and a Poly1305 reference |
-| [B](tracks/x25519/README.md#layers-of-the-full-refinement) | `x25519_dalek::x25519` against `x25519_scalarmult` | none for this pair. `X25519Sim.x25519_refines` is proved. The other public functions are not covered ([list](tracks/x25519/README.md#apis-not-covered)) |
+| [B](tracks/x25519/README.md#layers-of-the-full-refinement) | `x25519_dalek::x25519` against `x25519_scalarmult` | none for this pair. `X25519Sim.x25519_refines` is proved. The other public functions are not covered ([list](tracks/x25519/README.md#gaps-rfc-7748-the-reference-and-x25519-dalek)) |
 | [C](tracks/hpke/README.md#the-unit-in-full-refinement) | `Hpke::seal` and `open` against `HpkeSeal` and `HpkeOpen` | extraction of the reference API, the KEM, and the context as a forward simulation |
+| [D](tracks/ristretto/README.md#3-statement) | `decompress` against `decode`, `compress` against `encode` | none for these pairs. `RistrettoSim.decompress_refines` and `RistrettoSim.compress_refines` are proved. The group operations, scalar multiplication and `from_uniform_bytes` are not covered |
 
 ## 3. Method
 
@@ -77,7 +81,7 @@ namespaces. All tracks use one tool version: Aeneas `nightly-2026.10.12-d119a47`
 edit and every hand-written Lean definition.
 
 Relation. Each track defines its own relation between the two representations. Track A
-compares 32-bit word lists. Track B maps five 64-bit limbs in radix `2^51` to an element
+compares 32-bit word lists. Tracks B and D map five 64-bit limbs in radix `2^51` to an element
 of `ZMod (2^255 - 19)` and also bounds the limbs. Track C compares byte strings and maps
 algorithm identifiers.
 
@@ -99,15 +103,16 @@ Rules for the proofs. No `sorry`. No hand-written proof changes `maxHeartbeats`,
 proof fits the default limit of 200,000 heartbeats. A proof that does not fit is split
 into lemmas. The files that Aeneas generates set 1,000,000 for their own definitions.
 
+## 4. Results
 
-| | A ChaCha20 | B X25519 | C HPKE |
-|---|---|---|---|
-| Main theorem | `Sim.core_refines` | `X25519Sim.x25519_refines` (full refinement for one API pair), with `X25519Sim.mul_clamped_refines` and the ladder step `X25519Sim.differential_add_and_double_refines_proved` as layers | `Sim.key_schedule_base_refines` |
-| Premises | output buffer of 16 words, `ctx` equals the reference state | none | the provider computes the shared HKDF model and the RFC lengths, and its PRNG call succeeds. Base mode with empty PSK, HKDF-SHA256, matching identifiers, a bound on the length of `info` |
-| Trusted definitions | none | the plain-Rust port, the `ZMod p` field model, 6 `subtle` and `zeroize` models | the shared HKDF model (HMAC opaque), the cryptolib model, the `hacspec_lib` shim, 6 `std` models |
-| Axioms beyond the standard 3 | none | none | 4 formatting declarations, 24 `native_decide` auxiliary axioms |
-| Source edits | reference 33 lines, real 0 lines | reference port 166 changed lines and a 32-line field module, real 0 lines here (361 lines in `curve25519-dalek-lean-verify`, 0 in x25519-dalek) | reference 0 lines (shim 179 lines), real 1 line |
-| Lockstep | at the call level: 18 of 18 calls | in the ladder step, at the level of field operations: 19 steps. The ladder needs a hand-written invariant | only at the shared HKDF calls |
+| | A ChaCha20 | B X25519 | C HPKE | D Ristretto |
+|---|---|---|---|---|
+| Main theorem | `Sim.core_refines` | `X25519Sim.x25519_refines` (full refinement for one API pair), with `X25519Sim.mul_clamped_refines` and the ladder step `X25519Sim.differential_add_and_double_refines_proved` as layers | `Sim.key_schedule_base_refines` | `RistrettoSim.decompress_refines` and `RistrettoSim.compress_refines` (full refinement for two API pairs) |
+| Premises | output buffer of 16 words, `ctx` equals the reference state | none | the provider computes the shared HKDF model and the RFC lengths, and its PRNG call succeeds. Base mode with empty PSK, HKDF-SHA256, matching identifiers, a bound on the length of `info` | none for decoding. For encoding, every limb of the point is below `2^53` |
+| Trusted definitions | none | the plain-Rust port, the `ZMod p` field model, 6 `subtle` and `zeroize` models | the shared HKDF model (HMAC opaque), the cryptolib model, the `hacspec_lib` shim, 6 `std` models | the plain-Rust port, the `ZMod p` field model, the `subtle` models on the path (6 functions and `Choice`, shared with track B) |
+| Axioms beyond the standard 3 | none | none | 4 formatting declarations, 24 `native_decide` auxiliary axioms | none |
+| Source edits | reference 33 lines, real 0 lines | reference port 166 changed lines and a 32-line field module, real 0 lines here (361 lines in `curve25519-dalek-lean-verify`, 0 in x25519-dalek) | reference 0 lines (shim 179 lines), real 1 line | reference port of 172 lines with a 50-line field module, real 0 lines here (the copy of track B) |
+| Lockstep | at the call level: 18 of 18 calls | in the ladder step, at the level of field operations: 19 steps. The ladder needs a hand-written invariant | only at the shared HKDF calls | at the level of field operations, in `sqrt_ratio_i`, `decompress` and `compress`. The rejection tests need two hand-written arguments |
 
 All main theorems are proved. Every relation is total. Each theorem proves that both
 programs succeed on the premise domain, with no panic or overflow, and that the results
@@ -127,20 +132,28 @@ agree.
    explained, and no proof raises the heartbeat limit.
 5. The method finds real differences between the implementations. Examples are the HKDF
    salt of hpke-rs, its short-PSK check and the different `z2` formula of dalek.
-6. libsignal ships two of the proved real programs: dalek's X25519 agreement path below
-   `StaticSecret::diffie_hellman` (track B), and the hpke-rs key schedule (track C).
+6. libsignal ships code that the tracks prove: dalek's X25519 agreement path below
+   `StaticSecret::diffie_hellman` (track B), the hpke-rs key schedule (track C), and
+   dalek's Ristretto decoding and encoding (track D). libsignal uses later versions of
+   dalek. For tracks B and D, a source comparison, not a proof, relates the proved code
+   to those versions.
 
 ## 6. Weaknesses and limits
 
 1. Old hacspec specifications do not go through Aeneas. Track A uses a
-   hax-style spec, track B a port to plain Rust, and track C a library shim. The port and
-   the shim are trusted.
-2. No reference is checked against its RFC by proof. Only track B runs RFC test vectors:
-   two RFC vectors and a set of edge inputs.
-3. Only track B proves full refinement, and only for one API pair: x25519-dalek's `x25519`
-   against `x25519_scalarmult`. It does not cover the reference's `x25519_secret_to_public`
+   hax-style spec, tracks B and D a port to plain Rust, and track C a library shim. The
+   ports and the shim are trusted.
+2. No reference is checked against its RFC by proof. Only tracks B and D run RFC test
+   vectors. Track B runs two RFC vectors and a set of edge inputs. Track D runs the 45
+   vectors of RFC 9496, Appendix A. The reference of track D is modelled on dalek, so a
+   shared error of the two programs is not found. Track B's reference also misses two
+   parts of RFC 7748: key generation and the check for the all-zero shared secret. The
+   track B README lists every gap between the RFC, the reference and x25519-dalek.
+3. Only tracks B and D prove full refinement, and only for some API pairs. Track B covers
+   x25519-dalek's `x25519` against `x25519_scalarmult`. It does not cover the reference's `x25519_secret_to_public`
    or the other public functions of x25519-dalek, for example
-   `StaticSecret::diffie_hellman`, which libsignal calls. Tracks A and C prove one small
+   `StaticSecret::diffie_hellman`, which libsignal calls. Track D covers Ristretto
+   decoding and encoding, but not the group operations. Tracks A and C prove one small
    unit each: a block core and one key schedule mode. Section 2 lists what they
    still need. Loops whose shapes differ between the two sides need hand-written
    invariants. Track B shows the cost: its ladder needed a scaling argument, because after

@@ -15,6 +15,7 @@ source, the commit, the license and the edits made in this repository.
 | `shared/dalek/lean/Curve25519Dalek/` (`Auxiliary.lean`, `Math/`, `Specs/`) | `curve25519-dalek-lean-verify` | `26d49052347e52cb3923952ea225d28faf48fe72` | Apache-2.0 (`LICENSE`) | Ported to Aeneas `d119a474`. Each changed file has a "Port note" in its header. `Specs/.../CarryBlock.lean` is new. `Specs/.../Negate.lean` is unchanged. `FunsExternal.lean` and `TypesExternal.lean` are Aeneas templates filled with 6 definitions copied from `curve25519-dalek-lean-verify` and 7 definitions written for track D. `conditional_swap` is changed to call `conditional_assign`, as the Rust default method does |
 | `tracks/x25519/ref-hacspec/` | `hacspec/specs`, `curve25519` | `c511110d6f4bb4628da193a2c8e44c928d9555b8` | Apache-2.0 (`LICENSE`) | The manifest and a `rust-toolchain`. `src/curve25519.rs` is renamed to `src/lib.rs`, with its text unchanged. Tests and benchmarks are not copied |
 | `tracks/x25519/ref-plain/` | A port to plain Rust of `hacspec/specs` `curve25519` | `c511110d6f4bb4628da193a2c8e44c928d9555b8` | Apache-2.0 (`LICENSE`) | The port itself (track B README, section 2) |
+| `tracks/ristretto/ref-plain/` | A port to plain Rust of `hacspec/specs` `ristretto` | `c511110d6f4bb4628da193a2c8e44c928d9555b8` | Apache-2.0 (`LICENSE`) | The port itself (track D README, section 2) |
 
 `cryspen/hpke-spec` (`85429a9ab519ca6eb5b286294203cefe75399223`), the reference of track C,
 has no license. This repository does not include a copy of it.
@@ -27,7 +28,7 @@ The other upstream repositories that the tracks use are cloned by
 `scripts/fetch-upstreams.sh` and are not part of this repository.
 
 The Lean files that Aeneas generated are translations of the code in the table and of
-hpke-spec. They are in `Ref/`, `Real/`, `RealAead/`, `X25519Ref/`, `shared/dalek/extract/`,
-`real-x25519/X25519/` and `ref-plain/Ref/`. They are also `Curve25519Dalek/Funs.lean`,
+hpke-spec. They are in `Ref/`, `Real/`, `RealAead/`, `X25519Ref/`, `RistrettoRef/`,
+`shared/dalek/extract/`, `real-x25519/X25519/` and `ref-plain/Ref/`. They are also `Curve25519Dalek/Funs.lean`,
 `Curve25519Dalek/Types.lean`, `X25519Dalek/Funs.lean` and `X25519Dalek/Types.lean`.
 `shared/dalek/patches/` holds the hand edits of `Curve25519Dalek/Funs.lean`.

@@ -2,6 +2,9 @@
 -- [curve25519_dalek]: external functions.
 -- Hand-filled: definitions, not axioms. Track B wrote the first five (the Montgomery path),
 -- track D the rest (the Ristretto path).
+-- These models agree with subtle 2.6.1 only on `Choice` values 0 and 1. `Choice.from` fails
+-- on other values, where Rust has only a `debug_assert!`. So a theorem that shows no failure
+-- also shows that every `Choice` on its path is 0 or 1.
 module
 public import Aeneas
 public import Curve25519Dalek.Types
@@ -92,7 +95,7 @@ def Bool.Insts.CoreConvertFromChoice.from (c : subtle.Choice) : Result Bool :=
   ok (c.val != 0#u8)
 
 /-- [subtle::{impl core::ops::bit::BitOr<subtle::Choice> for subtle::Choice}::bitor]:
-    Rust: `Choice(self.0 | rhs.0)`. On 0 and 1 this is 1 iff one of them is 1. -/
+    Rust: `(self.0 | rhs.0).into()`. On 0 and 1 this is 1 iff one of them is 1. -/
 @[rust_fun
   "subtle::{core::ops::bit::BitOr<subtle::Choice, subtle::Choice, subtle::Choice>}::bitor"]
 def subtle.Choice.Insts.CoreOpsBitBitOrChoiceChoice.bitor (a b : subtle.Choice) :
@@ -132,10 +135,10 @@ def Slice.Insts.SubtleConstantTimeEq.ct_eq {T : Type}
     subtle.Choice.Insts.CoreConvertFromU8.from x
 
 /-- [subtle::{impl subtle::ConditionallySelectable for u64}::conditional_assign]:
-    Rust: `*self = Self::conditional_select(self, other, choice)`. -/
+    Rust: `let mask = -(choice.unwrap_u8() as i64) as u64; *self ^= mask & (*self ^ *other)`.
+    On 0 and 1 this returns `b` iff the choice is 1. -/
 @[rust_fun
   "subtle::{subtle::ConditionallySelectable<u64>}::conditional_assign"]
 def U64.Insts.SubtleConditionallySelectable.conditional_assign
     (a b : Std.U64) (choice : subtle.Choice) : Result Std.U64 :=
-  -- `conditional_select(a, b, choice)` returns `b` iff `choice` is 1.
   if choice.val = 1#u8 then ok b else ok a

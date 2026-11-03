@@ -25,19 +25,18 @@ namespace RistrettoSim
 
 abbrev FE := backend.serial.u64.field.FieldElement51
 
-/-- The representation relation: limbs to the reference field. -/
+/-- The value of a `FieldElement51` in the reference field: its five limbs read in radix
+`2 ^ 51`, mod `p`. -/
 def toZ (f : FE) : _root_.field.Fe := ((Field51_as_Nat f : Nat) : ZMod p)
 
 /-- Every limb is below `2 ^ k`. -/
 def Bnd (k : Nat) (f : FE) : Prop := ∀ i < 5, (f[i]!).val < 2 ^ k
 
+/-- A limb bound holds for every larger exponent. -/
 theorem bnd_mono {j k : Nat} {f : FE} (h : Bnd j f) (hjk : j ≤ k) : Bnd k f :=
   fun i hi => lt_of_lt_of_le (h i hi) (Nat.pow_le_pow_right (by norm_num) hjk)
 
-theorem toZ_eq_of_modEq {a b : FE} (h : Field51_as_Nat a ≡ Field51_as_Nat b [MOD p]) :
-    toZ a = toZ b :=
-  (ZMod.natCast_eq_natCast_iff _ _ _).mpr h
-
+/-- `add` with limbs below `2 ^ 53`: the sum in `ZMod p`, limbs below `2 ^ 54`. -/
 theorem add_z (a b : FE) (ha : Bnd 53 a) (hb : Bnd 53 b) :
     Shared0FieldElement51.Insts.CoreOpsArithAddSharedAFieldElement51FieldElement51.add a b
       ⦃ r => toZ r = toZ a + toZ b ∧ Bnd 54 r ⦄ := by
@@ -49,6 +48,8 @@ theorem add_z (a b : FE) (ha : Bnd 53 a) (hb : Bnd 53 b) :
   simp only [toZ, pointwise_add_Field51_as_Nat a b r h1, Nat.cast_add]
   rfl
 
+/-- `sub` with limbs of `a` below `2 ^ 63` and of `b` below `2 ^ 54`: the difference in
+`ZMod p`, limbs below `2 ^ 52`. -/
 theorem sub_z (a b : FE) (ha : Bnd 63 a) (hb : Bnd 54 b) :
     Shared0FieldElement51.Insts.CoreOpsArithSubSharedAFieldElement51FieldElement51.sub a b
       ⦃ r => toZ r = toZ a - toZ b ∧ Bnd 52 r ⦄ := by
@@ -64,6 +65,7 @@ theorem sub_z (a b : FE) (ha : Bnd 63 a) (hb : Bnd 54 b) :
   push_cast at this
   exact eq_sub_of_add_eq this
 
+/-- `mul` with limbs below `2 ^ 54`: the product in `ZMod p`, limbs below `2 ^ 52`. -/
 theorem mul_z (a b : FE) (ha : Bnd 54 a) (hb : Bnd 54 b) :
     Shared0FieldElement51.Insts.CoreOpsArithMulSharedAFieldElement51FieldElement51.mul a b
       ⦃ r => toZ r = toZ a * toZ b ∧ Bnd 52 r ⦄ := by
@@ -77,6 +79,7 @@ theorem mul_z (a b : FE) (ha : Bnd 54 a) (hb : Bnd 54 b) :
   push_cast at this
   exact this
 
+/-- `square` with limbs below `2 ^ 54`: the square in `ZMod p`, limbs below `2 ^ 52`. -/
 theorem square_z (a : FE) (ha : Bnd 54 a) :
     backend.serial.u64.field.FieldElement51.square a
       ⦃ r => toZ r = toZ a ^ 2 ∧ Bnd 52 r ⦄ := by
@@ -88,6 +91,8 @@ theorem square_z (a : FE) (ha : Bnd 54 a) :
   push_cast at this
   exact this
 
+/-- `pow2k a k` with `0 < k` and limbs below `2 ^ 54`: `a ^ (2 ^ k)` in `ZMod p`, limbs
+below `2 ^ 52`. -/
 theorem pow2k_z (a : FE) (k : U32) (hk : 0 < k.val) (ha : Bnd 54 a) :
     backend.serial.u64.field.FieldElement51.pow2k a k
       ⦃ r => toZ r = toZ a ^ (2 ^ k.val) ∧ Bnd 52 r ⦄ := by
@@ -99,6 +104,8 @@ theorem pow2k_z (a : FE) (k : U32) (hk : 0 < k.val) (ha : Bnd 54 a) :
   push_cast at this
   exact this
 
+/-- `pow22501` with limbs below `2 ^ 54`: its first result is `a ^ pow22501_exp` in
+`ZMod p`, with limbs below `2 ^ 52`. -/
 theorem pow22501_z (a : FE) (ha : Bnd 54 a) :
     field.FieldElement51.pow22501 a
       ⦃ r => toZ r.1 = toZ a ^ field.FieldElement51.pow22501_exp ∧ Bnd 52 r.1 ⦄ := by
@@ -129,6 +136,7 @@ theorem pow_p58_z (a : FE) (ha : Bnd 54 a) :
   refine ⟨?_, br⟩
   rw [hr, h20, ht, ← pow_mul, ← pow_succ', ← p58_exp, Nat.add_comm]
 
+/-- `negate` with limbs below `2 ^ 54`: the negation in `ZMod p`, limbs below `2 ^ 52`. -/
 theorem negate_z (a : FE) (ha : Bnd 54 a) :
     backend.serial.u64.field.FieldElement51.negate a
       ⦃ r => toZ r = - toZ a ∧ Bnd 52 r ⦄ := by
@@ -141,6 +149,7 @@ theorem negate_z (a : FE) (ha : Bnd 54 a) :
   push_cast at this
   exact eq_neg_of_add_eq_zero_right this
 
+/-- `Neg` on `&FieldElement51` is `negate`. -/
 theorem neg_z (a : FE) (ha : Bnd 54 a) :
     Shared0FieldElement51.Insts.CoreOpsArithNegFieldElement51.neg a
       ⦃ r => toZ r = - toZ a ∧ Bnd 52 r ⦄ := by

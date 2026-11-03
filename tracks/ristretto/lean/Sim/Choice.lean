@@ -13,6 +13,7 @@ open curve25519_dalek
 
 namespace RistrettoSim
 
+/-- `p` is not zero, for the lemmas on `ZMod.val`. -/
 instance : NeZero (2 ^ 255 - 19) := ⟨by norm_num⟩
 
 /-- The `Choice` with value 1. -/
@@ -20,15 +21,11 @@ def cOne : subtle.Choice := ⟨1#u8, Or.inr rfl⟩
 /-- The `Choice` with value 0. -/
 def cZero : subtle.Choice := ⟨0#u8, Or.inl rfl⟩
 
-theorem choice_eq (c : subtle.Choice) : c = cOne ∨ c = cZero := by
-  rcases c with ⟨v, hv⟩
-  rcases hv with h | h
-  · right; subst h; rfl
-  · left; subst h; rfl
-
+/-- `x & 1 = x` for `x` in `{0, 1}`. -/
 theorem u8_and_one (x : U8) (hx : x = 0#u8 ∨ x = 1#u8) : x &&& 1#u8 = x := by
   rcases hx with h | h <;> subst h <;> decide
 
+/-- `x & 0 = 0`. -/
 theorem u8_and_zero (x : U8) : x &&& 0#u8 = 0#u8 := by
   apply UScalar.eq_of_val_eq
   simp
@@ -154,6 +151,7 @@ theorem is_negative_z (a : FE) :
   · intro h; rw [← hand, h]; rfl
   · intro h; apply UScalar.eq_of_val_eq; rw [hand, h]; rfl
 
+/-- 32 zero bytes read as 0. -/
 theorem U8x32_zero : U8x32_as_Nat (Array.repeat 32#usize 0#u8) = 0 := by
   simp [U8x32_as_Nat, Array.getElem!_Nat_eq, Array.repeat_val]
   intro i hi

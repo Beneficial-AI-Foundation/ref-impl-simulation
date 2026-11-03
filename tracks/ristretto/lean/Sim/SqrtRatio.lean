@@ -22,11 +22,18 @@ theorem bitor_eq (a b : subtle.Choice) :
 theorem cOne_val : cOne.val = 1#u8 := rfl
 theorem cZero_val : cZero.val = 0#u8 := rfl
 
-/-- The reference `is_negative` on `ZMod p`. -/
-theorem ref_is_negative (x : _root_.field.Fe) :
-    ristretto_ref.is_negative x = ok (decide ((show ZMod _root_.field.p from x).val % 2 = 1)) := by
-  rfl
+/-- The canonical representative is odd. A named predicate, so that rewrites do not unfold
+the modulus. -/
+def negP (x : _root_.field.Fe) : Prop := (show ZMod _root_.field.p from x).val % 2 = 1
 
+instance (x : _root_.field.Fe) : Decidable (negP x) :=
+  inferInstanceAs (Decidable ((show ZMod _root_.field.p from x).val % 2 = 1))
+
+/-- The reference `is_negative` tests `negP`. -/
+theorem ref_is_negative (x : _root_.field.Fe) :
+    ristretto_ref.is_negative x = ok (decide (negP x)) := rfl
+
+/-- `fe(0) - x = -x`. -/
 theorem ref_zero_sub (x : _root_.field.Fe) :
     ((((0#u32 : U32) : Nat) : _root_.field.Fe)) - x = -x := by
   show (((0 : Nat) : _root_.field.Fe)) - x = -x
@@ -34,13 +41,14 @@ theorem ref_zero_sub (x : _root_.field.Fe) :
 
 /-- The nonnegative choice of `x` and `-x`. -/
 def absZ (x : _root_.field.Fe) : _root_.field.Fe :=
-  if (show ZMod _root_.field.p from x).val % 2 = 1 then -x else x
+  if negP x then -x else x
 
+/-- The reference `abs` is `absZ`. -/
 theorem ref_abs (x : _root_.field.Fe) :
     ristretto_ref.abs x = ok (absZ x) := by
   unfold ristretto_ref.abs ristretto_ref.select ristretto_ref.neg_fe ristretto_ref.is_negative
   simp only [_root_.field.fe_sub, _root_.field.fe_lit, _root_.field.fe_is_negative, bind_ok]
-  unfold absZ
+  unfold absZ negP
   by_cases h : (show ZMod _root_.field.p from x).val % 2 = 1
   · simp only [h, decide_true, if_true, ref_zero_sub]
   · simp only [h, decide_false, if_false, Bool.false_eq_true]
@@ -70,6 +78,13 @@ theorem sqrt_ratio_tail (C U I R : _root_.field.Fe) :
 theorem p58_eq : (p - 5) / 8 = _root_.field.p58 := by
   unfold _root_.field.p58 p; rfl
 
+/-- hacspec computes the exponent of `sqrt_ratio_m1` as `(P() - fe(5)) / fe(8)` in the field,
+where `P()` is 0. Its value is `-5 / 8`. The field model uses the natural number `p58`. This
+lemma shows that `p58` is `-5 / 8` in `ZMod p`, so the two exponents agree. -/
+theorem p58_field : ((_root_.field.p58 : Nat) : _root_.field.Fe) * 8 = -5 := by
+  unfold _root_.field.p58
+  decide
+
 /-- The reference `sqrt_ratio_m1` in closed form. -/
 theorem ref_sqrt_ratio_eq (U V : _root_.field.Fe) :
     ristretto_ref.sqrt_ratio_m1 U V =
@@ -81,6 +96,9 @@ theorem ref_sqrt_ratio_eq (U V : _root_.field.Fe) :
   simp only [ref_zero_sub]
   exact sqrt_ratio_tail _ _ _ _
 
+/-- If the limbs of `u` and `v` are below `2 ^ 54`, `sqrt_ratio_i u v` returns without
+failure. The reference `sqrt_ratio_m1 (toZ u) (toZ v)` returns `(b, toZ r.2)`, where `b` is
+true iff the real `Choice` `r.1` is 1. The limbs of `r.2` are below `2 ^ 52`. -/
 theorem sqrt_ratio_i_refines (u v : FE) (hu : Bnd 54 u) (hv : Bnd 54 v) :
     field.FieldElement51.sqrt_ratio_i u v ⦃ r =>
       ∃ b, ristretto_ref.sqrt_ratio_m1 (toZ u) (toZ v) = ok (b, toZ r.2) ∧
@@ -147,7 +165,7 @@ theorem sqrt_ratio_i_refines (u v : FE) (hu : Bnd 54 u) (hv : Bnd 54 v) :
     · rw [hr1, if_neg (fun h => hc ((hsel _ _).mp h)), hR,
         if_neg (fun h => hc ((or_congr e2 e3).mpr h))]
   have hr2z : toZ r2 = absZ (toZ r1) := by
-    rw [hr2]; unfold absZ
+    rw [hr2]; unfold absZ negP
     by_cases hn : cn.val = 1#u8
     · rw [if_pos hn, hrn, if_pos (hcn.mp hn)]
     · rw [if_neg hn, if_neg (fun h => hn (hcn.mpr h))]

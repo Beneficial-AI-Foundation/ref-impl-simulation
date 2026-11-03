@@ -4,8 +4,8 @@ import Sim.Bytes
 /-! # Constants
 
 dalek stores `EDWARDS_D`, `SQRT_M1` and `INVSQRT_A_MINUS_D` as five limbs. The reference port
-stores the same constants as 32 little-endian bytes, copied from hacspec. Both give the same
-natural number below `p`. -/
+stores the same constants as 32 little-endian bytes, copied from hacspec. Both read as the
+same natural number. -/
 
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 open curve25519_dalek
@@ -20,6 +20,7 @@ def nSqrtM1 : Nat := 19681161376707505956807079304988542015446066515923890162744
 def nInvsqrtAMinusD : Nat :=
   54469307008909316920995813868745141605393597292927456921205312896311721017578
 
+/-- dalek's `EDWARDS_D` is `nD` under `toZ`. -/
 theorem edwards_d_spec :
     backend.serial.u64.constants.EDWARDS_D ⦃ r => toZ r = ((nD : Nat) : ZMod p) ∧ Bnd 51 r ⦄ := by
   unfold backend.serial.u64.constants.EDWARDS_D backend.serial.u64.field.FieldElement51.from_limbs
@@ -28,6 +29,7 @@ theorem edwards_d_spec :
   simp only [toZ]
   congr 1
 
+/-- dalek's `SQRT_M1` is `nSqrtM1` under `toZ`. -/
 theorem sqrt_m1_spec :
     backend.serial.u64.constants.SQRT_M1 ⦃ r => toZ r = ((nSqrtM1 : Nat) : ZMod p) ∧ Bnd 51 r ⦄ := by
   unfold backend.serial.u64.constants.SQRT_M1 backend.serial.u64.field.FieldElement51.from_limbs
@@ -36,6 +38,7 @@ theorem sqrt_m1_spec :
   simp only [toZ]
   congr 1
 
+/-- dalek's `INVSQRT_A_MINUS_D` is `nInvsqrtAMinusD` under `toZ`. -/
 theorem invsqrt_a_minus_d_spec :
     backend.serial.u64.constants.INVSQRT_A_MINUS_D
       ⦃ r => toZ r = ((nInvsqrtAMinusD : Nat) : ZMod p) ∧ Bnd 51 r ⦄ := by
@@ -46,6 +49,7 @@ theorem invsqrt_a_minus_d_spec :
   simp only [toZ]
   congr 1
 
+/-- dalek's `FieldElement51::ONE` is 1 under `toZ`. -/
 theorem one_spec :
     backend.serial.u64.field.FieldElement51.ONE ⦃ r => toZ r = 1 ∧ Bnd 51 r ⦄ := by
   unfold backend.serial.u64.field.FieldElement51.ONE
@@ -56,16 +60,19 @@ theorem one_spec :
   rw [show Field51_as_Nat (Array.make 5#usize [1#u64, 0#u64, 0#u64, 0#u64, 0#u64]) = 1 by decide]
   rfl
 
+/-- The reference `d` is `nD`. -/
 theorem ref_d : ristretto_ref.d = ok ((nD : Nat) : _root_.field.Fe) := by
   unfold ristretto_ref.d
   rw [fe_from_bytes_eq]
   congr 2
 
+/-- The reference `sqrt_m1` is `nSqrtM1`. -/
 theorem ref_sqrt_m1 : ristretto_ref.sqrt_m1 = ok ((nSqrtM1 : Nat) : _root_.field.Fe) := by
   unfold ristretto_ref.sqrt_m1
   rw [fe_from_bytes_eq]
   congr 2
 
+/-- The reference `invsqrt_a_minus_d` is `nInvsqrtAMinusD`. -/
 theorem ref_invsqrt_a_minus_d :
     ristretto_ref.invsqrt_a_minus_d = ok ((nInvsqrtAMinusD : Nat) : _root_.field.Fe) := by
   unfold ristretto_ref.invsqrt_a_minus_d

@@ -42,10 +42,18 @@ differ in four ways, and the script fails on any other difference:
 4. `step_2` and `compress`: the copy binds subexpressions to names, and writes
    `conditional_negate` as in item 3. The field operations and their order are the same.
 
-Decoding and encoding use only the serial field code. On 64-bit targets, the `simd` backend of dalek
-does not change the field arithmetic. So the theorems cover decoding and encoding in every
-libsignal build with 64-bit limbs. It does not cover a build with the `fiat` backend or with
-`curve25519_dalek_bits = "32"`.
+The theorems are about the copy of 4.2.0, not about 5.0.0. The comparison is a review of
+source text, not a proof. It compares only the 29 listed items. It does not compare the
+type definitions, the `cfg` selection of the backend or the code of `subtle`. For example,
+5.0.0 calls `conditional_negate` of `subtle`, which the script does not read. libsignal
+`fc90b90f` locks `subtle` 2.6.1, the version that the `subtle` models of section 4 follow.
+
+Decoding and encoding use only the serial field code. On 64-bit targets, the `simd` backend
+of dalek does not change the field arithmetic. So the comparison supports the result for
+decoding and encoding in libsignal builds with 64-bit limbs. It does not apply to a build
+with the `fiat` backend or with `curve25519_dalek_bits = "32"`. For encoding, the limb
+premise of section 3 must also hold for the points that libsignal passes to `compress`. No
+theorem here shows this.
 
 The theorems do not cover the group operations,
 scalar multiplication, `from_uniform_bytes`, constant time or the erasure of secrets.
@@ -155,13 +163,17 @@ section 3.
 
 Trusted definitions. `#print axioms` does not show them.
 
-1. The port to plain Rust computes the same as the hacspec spec. Its Rust tests compare the
-   port with the unchanged spec and with dalek 5.0.0 (section 6).
+1. The port to plain Rust computes the same as the hacspec spec. Its Rust tests compare
+   `decode` and `encode` of the port with the unchanged spec, and the round trip with dalek
+   5.0.0 (section 6).
 2. The Lean field model computes the same as hacspec's `nat_mod`. `field.Fe` is
    `ZMod (2^255 - 19)` (`lean/RistrettoRef/TypesExternal.lean`). `fe_add`, `fe_sub`,
    `fe_mul` and `fe_sq` are the ring operations. `fe_eq` is equality. `fe_is_negative` tests
    that the canonical representative is odd. `fe_pow_p58` raises to the power
-   `(p - 5) / 8`. `fe_from_bytes` decodes all 256 bits little-endian and reduces mod `p`.
+   `(p - 5) / 8`. The spec writes this exponent as `(P() - fe(5)) / fe(8)`. In hacspec,
+   `P()` decodes to 0 and `/` is field division, so the exponent is `-5 / 8` in the field.
+   Its canonical representative is `(p - 5) / 8`, because 8 divides `p - 5`.
+   `RistrettoSim.p58_field` proves that `((p - 5) / 8) * 8 = -5` in `ZMod p`. `fe_from_bytes` decodes all 256 bits little-endian and reduces mod `p`.
    `fe_to_bytes` encodes the canonical representative. `fe_lit` is the cast of a number.
 3. The 7 hand definitions for `subtle` on the real side
    (`shared/dalek/lean/Curve25519Dalek/FunsExternal.lean`) and the type `subtle.Choice`
@@ -176,20 +188,20 @@ Trusted definitions. `#print axioms` does not show them.
    theorem holds for that copy.
 
 Axioms. `lean/Sim/Axioms.lean` checks with `#guard_msgs` that `decompress_refines`,
-`compress_refines`, `decompress_compress_refines` and `sqrt_ratio_i_refines` depend only on `propext`, `Classical.choice` and `Quot.sound`.
+`compress_refines`, `decompress_compress_refines` and `sqrt_ratio_i_refines` depend only on `propext`, `Classical.choice` and `Quot.sound`, and that `p58_field` depends on `propext` and `Quot.sound`.
 
 ## 5. Proof structure
 
 | File | Lines | Content |
 |---|---|---|
-| `Sim/Field.lean` | 150 | The relation `toZ`, the field specs over `toZ`, `pow_p58` and `negate` |
+| `Sim/Field.lean` | 159 | The relation `toZ`, the field specs over `toZ`, `pow_p58` and `negate` |
 | `Sim/Bytes.lean` | 120 | Base-256 digits, copied from track B |
-| `Sim/Choice.lean` | 203 | Slice `ct_eq` on 32 bytes, field `ct_eq`, `is_negative`, `is_zero`, `conditional_assign` |
-| `Sim/Consts.lean` | 75 | `EDWARDS_D`, `SQRT_M1`, `INVSQRT_A_MINUS_D` and `ONE` against the reference constants |
-| `Sim/SqrtRatio.lean` | 159 | The reference `sqrt_ratio_m1` in closed form, and `sqrt_ratio_i_refines` |
+| `Sim/Choice.lean` | 201 | Slice `ct_eq` on 32 bytes, field `ct_eq`, `is_negative`, `is_zero`, `conditional_assign` |
+| `Sim/Consts.lean` | 82 | `EDWARDS_D`, `SQRT_M1`, `INVSQRT_A_MINUS_D` and `ONE` against the reference constants |
+| `Sim/SqrtRatio.lean` | 177 | The reference `sqrt_ratio_m1` in closed form, the exponent `p58_field`, and `sqrt_ratio_i_refines` |
 | `Sim/GeqP.lean` | 124 | The reference `geq_p` loop computes `p ≤ x` |
-| `Sim/Decode.lean` | 368 | `step_1`, `invsqrt`, `step_2`, the reference `decode` in three cases, and `decompress_refines` |
-| `Sim/Encode.lean` | 245 | The reference `encode` in closed form, `compress_refines` and `decompress_compress_refines` |
+| `Sim/Decode.lean` | 376 | `step_1`, `invsqrt`, `step_2`, the reference `decode` in three cases, and `decompress_refines` |
+| `Sim/Encode.lean` | 252 | The reference `encode` in closed form, `compress_refines` and `decompress_compress_refines` |
 
 The proof goes call by call. For each real field operation, a spec gives the value under
 `toZ` and a limb bound. The reference side is a pure computation in `ZMod p`, and a closed
@@ -207,11 +219,16 @@ the shared library set `maxRecDepth 4096`, as in track B.
 
 ## 6. Checks
 
-1. `cargo test` in `ref-plain/` passes `tests/rfc.rs`. Each case decodes and encodes with
-   the port, with the unchanged hacspec spec and with dalek 5.0.0, and compares the three
-   results. The cases are the 16 encodings of RFC 9496 A.1 and the 29 invalid encodings of
-   A.2. There are also 44 edge inputs and 2000 random inputs from a fixed seed. The edge
-   inputs are values near 0 and `p`, and values with the top bit set.
+1. `cargo test` in `ref-plain/` passes `tests/rfc.rs`. For each input, the test compares
+   the result of `decode` of the port and of the unchanged hacspec spec: the four
+   coordinates, or the error code. It also compares the round trip, `decode` and then
+   `encode`, of the port, the spec and dalek 5.0.0. dalek is compared on the round trip
+   only, because its point representation is private. The inputs are the 16 encodings of
+   RFC 9496 A.1, the 29 invalid encodings of A.2, 44 edge inputs and 2000 random inputs
+   from a fixed seed. The edge inputs are values near 0 and `p`, and values with the top
+   bit set. A further test compares `encode` of the port and of the spec on tuples that
+   `decode` does not return: each A.1 point scaled by 20 random factors, and 500 random
+   tuples.
 2. `lake build` in `lean/` passes. No file in `lean/` or in
    `shared/dalek/lean/Curve25519Dalek/` has a `sorry`.
 3. `Sim/Axioms.lean` checks the axiom lists of section 4 with `#guard_msgs`.

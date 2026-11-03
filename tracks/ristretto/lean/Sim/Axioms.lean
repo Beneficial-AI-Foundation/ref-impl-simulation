@@ -25,3 +25,9 @@ info: 'RistrettoSim.decompress_compress_refines' depends on axioms: [propext, Cl
 -/
 #guard_msgs in
 #print axioms RistrettoSim.decompress_compress_refines
+
+/--
+info: 'RistrettoSim.p58_field' depends on axioms: [propext, Quot.sound]
+-/
+#guard_msgs in
+#print axioms RistrettoSim.p58_field

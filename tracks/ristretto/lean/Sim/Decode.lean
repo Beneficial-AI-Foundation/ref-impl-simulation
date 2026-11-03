@@ -12,6 +12,7 @@ open curve25519_dalek
 
 namespace RistrettoSim
 
+/-- The value of `p`. -/
 theorem p_val : p = 2 ^ 255 - 19 := rfl
 
 /-- `step_1` reads the low 255 bits of the input, and the encoding test holds iff the input is
@@ -62,23 +63,33 @@ theorem invsqrt_refines (x : FE) (hx : Bnd 54 x) :
 /-- `d` in the reference field. -/
 def zD : _root_.field.Fe := ((nD : Nat) : _root_.field.Fe)
 
+/-- The `v` of decoding: `-(d (1 - S²)²) - (1 + S²)²`. -/
+def decV (S : _root_.field.Fe) : _root_.field.Fe := -(zD * (1 - S ^ 2) ^ 2) - (1 + S ^ 2) ^ 2
+/-- The `x` of decoding, for the root `I`: `|2 S I (1 + S²)|`. -/
+def decX (S I : _root_.field.Fe) : _root_.field.Fe := absZ ((S + S) * (I * (1 + S ^ 2)))
+/-- The `y` of decoding, for the root `I`: `(1 - S²) I² (1 + S²) v`. -/
+def decY (S I : _root_.field.Fe) : _root_.field.Fe := (1 - S ^ 2) * (I * (I * (1 + S ^ 2)) * decV S)
+
 /-- `conditional_assign(x, -x, is_negative x)` is `absZ`. -/
 theorem abs_of_select (x xn r : FE) (c : subtle.Choice)
     (hc : c.val = 1#u8 ↔ (toZ x).val % 2 = 1) (hxn : toZ xn = - toZ x)
     (hr : r = if c.val = 1#u8 then xn else x) : toZ r = absZ (toZ x) := by
-  rw [hr]; unfold absZ
+  rw [hr]; unfold absZ negP
   by_cases h : c.val = 1#u8
   · rw [if_pos h, hxn, if_pos (hc.mp h)]
   · rw [if_neg h, if_neg (fun h' => h (hc.mpr h'))]
 
+/-- If the limbs of `s` are below `2 ^ 51`, `step_2 s` returns without failure. With `S = toZ s`
+and `(ws, I)` the result of the reference `sqrt_ratio_m1 1 (decV S (1 + S²)²)`: the first
+`Choice` is 1 iff `ws`, the point is `(decX S I, decY S I, 1, decX S I · decY S I)` under
+`toZ`, the second `Choice` is 1 iff `T` is odd, and the third is 1 iff `Y = 0`. All limbs
+are below `2 ^ 52`. -/
 theorem step_2_z (s : FE) (hs : Bnd 51 s) :
     ristretto.decompress.step_2 s ⦃ r =>
-      ∃ ws I, ristretto_ref.sqrt_ratio_m1 1
-          ((-(zD * (1 - toZ s ^ 2) ^ 2) - (1 + toZ s ^ 2) ^ 2) * (1 + toZ s ^ 2) ^ 2) = ok (ws, I) ∧
+      ∃ ws I, ristretto_ref.sqrt_ratio_m1 1 (decV (toZ s) * (1 + toZ s ^ 2) ^ 2) = ok (ws, I) ∧
         (ws = true ↔ r.1.val = 1#u8) ∧
-        toZ r.2.2.2.X = absZ ((toZ s + toZ s) * (I * (1 + toZ s ^ 2))) ∧
-        toZ r.2.2.2.Y = (1 - toZ s ^ 2) *
-          (I * (I * (1 + toZ s ^ 2)) * (-(zD * (1 - toZ s ^ 2) ^ 2) - (1 + toZ s ^ 2) ^ 2)) ∧
+        toZ r.2.2.2.X = decX (toZ s) I ∧
+        toZ r.2.2.2.Y = decY (toZ s) I ∧
         toZ r.2.2.2.Z = 1 ∧
         toZ r.2.2.2.T = toZ r.2.2.2.X * toZ r.2.2.2.Y ∧
         (r.2.1.val = 1#u8 ↔ (toZ r.2.2.2.T).val % 2 = 1) ∧
@@ -138,18 +149,17 @@ theorem step_2_z (s : FE) (hs : Bnd 51 s) :
   step with is_negative_z as ⟨tn, htn⟩
   step with is_zero_z as ⟨yz, hyz⟩
   have hfd' : toZ fd = zD := hfd
-  have hv' : toZ v = -(zD * (1 - toZ s ^ 2) ^ 2) - (1 + toZ s ^ 2) ^ 2 := by
-    rw [hv, hndu, hnd, hfd', hu1s, hu1, hu2s, hu2, hone, hss]; ring
+  have hv' : toZ v = decV (toZ s) := by
+    rw [hv, hndu, hnd, hfd', hu1s, hu1, hu2s, hu2, hone, hss]; unfold decV; ring
   have hu2' : toZ u2 = 1 + toZ s ^ 2 := by rw [hu2, hone, hss]
-  have hvu' : toZ vu = (-(zD * (1 - toZ s ^ 2) ^ 2) - (1 + toZ s ^ 2) ^ 2) *
-      (1 + toZ s ^ 2) ^ 2 := by
+  have hvu' : toZ vu = decV (toZ s) * (1 + toZ s ^ 2) ^ 2 := by
     rw [hvu, hv', hu2s, hu2']
   have hx' : toZ x = (toZ s + toZ s) * (toZ I * (1 + toZ s ^ 2)) := by
     rw [hx, hsps, hDx, hu2']
   refine ⟨ws, toZ I, by rw [← hvu']; exact hws, hwsiff, ?_, ?_, hone, ht, htn, hyz,
     bx1, by', bnd_mono bone (by norm_num), bt⟩
-  · rw [abs_of_select x xneg x1 xn hxn hxneg hx1, hx']
-  · rw [hy, hu1, hone, hss, hDy, hDxv, hDx, hu2', hv']; ring
+  · rw [abs_of_select x xneg x1 xn hxn hxneg hx1, hx']; rfl
+  · rw [hy, hu1, hone, hss, hDy, hDxv, hDx, hu2', hv']; unfold decY; ring
 
 /-! ## The decoding theorem -/
 
@@ -170,23 +180,28 @@ def DecRel : core.result.Result RefPt U8 → Option ristretto.RistrettoPoint →
   | .Err e, none => e = 20#u8
   | _, _ => False
 
+/-- `!a` on choices. -/
 theorem not_eq (a : subtle.Choice) :
     subtle.Choice.Insts.CoreOpsBitNotChoice.not a =
       ok (if a.val = 1#u8 then cZero else cOne) := by
   unfold subtle.Choice.Insts.CoreOpsBitNotChoice.not
   split <;> rfl
 
+/-- `bool::from(c)` is `c ≠ 0`. -/
 theorem bool_from (c : subtle.Choice) :
     Bool.Insts.CoreConvertFromChoice.from c = ok (c.val != 0#u8) := rfl
 
+/-- hacspec `fe(1)` is 1. -/
 theorem ref_lit_one : ((((1#u32 : U32) : Nat) : _root_.field.Fe)) = 1 := by
   show (((1 : Nat) : _root_.field.Fe)) = 1
   exact Nat.cast_one
 
+/-- hacspec `fe(0)` is 0. -/
 theorem ref_lit_zero : ((((0#u32 : U32) : Nat) : _root_.field.Fe)) = 0 := by
   show (((0 : Nat) : _root_.field.Fe)) = 0
   exact Nat.cast_zero
 
+/-- The reference `DECODING_ERROR` is 20. -/
 theorem decode_err : ristretto_ref.DECODING_ERROR = 20#u8 := by
   unfold ristretto_ref.DECODING_ERROR; rfl
 
@@ -201,7 +216,7 @@ theorem ref_decode_noncanon (b : Array U8 32#usize) (h : ¬ U8x32_as_Nat b < p) 
 /-- The reference rejects a negative `s`. -/
 theorem ref_decode_neg (b : Array U8 32#usize) (h : U8x32_as_Nat b < p) (S : _root_.field.Fe)
     (hS : ((U8x32_as_Nat b : Nat) : _root_.field.Fe) = S)
-    (hn : (show ZMod _root_.field.p from S).val % 2 = 1) :
+    (hn : negP S) :
     ristretto_ref.decode b = ok (core.result.Result.Err 20#u8) := by
   unfold ristretto_ref.decode
   have hge : decide (2 ^ 255 - 19 ≤ U8x32_as_Nat b) = false := by
@@ -209,22 +224,6 @@ theorem ref_decode_neg (b : Array U8 32#usize) (h : U8x32_as_Nat b < p) (S : _ro
   rw [fe_from_bytes_eq, bind_ok, geq_p_eq, bind_ok, hge, if_neg Bool.false_ne_true, hS,
     ref_is_negative, bind_ok, if_pos (decide_eq_true hn), decode_err]
 
-/-- The canonical representative is odd. A named predicate, so that rewrites do not unfold
-the modulus. -/
-def negP (x : _root_.field.Fe) : Prop := (show ZMod _root_.field.p from x).val % 2 = 1
-
-instance (x : _root_.field.Fe) : Decidable (negP x) :=
-  inferInstanceAs (Decidable ((show ZMod _root_.field.p from x).val % 2 = 1))
-
-theorem ref_is_negative' (x : _root_.field.Fe) :
-    ristretto_ref.is_negative x = ok (decide (negP x)) := rfl
-
-/-- The `v` of decoding. -/
-def decV (S : _root_.field.Fe) : _root_.field.Fe := -(zD * (1 - S ^ 2) ^ 2) - (1 + S ^ 2) ^ 2
-/-- The `x` of decoding, for the root `I`. -/
-def decX (S I : _root_.field.Fe) : _root_.field.Fe := absZ ((S + S) * (I * (1 + S ^ 2)))
-/-- The `y` of decoding, for the root `I`. -/
-def decY (S I : _root_.field.Fe) : _root_.field.Fe := (1 - S ^ 2) * (I * (I * (1 + S ^ 2)) * decV S)
 /-- The result of decoding after the two tests on `s`. -/
 def decRes (S I : _root_.field.Fe) (ws : Bool) : core.result.Result RefPt U8 :=
   if ws then
@@ -236,7 +235,7 @@ def decRes (S I : _root_.field.Fe) (ws : Bool) : core.result.Result RefPt U8 :=
 /-- The reference `decode` on a canonical, nonnegative encoding. -/
 theorem ref_decode_main (b : Array U8 32#usize) (h : U8x32_as_Nat b < p) (S : _root_.field.Fe)
     (hS : ((U8x32_as_Nat b : Nat) : _root_.field.Fe) = S)
-    (hn : ¬ (show ZMod _root_.field.p from S).val % 2 = 1) (ws : Bool) (I : _root_.field.Fe)
+    (hn : ¬ negP S) (ws : Bool) (I : _root_.field.Fe)
     (hws : ristretto_ref.sqrt_ratio_m1 1 (decV S * (1 + S ^ 2) ^ 2) = ok (ws, I)) :
     ristretto_ref.decode b = ok (decRes S I ws) := by
   unfold ristretto_ref.decode
@@ -255,7 +254,7 @@ theorem ref_decode_main (b : Array U8 32#usize) (h : U8x32_as_Nat b < p) (S : _r
   unfold decRes
   cases ws
   · simp only [Bool.false_eq_true, if_false, decode_err]
-  · simp only [if_true, ref_is_negative', bind_ok, decode_err]
+  · simp only [if_true, ref_is_negative, bind_ok, decode_err]
     by_cases ht : negP (decX S I * decY S I)
     · rw [if_pos (decide_eq_true ht), if_pos ht]
     · rw [if_neg (by simpa using ht), if_neg ht]
@@ -263,17 +262,21 @@ theorem ref_decode_main (b : Array U8 32#usize) (h : U8x32_as_Nat b < p) (S : _r
       · rw [if_pos (decide_eq_true hy), if_pos hy]
       · rw [if_neg (by simpa using hy), if_neg hy]
 
+/-- The choice that encodes `P` is not 0 iff `P`. -/
 theorem sel_ne (P : Prop) [Decidable P] :
     (((if P then cOne else cZero).val != 0#u8) = true) ↔ P := by
   split <;> simp_all [cOne_val, cZero_val]
 
+/-- The choice that encodes `P` is 1 iff `P`. -/
 theorem sel_one (P : Prop) [Decidable P] : ((if P then cOne else cZero).val = 1#u8) ↔ P := by
   split <;> simp_all [cOne_val, cZero_val]
 
+/-- The negation of the choice `a` is 1 iff `a` is not 1. -/
 theorem not_one (a : subtle.Choice) :
     ((if a.val = 1#u8 then cZero else cOne).val = 1#u8) ↔ ¬ a.val = 1#u8 := by
   split <;> simp_all [cOne_val, cZero_val]
 
+/-- If `decRes` rejects, it is related to `none`. -/
 theorem decRes_none (S I : _root_.field.Fe) (ws : Bool)
     (h : ws = false ∨ negP (decX S I * decY S I) ∨ decY S I = 0) :
     DecRel (decRes S I ws) none := by
@@ -289,6 +292,7 @@ theorem decRes_none (S I : _root_.field.Fe) (ws : Bool)
       split
       all_goals rfl
 
+/-- If `decRes` accepts, it is related to the real point with the same coordinates. -/
 theorem decRes_some (S I : _root_.field.Fe) (ws : Bool) (pt : ristretto.RistrettoPoint)
     (h1 : ws = true) (h2 : ¬ negP (decX S I * decY S I)) (h3 : ¬ decY S I = 0)
     (hpt : toZPt pt = (decX S I, decY S I, 1, decX S I * decY S I)) (hb : BndPt 52 pt) :
@@ -337,6 +341,10 @@ theorem decompress_main (b : Array U8 32#usize) (s : FE) (hlt : U8x32_as_Nat b <
       (fun h => hn' (Or.inr (Or.inr h))) (by simp only [toZPt, hX', hY', hZ, hT'])
       ⟨bX, bY, bZ, bT⟩⟩
 
+/-- Decoding refines the reference. For every 32-byte `b`, `decompress b` returns without
+panic, overflow or divergence, the reference `decode b` returns `ok q`, and `DecRel q r`
+holds. So either both reject, with the reference error 20, or both accept with the same
+four coordinates in `ZMod p`, and the limbs of the real point are below `2 ^ 52`. -/
 theorem decompress_refines (b : Array U8 32#usize) :
     ristretto.CompressedRistretto.decompress b ⦃ r =>
       ∃ q, ristretto_ref.decode b = ok q ∧ DecRel q r ⦄ := by

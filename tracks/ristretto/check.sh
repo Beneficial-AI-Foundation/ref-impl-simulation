@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Runs every check of track D and stops at the first failure.
-# The dalek 5.0.0 comparison needs the crate source (README section 6). Set DALEK5 to its
+# The dalek 5.0.0 comparison needs the crate source (README section 8). Set DALEK5 to its
 # directory, or SKIP_DALEK5=1 to skip that check.
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
@@ -8,11 +8,13 @@ root="$here/../.."
 
 # Tracks B and D build into the same shared library, Aeneas copy and package directory.
 # The lock makes a second check wait until the first one ends.
-if command -v flock > /dev/null; then
-  mkdir -p "$root/shared/dalek/lean/.lake"
-  exec 9> "$root/shared/dalek/lean/.lake/check.lock"
-  flock 9
+if ! command -v flock > /dev/null; then
+  echo "flock not found: install util-linux, so that the checks of tracks B and D do not build at the same time" >&2
+  exit 1
 fi
+mkdir -p "$root/shared/dalek/lean/.lake"
+exec 9> "$root/shared/dalek/lean/.lake/check.lock"
+flock 9
 
 "$root/shared/dalek/check.sh"
 

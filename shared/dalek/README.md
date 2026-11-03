@@ -75,8 +75,10 @@ and PrimeCert through it. Their lakefiles also set `packagesDir` to
 `lean/.lake/packages`, so the library and the two tracks use one copy of Mathlib and of
 the other packages. Thus a build of either track writes to the same build directories.
 `check.sh` of each track takes a lock (`flock`) on `lean/.lake/check.lock`, so that two
-checks do not build at the same time. If you run `lake build` by hand, do not run it in
-both tracks at the same time.
+checks do not build at the same time. If `flock` is not installed, the script stops with an
+error. `shared/dalek/check.sh` takes no lock, because the tracks call it while they hold
+the lock. If you run it, or `lake build`, by hand, do not run a check of a track at the same
+time.
 
 ## 3. Checks
 

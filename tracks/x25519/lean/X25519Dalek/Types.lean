@@ -20,7 +20,7 @@ set_option maxRecDepth 2048
 namespace x25519_dalek
 
 /-- [curve25519_dalek::montgomery::MontgomeryPoint]
-    Source: '/home/lacra/git_repos/baif/ref-impl-simulation/tracks/x25519/real-dalek/curve25519-dalek/src/montgomery.rs', lines 75:0-75:26
+    Source: 'tracks/x25519/real-dalek/curve25519-dalek/src/montgomery.rs', lines 75:0-75:26
     Name pattern: [curve25519_dalek::montgomery::MontgomeryPoint]
     Visibility: public -/
 @[reducible, rust_type "curve25519_dalek::montgomery::MontgomeryPoint"]

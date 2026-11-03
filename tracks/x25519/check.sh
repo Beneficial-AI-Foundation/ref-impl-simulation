@@ -9,16 +9,24 @@ root="$here/../.."
 
 # Tracks B and D build into the same shared library, Aeneas copy and package directory.
 # The lock makes a second check wait until the first one ends.
-if command -v flock > /dev/null; then
-  mkdir -p "$root/shared/dalek/lean/.lake"
-  exec 9> "$root/shared/dalek/lean/.lake/check.lock"
-  flock 9
+if ! command -v flock > /dev/null; then
+  echo "flock not found: install util-linux, so that the checks of tracks B and D do not build at the same time" >&2
+  exit 1
 fi
+mkdir -p "$root/shared/dalek/lean/.lake"
+exec 9> "$root/shared/dalek/lean/.lake/check.lock"
+flock 9
 
 "$root/shared/dalek/check.sh"
 
 echo "== Rust reference tests"
 (cd "$here/ref-plain" && cargo test --quiet)
+
+echo "== The Lean copies of the Aeneas output have no hand edits"
+for f in Funs Types; do
+  diff -q "$here/ref-plain/Ref/$f.lean" "$here/lean/X25519Ref/$f.lean"
+  diff -q "$here/real-x25519/X25519/$f.lean" "$here/lean/X25519Dalek/$f.lean"
+done
 
 echo "== Lean build, with the axiom and vector checks"
 (cd "$here/lean" && lake build)
