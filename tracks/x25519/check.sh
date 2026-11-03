@@ -60,7 +60,7 @@ else
   fi
   "$here/compare-dalek5.py" --self-test "$here/real-dalek/curve25519-dalek" "$dalek5" \
     "$here/real-x25519/x25519-dalek" "$x25519dalek3" > /dev/null
-  echo "the proved path agrees, and the self-test reports every change"
+  echo "the compared items agree apart from the reviewed differences, and the self-test reports every change"
 fi
 
 echo "== All checks passed"
