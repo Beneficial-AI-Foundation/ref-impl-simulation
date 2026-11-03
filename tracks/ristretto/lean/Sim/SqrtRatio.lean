@@ -12,6 +12,8 @@ open curve25519_dalek
 
 namespace RistrettoSim
 
+open DalekSim
+
 /-- `bitor` on choices. -/
 theorem bitor_eq (a b : subtle.Choice) :
     subtle.Choice.Insts.CoreOpsBitBitOrChoiceChoice.bitor a b =

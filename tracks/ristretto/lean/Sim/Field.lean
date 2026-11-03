@@ -2,6 +2,7 @@ import RistrettoRef.Funs
 import Curve25519Dalek.Funs
 import Curve25519Dalek.Math.Basic
 import Curve25519Dalek.Auxiliary
+import DalekSim.Basic
 import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.Add
 import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.Sub
 import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.Mul
@@ -23,18 +24,13 @@ open curve25519_dalek
 
 namespace RistrettoSim
 
+open DalekSim
+
 abbrev FE := backend.serial.u64.field.FieldElement51
 
 /-- The value of a `FieldElement51` in the reference field: its five limbs read in radix
 `2 ^ 51`, mod `p`. -/
 def toZ (f : FE) : _root_.field.Fe := ((Field51_as_Nat f : Nat) : ZMod p)
-
-/-- Every limb is below `2 ^ k`. -/
-def Bnd (k : Nat) (f : FE) : Prop := ∀ i < 5, (f[i]!).val < 2 ^ k
-
-/-- A limb bound holds for every larger exponent. -/
-theorem bnd_mono {j k : Nat} {f : FE} (h : Bnd j f) (hjk : j ≤ k) : Bnd k f :=
-  fun i hi => lt_of_lt_of_le (h i hi) (Nat.pow_le_pow_right (by norm_num) hjk)
 
 /-- `add` with limbs below `2 ^ 53`: the sum in `ZMod p`, limbs below `2 ^ 54`. -/
 theorem add_z (a b : FE) (ha : Bnd 53 a) (hb : Bnd 53 b) :

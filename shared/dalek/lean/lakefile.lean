@@ -12,3 +12,8 @@ external definitions (FunsExternal, TypesExternal), support files from
 curve25519-dalek-lean-verify (Math, Auxiliary), and the field specs (Specs). -/
 @[default_target] lean_lib Curve25519Dalek where
   globs := #[.submodules `Curve25519Dalek]
+
+/-- Lemmas about the real code that do not depend on a reference program: bytes and their
+value (`DalekSim.Bytes`), limb bounds and `Result` lemmas (`DalekSim.Basic`). -/
+@[default_target] lean_lib DalekSim where
+  globs := #[.submodules `DalekSim]

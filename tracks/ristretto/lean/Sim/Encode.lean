@@ -11,6 +11,8 @@ open curve25519_dalek
 
 namespace RistrettoSim
 
+open DalekSim
+
 /-- `1/sqrt(a - d)` in the reference field. -/
 def zInvAD : _root_.field.Fe := ((nInvsqrtAMinusD : Nat) : _root_.field.Fe)
 

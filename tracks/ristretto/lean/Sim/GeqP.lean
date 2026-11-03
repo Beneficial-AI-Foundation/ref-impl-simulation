@@ -1,4 +1,5 @@
 import Sim.Bytes
+import DalekSim.Basic
 
 /-! # The reference `geq_p` loop
 
@@ -10,14 +11,7 @@ open Aeneas Aeneas.Std Result
 
 namespace RistrettoSim
 
-open Aeneas.Std.WP in
-/-- A total-correctness triple on a `Result` gives the value it returns. -/
-theorem eq_ok_of_spec {α : Type} {m : Result α} {P : α → Prop} (h : m ⦃ v => P v ⦄) :
-    ∃ v, m = ok v ∧ P v := by
-  cases m using Result.cases with
-  | ret r => exact ⟨r, rfl, (spec_ok r).mp h⟩
-  | vis i k => exact absurd h (by simp [spec_vis])
-  | div => exact absurd h (by simp [spec_div])
+open DalekSim
 
 /-- The value of the bytes below index `k`. -/
 def lowVal (a : Array U8 32#usize) (k : Nat) : Nat :=
@@ -118,7 +112,7 @@ theorem geq_p_spec (x : Array U8 32#usize) :
 /-- `geq_p` as an equation. -/
 theorem geq_p_eq (x : Array U8 32#usize) :
     ristretto_ref.geq_p x = ok (decide (2 ^ 255 - 19 ≤ U8x32_as_Nat x)) := by
-  obtain ⟨v, hv, hP⟩ := eq_ok_of_spec (geq_p_spec x)
+  obtain ⟨v, hv, hP⟩ := exists_ok_of_spec (geq_p_spec x)
   rw [hv, hP]
 
 end RistrettoSim

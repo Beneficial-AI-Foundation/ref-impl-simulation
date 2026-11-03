@@ -11,6 +11,8 @@ open Aeneas Aeneas.Std Result Aeneas.Std.WP
 
 namespace X25519Sim
 
+open DalekSim
+
 /-- For every 32-byte scalar `k` and u-coordinate `u`, x25519-dalek's `x25519 k u` returns
 without panic, overflow or divergence, and the reference `x25519_scalarmult k u` returns the
 same bytes. -/

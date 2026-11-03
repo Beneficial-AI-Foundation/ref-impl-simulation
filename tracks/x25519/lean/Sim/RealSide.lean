@@ -16,6 +16,8 @@ open X25519Sim.LadderMath
 
 namespace X25519Sim
 
+open DalekSim
+
 /-- A projective point as a pair of reference field elements. -/
 def toP (P : montgomery.ProjectivePoint) : Pt _root_.field.Fe := (toZ P.U, toZ P.W)
 

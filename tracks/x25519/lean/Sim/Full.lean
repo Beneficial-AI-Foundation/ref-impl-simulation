@@ -13,18 +13,7 @@ open X25519Sim.LadderMath
 
 namespace X25519Sim
 
-/-- A total-correctness triple gives a returned value: `m ⦃ P ⦄ → ∃ v, m = ok v ∧ P v`. -/
-theorem exists_ok_of_spec {α : Type} {m : Result α} {P : α → Prop} (h : m ⦃ P ⦄) :
-    ∃ v, m = ok v ∧ P v := by
-  cases m with
-  | ret a => exact ⟨a, rfl, (spec_ok (p := P) a).mp h⟩
-  | vis e k => exact ((spec_vis (p := P) e k).mp h).elim
-  | div => exact ((spec_div (p := P)).mp h).elim
-
-/-- `m ⦃ r => r = v ⦄ → m = ok v`. -/
-theorem eq_ok_of_spec {α : Type} {m : Result α} {v : α} (h : m ⦃ r => r = v ⦄) : m = ok v := by
-  obtain ⟨w, hw, rfl⟩ := exists_ok_of_spec h
-  exact hw
+open DalekSim
 
 /-! ## Clamping -/
 

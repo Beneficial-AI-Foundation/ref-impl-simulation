@@ -12,6 +12,8 @@ open curve25519_dalek
 
 namespace RistrettoSim
 
+open DalekSim
+
 /-- The value of `d = -121665/121666`. -/
 def nD : Nat := 37095705934669439343138083508754565189542113879843219016388785533085940283555
 /-- The value of `sqrt(-1)`. -/

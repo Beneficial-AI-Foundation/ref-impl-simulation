@@ -55,7 +55,7 @@ differ, it fails.
 
 ## 2. Lean library
 
-`lean/` is a Lake package named `dalek` with one library, `Curve25519Dalek`:
+`lean/` is a Lake package named `dalek` with two libraries. The first is `Curve25519Dalek`:
 
 | File | Source |
 |---|---|
@@ -68,6 +68,16 @@ differ, it fails.
 No definition in `FunsExternal.lean` is an axiom. The library does not contain the
 relations to the reference programs or the refinement proofs. Those use the field model of
 each reference and stay in the `Sim/` directory of each track.
+
+The second library, `DalekSim` (`lean/DalekSim/`), holds the lemmas of the proofs that do
+not depend on a reference, in the namespace `DalekSim`:
+
+| File | Content |
+|---|---|
+| `Bytes.lean` | `U8x32_as_Nat` as base-256 digits (`digits_lt`, `digits_get`, `U8x32_as_Nat_eq`, `byte_lt`, `U8x32_digit`), Horner's rule (`foldr_horner`), and clearing bit 255 (`U8x32_mask_top`) |
+| `Basic.lean` | the limb bound `Bnd` and `bnd_mono`, and the `Result` lemmas `exists_ok_of_spec` and `eq_ok_of_spec` |
+
+Tracks B and D open the namespace `DalekSim` in their proofs.
 
 The package requires Aeneas from `lean/aeneas-backend` and PrimeCert from `lean/primecert`.
 `scripts/fetch-upstreams.sh` creates both. The two tracks require `dalek` and get Aeneas

@@ -13,6 +13,8 @@ open curve25519_dalek
 
 namespace RistrettoSim
 
+open DalekSim
+
 /-- `p` is not zero, for the lemmas on `ZMod.val`. -/
 instance : NeZero (2 ^ 255 - 19) := ⟨by norm_num⟩
 
