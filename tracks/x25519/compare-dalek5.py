@@ -105,7 +105,7 @@ ITEMS = [
     (U64C, None, "const", "ED25519_BASEPOINT_POINT"),
     (U64C, None, "static", "ED25519_BASEPOINT_TABLE"),
     (U64C, None, "static", "ED25519_BASEPOINT_TABLE_INNER_DOC_HIDDEN"),
-    # `was_contributory` (step X1): the field `ct_eq` that `MontgomeryPoint::ct_eq` calls.
+    # `was_contributory`: the field `ct_eq` that `MontgomeryPoint::ct_eq` calls.
     ("src/field.rs", ["ConstantTimeEq for FieldElement"], "fn", "ct_eq"),
 ]
 
