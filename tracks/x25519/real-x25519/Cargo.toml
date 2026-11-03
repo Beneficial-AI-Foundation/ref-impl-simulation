@@ -1,0 +1,11 @@
+[workspace]
+members = [
+    "x25519-dalek"
+]
+resolver = "2"
+
+[patch.crates-io]
+curve25519-dalek = { path = "../real-dalek/curve25519-dalek" }
+
+[profile.dev]
+opt-level = 2

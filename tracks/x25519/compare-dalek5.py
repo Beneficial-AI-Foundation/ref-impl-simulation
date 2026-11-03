@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
-"""Check that two curve25519-dalek trees agree on the path of `mul_clamped_refines`.
+"""Check that the proved trees agree with the libsignal versions on the path of `x25519_refines`.
 
-Usage: compare-dalek5.py [--self-test] COPY_DIR OTHER_DIR
+Usage: compare-dalek5.py [--self-test] COPY_DIR OTHER_DIR X_COPY_DIR X_OTHER_DIR
 
-COPY_DIR is the copy that this track extracts (`real-dalek/curve25519-dalek`). OTHER_DIR is
-curve25519-dalek 5.0.0, the version that libsignal uses. For each item in `ITEMS`, the
-script extracts its text from both trees, removes comments and blank lines, and compares
-the results. An item is a function or a constant, found by its `impl` block and its name.
+COPY_DIR is the curve25519-dalek copy that this track extracts (`real-dalek/curve25519-dalek`).
+OTHER_DIR is curve25519-dalek 5.0.0, the version that libsignal uses. X_COPY_DIR is the
+x25519-dalek copy that this track extracts (`real-x25519/x25519-dalek`, version 2.0.1).
+X_OTHER_DIR is x25519-dalek 3.0.0, the version that libsignal uses. For each item in `ITEMS`
+and `X_ITEMS`, the script extracts its text from both trees, removes comments and blank
+lines, and compares the results. An item is a function or a constant, found by its `impl`
+block and its name.
 
 The script prints `==` for an identical item and `!=` with the diff otherwise. It exits 1
 if an item is missing or ambiguous in either tree, or if a diff differs from the reviewed
@@ -43,6 +46,7 @@ ITEMS = [
     ("src/field.rs", ["impl FieldElement {"], "fn", "invert"),
     (MONT, ["impl MontgomeryPoint {"], "fn", "mul_clamped"),
     (MONT, ["impl MontgomeryPoint {"], "fn", "mul_bits_be"),
+    (MONT, ["impl MontgomeryPoint {"], "fn", "to_bytes"),
     (MONT, ["Identity for ProjectivePoint"], "fn", "identity"),
     (MONT, ["ConditionallySelectable for ProjectivePoint"], "fn", "conditional_select"),
     (MONT, ["impl ProjectivePoint {"], "fn", "as_affine"),
@@ -53,6 +57,11 @@ ITEMS = [
     (SCALAR, ["impl Scalar {"], "fn", "bits_le"),
     (SCALAR, None, "fn", "clamp_integer"),
     ("src/macros.rs", None, "macro", "define_mul_variants"),
+]
+
+# The items of x25519-dalek on the path.
+X_ITEMS = [
+    ("src/x25519.rs", None, "fn", "x25519"),
 ]
 
 # The reviewed diffs, as printed by this script: the extraction edits of
@@ -242,11 +251,11 @@ def key(path, impl, name):
     return (path, name)
 
 
-def compare(copy_dir, other_dir, mutate=None):
+def compare(copy_dir, other_dir, items, mutate=None):
     """Print the comparison and return the number of failures. `mutate` is an index into
-    `ITEMS`; that item of OTHER_DIR gets one extra line, in memory."""
+    `items`; that item of OTHER_DIR gets one extra line, in memory."""
     failures = 0
-    for idx, (path, impl, kind, name) in enumerate(ITEMS):
+    for idx, (path, impl, kind, name) in enumerate(items):
         scope = " ".join(impl).removeprefix("impl ").removesuffix(" {") if impl else ""
         label = f"{path} :: {scope + ' :: ' if scope else ''}{kind} {name}"
         try:
@@ -278,30 +287,33 @@ def compare(copy_dir, other_dir, mutate=None):
     return failures
 
 
-def self_test(copy_dir, other_dir):
-    """Each change to an item of OTHER_DIR must make the comparison fail."""
-    missed = []
-    for idx, (path, impl, kind, name) in enumerate(ITEMS):
-        print(f"-- self-test: change {kind} {name} in {path}")
-        if compare(copy_dir, other_dir, mutate=idx) == 0:
-            missed.append(name)
+def self_test(pairs):
+    """Each change to an item of an OTHER tree must make the comparison fail."""
+    missed, total = [], 0
+    for copy_dir, other_dir, items in pairs:
+        for idx, (path, impl, kind, name) in enumerate(items):
+            print(f"-- self-test: change {kind} {name} in {path}")
+            if compare(copy_dir, other_dir, items, mutate=idx) == 0:
+                missed.append(name)
+        total += len(items)
     if missed:
         print(f"self-test FAILED: changes to {missed} were not reported")
         return 1
-    print(f"self-test: all {len(ITEMS)} changes were reported")
+    print(f"self-test: all {total} changes were reported")
     return 0
 
 
 def main(argv):
     test = "--self-test" in argv
     args = [a for a in argv if a != "--self-test"]
-    if len(args) != 2:
+    if len(args) != 4:
         sys.exit(__doc__)
-    failures = compare(*args)
-    print(f"{len(ITEMS)} items, {failures} failures")
+    pairs = [(args[0], args[1], ITEMS), (args[2], args[3], X_ITEMS)]
+    failures = sum(compare(*pair) for pair in pairs)
+    print(f"{len(ITEMS) + len(X_ITEMS)} items, {failures} failures")
     if failures:
         return 1
-    return self_test(*args) if test else 0
+    return self_test(pairs) if test else 0
 
 
 if __name__ == "__main__":

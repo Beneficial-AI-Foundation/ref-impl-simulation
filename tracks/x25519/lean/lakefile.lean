@@ -19,6 +19,11 @@ copied from curve25519-dalek-lean-verify. -/
     .one `Curve25519Dalek.Math.Basic, .one `Curve25519Dalek.Math.PrimeCerts,
     .one `Curve25519Dalek.Auxiliary]
 
+/-- Real: Aeneas output of x25519-dalek's `x25519`. Its two external functions are the
+definitions in `Curve25519Dalek.Funs`. -/
+@[default_target] lean_lib X25519Dalek where
+  globs := #[.submodules `X25519Dalek]
+
 /-- Field specs copied from curve25519-dalek-lean-verify (Aeneas 6e167c9b) and ported to Aeneas
 d119a474. `Sim.Discharge` imports them, so the default build builds them. -/
 lean_lib DalekPort where
@@ -26,7 +31,7 @@ lean_lib DalekPort where
 
 @[default_target] lean_lib Sim where
   globs := #[.one `Sim.Pilot, .one `Sim.Discharge, .one `Sim.LadderMath, .one `Sim.RefSide,
-    .one `Sim.Bytes, .one `Sim.RealSide, .one `Sim.Full]
+    .one `Sim.Bytes, .one `Sim.RealSide, .one `Sim.Full, .one `Sim.X25519]
 
 /-- Checks that fail the build on a wrong result: the axiom lists (`#guard_msgs`) and the
 reference test vectors (`#guard`). -/

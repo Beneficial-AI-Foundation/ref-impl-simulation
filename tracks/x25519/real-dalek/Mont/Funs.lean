@@ -1141,4 +1141,11 @@ def montgomery.MontgomeryPoint.mul_clamped
   scalar.Scalar.Insts.CoreOpsArithMulMontgomeryPointMontgomeryPoint.mul
     { bytes := a } self
 
+/-- [curve25519_dalek::montgomery::{curve25519_dalek::montgomery::MontgomeryPoint}::to_bytes]:
+    Source: 'curve25519-dalek/src/montgomery.rs', lines 204:4-206:5
+    Visibility: public -/
+def montgomery.MontgomeryPoint.to_bytes
+  (self : montgomery.MontgomeryPoint) : Result (Array Std.U8 32#usize) := do
+  ok self
+
 end curve25519_dalek
