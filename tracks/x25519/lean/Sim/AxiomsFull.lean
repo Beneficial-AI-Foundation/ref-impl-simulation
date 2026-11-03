@@ -22,3 +22,11 @@ import Sim.X25519
 /-- info: 'X25519Sim.x25519_refines' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms X25519Sim.x25519_refines
+
+/-- info: 'X25519Sim.static_diffie_hellman_refines' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms X25519Sim.static_diffie_hellman_refines
+
+/-- info: 'X25519Sim.static_diffie_hellman_as_bytes_refines' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms X25519Sim.static_diffie_hellman_as_bytes_refines

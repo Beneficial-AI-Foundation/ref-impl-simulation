@@ -31,6 +31,17 @@ axiom curve25519_dalek.montgomery.MontgomeryPoint.mul_clamped
   curve25519_dalek.montgomery.MontgomeryPoint → Array Std.U8 32#usize →
     Result curve25519_dalek.montgomery.MontgomeryPoint
 
+/-- [curve25519_dalek::montgomery::{curve25519_dalek::montgomery::MontgomeryPoint}::as_bytes]:
+    Source: 'tracks/x25519/real-dalek/curve25519-dalek/src/montgomery.rs', lines 199:4-199:45
+    Name pattern: [curve25519_dalek::montgomery::{curve25519_dalek::montgomery::MontgomeryPoint}::as_bytes]
+    Visibility: public -/
+@[rust_fun
+  "curve25519_dalek::montgomery::{curve25519_dalek::montgomery::MontgomeryPoint}::as_bytes"]
+axiom curve25519_dalek.montgomery.MontgomeryPoint.as_bytes
+  :
+  curve25519_dalek.montgomery.MontgomeryPoint → Result (Array Std.U8
+    32#usize)
+
 /-- [curve25519_dalek::montgomery::{curve25519_dalek::montgomery::MontgomeryPoint}::to_bytes]:
     Source: 'tracks/x25519/real-dalek/curve25519-dalek/src/montgomery.rs', lines 204:4-204:44
     Name pattern: [curve25519_dalek::montgomery::{curve25519_dalek::montgomery::MontgomeryPoint}::to_bytes]

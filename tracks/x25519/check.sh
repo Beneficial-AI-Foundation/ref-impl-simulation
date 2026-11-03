@@ -2,7 +2,8 @@
 # Runs every check of track B and stops at the first failure.
 # The comparison with libsignal's versions needs the sources of curve25519-dalek 5.0.0 and
 # x25519-dalek 3.0.0 (README section 8). Set DALEK5 and X25519_DALEK3 to their directories,
-# or SKIP_DALEK5=1 to skip that check.
+# or SKIP_DALEK5=1 to skip that check. Set REPLAY_EXTRACTION=1 to also run Charon and Aeneas
+# again on x25519-dalek and on the shared library, and compare their output with the files.
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 root="$here/../.."
@@ -21,6 +22,11 @@ flock 9
 
 echo "== Rust reference tests"
 (cd "$here/ref-plain" && cargo test --quiet)
+
+if [ "${REPLAY_EXTRACTION:-0}" = 1 ]; then
+  echo "== The x25519-dalek extraction gives real-x25519/X25519"
+  "$here/extract-real.sh" --check
+fi
 
 echo "== The Lean copies of the Aeneas output have no hand edits"
 for f in Funs Types; do

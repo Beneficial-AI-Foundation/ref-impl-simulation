@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check that the proved trees agree with the libsignal versions on the path of `x25519_refines`.
+"""Check that the proved trees agree with the libsignal versions on the paths of the theorems.
 
 Usage: compare-dalek5.py [--self-test] COPY_DIR OTHER_DIR X_COPY_DIR X_OTHER_DIR
 
@@ -47,6 +47,7 @@ ITEMS = [
     (MONT, ["impl MontgomeryPoint {"], "fn", "mul_clamped"),
     (MONT, ["impl MontgomeryPoint {"], "fn", "mul_bits_be"),
     (MONT, ["impl MontgomeryPoint {"], "fn", "to_bytes"),
+    (MONT, ["impl MontgomeryPoint {"], "fn", "as_bytes"),
     (MONT, ["Identity for ProjectivePoint"], "fn", "identity"),
     (MONT, ["ConditionallySelectable for ProjectivePoint"], "fn", "conditional_select"),
     (MONT, ["impl ProjectivePoint {"], "fn", "as_affine"),
@@ -59,9 +60,15 @@ ITEMS = [
     ("src/macros.rs", None, "macro", "define_mul_variants"),
 ]
 
-# The items of x25519-dalek on the path.
+# The items of x25519-dalek on the paths of `x25519_refines` and of the `diffie_hellman`
+# theorems. The two `from` functions are not in the extraction (README, section 2,
+# "Real wrapper").
 X_ITEMS = [
     ("src/x25519.rs", None, "fn", "x25519"),
+    ("src/x25519.rs", ["impl StaticSecret {"], "fn", "diffie_hellman"),
+    ("src/x25519.rs", ["impl SharedSecret {"], "fn", "as_bytes"),
+    ("src/x25519.rs", ["From<[u8; 32]> for StaticSecret"], "fn", "from"),
+    ("src/x25519.rs", ["From<[u8; 32]> for PublicKey"], "fn", "from"),
 ]
 
 # The reviewed diffs, as printed by this script: the extraction edits of

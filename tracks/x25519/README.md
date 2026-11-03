@@ -1,13 +1,16 @@
 # Track B: X25519 (RFC 7748)
 
-Track B proves full refinement for one API pair of X25519. For every 32-byte scalar and
-u-coordinate, x25519-dalek's `x25519` returns without panic, overflow or divergence, and
-the reference `x25519_scalarmult` returns the same 32 bytes. The theorem is
-`X25519Sim.x25519_refines` (section 3). It has no premises and uses only the three
-standard axioms. `x25519` calls curve25519-dalek's `MontgomeryPoint::mul_clamped`, and
-`X25519Sim.mul_clamped_refines` proves the same result for that function. The other public
-functions of the reference and of x25519-dalek are not covered. Section 1 lists them, with
-the gaps between RFC 7748, the reference and x25519-dalek.
+Track B proves full refinement for two functions of x25519-dalek against one reference
+function. For every 32-byte scalar and u-coordinate, x25519-dalek's `x25519` returns
+without panic, overflow or divergence, and the reference `x25519_scalarmult` returns the
+same 32 bytes. The theorem is `X25519Sim.x25519_refines` (section 3). The same holds for
+`StaticSecret::diffie_hellman`, the function that libsignal calls, followed by
+`SharedSecret::as_bytes` (`X25519Sim.static_diffie_hellman_as_bytes_refines`). The theorems
+have no premises and use only the three standard axioms. Both functions call
+curve25519-dalek's `MontgomeryPoint::mul_clamped`, and `X25519Sim.mul_clamped_refines`
+proves the same result for that function. The other public functions of the reference and
+of x25519-dalek are not covered. Section 1 lists them, with the gaps between RFC 7748, the
+reference and x25519-dalek.
 
 All paths are relative to `tracks/x25519/`, except the paths that start with `shared/` or
 `scripts/`. Those are relative to the repository root.
@@ -30,16 +33,20 @@ was the first layer proved. The subsection "Layers of the full refinement" shows
 layers.
 
 libsignal computes X25519 agreement through `x25519-dalek` 3.0.0 and curve25519-dalek
-5.0.0 (libsignal `fc90b90f`). `calculate_agreement` calls `StaticSecret::diffie_hellman`,
-which calls `MontgomeryPoint::mul_clamped`. libsignal does not call `x25519_dalek::x25519`.
+5.0.0 (libsignal `fc90b90f`). `PrivateKey::calculate_agreement(&self, u)` computes
+`self.secret.diffie_hellman(&PublicKey::from(u)).as_bytes()`. `self.secret` is a
+`StaticSecret` that `PrivateKey` built earlier with `StaticSecret::from`. `diffie_hellman`
+calls `MontgomeryPoint::mul_clamped`. libsignal does not call `x25519_dalek::x25519`.
 x25519-dalek 3.0.0 needs curve25519-dalek 5, so the track extracts x25519-dalek 2.0.1, which
-builds on the 4.2.0 copy. `compare-dalek5.py` compares 30 functions and constants on the
-path of the full theorem: 29 items of curve25519-dalek 5.0.0 against the copy proved here,
-and `x25519` of x25519-dalek 3.0.0 against 2.0.1. It finds each item by its `impl` block and
-its name, and fails if an item is missing or ambiguous. The crate checksums of 5.0.0 and
-3.0.0 match libsignal's `Cargo.lock`. After comments and blank lines are removed, 26 items
-are identical, `x25519` among them. Four items differ through three extraction edits, and
-the script fails on any other difference:
+builds on the 4.2.0 copy. `compare-dalek5.py` compares 35 functions and constants on the
+paths of the full theorems: 30 items of curve25519-dalek 5.0.0 against the copy proved
+here, and 5 items of x25519-dalek 3.0.0 against 2.0.1 (`x25519`,
+`StaticSecret::diffie_hellman`, `SharedSecret::as_bytes` and the two `From<[u8; 32]>`
+impls of `StaticSecret` and `PublicKey`). It finds each item by its `impl` block and its
+name, and fails if an item is missing or ambiguous. The crate checksums of 5.0.0 and 3.0.0
+match libsignal's `Cargo.lock`. After comments and blank lines are removed, 31 items are
+identical, the 5 items of x25519-dalek among them. Four items differ through three
+extraction edits, and the script fails on any other difference:
 
 1. `add_assign` uses `while` in place of `for i in 0..5`.
 2. `pow2k` uses `while k > 0` in place of `loop` with `break` at `k == 0`. Its callers
@@ -52,14 +59,16 @@ the script fails on any other difference:
 
 The identical items include `from_bytes`, `to_bytes`, `reduce`, `from_limbs`, `invert`,
 `pow22501`, `differential_add_and_double`, `as_affine`, both `conditional_select`s,
-`mul_clamped`, `MontgomeryPoint::to_bytes`, `clamp_integer`, `bits_le`, the multiplication
-wrappers and `x25519`.
+`mul_clamped`, `MontgomeryPoint::to_bytes`, `MontgomeryPoint::as_bytes`, `clamp_integer`,
+`bits_le`, the multiplication wrappers and the 5 items of x25519-dalek. The script does not
+compare the struct definitions. In both versions, `StaticSecret` wraps `[u8; 32]`, and
+`PublicKey` and `SharedSecret` wrap a `MontgomeryPoint`.
 
 The comparison covers libsignal builds with the serial u64 field backend: every 64-bit
 target, and the 32-bit Android targets, because libsignal's `java/build_jni.sh` sets
 `curve25519_dalek_bits = "64"` there. It does not cover a build with the `fiat` backend or
 with `curve25519_dalek_bits = "32"`. libsignal builds dalek with
-`overflow-checks = false` in release. The theorem shows that no arithmetic on the path
+`overflow-checks = false` in release. The theorems show that no arithmetic on the paths
 overflows, so this setting does not change the result.
 
 ### Layers of the full refinement
@@ -68,11 +77,13 @@ Full refinement here is a theorem about one API pair. It relates the real
 `x25519_dalek::x25519` to the reference `x25519_scalarmult` on all 32-byte inputs. Both
 functions take a scalar and a u-coordinate as bytes and return the result as bytes. The
 table follows the call path from this pair down to the ladder step. The theorem
-`X25519Sim.x25519_refines` (section 3) relates every pair in the table.
+`X25519Sim.x25519_refines` (section 3) relates every pair in the table. The theorems for
+`StaticSecret::diffie_hellman` share every layer below `mul_clamped`.
 
 | Layer | Reference (`lean/X25519Ref`) | Real (`lean/X25519Dalek`, `shared/dalek/lean/Curve25519Dalek`) | Status | Lean |
 |---|---|---|---|---|
 | X25519 function | `x25519_scalarmult` | `x25519_dalek::x25519` | proved | `Sim/X25519.lean` |
+| Shared secret | `x25519_scalarmult` | `StaticSecret::diffie_hellman`, then `SharedSecret::as_bytes` | proved | `Sim/X25519.lean` |
 | Clamped multiplication | `x25519_scalarmult` | `MontgomeryPoint::mul_clamped` | proved | `Sim/Full.lean` |
 | Scalar clamping | `decode_scalar`, `mask_scalar` | `scalar::clamp_integer` | proved | `Sim/Full.lean` |
 | Point decoding | `decode_point` | `FieldElement51::from_bytes` | proved | `Sim/Full.lean`, `Sim/Bytes.lean` |
@@ -100,6 +111,11 @@ The layers needed these results:
 5. The wrapper. `x25519(k, u)` is `MontgomeryPoint(u).mul_clamped(k).to_bytes()`.
    `MontgomeryPoint` is a 32-byte array, and `to_bytes` returns it. `x25519_refines`
    composes `mul_clamped_refines` with this step.
+6. The shared secret. `StaticSecret::diffie_hellman(&self, their_public)` is
+   `SharedSecret(their_public.0.mul_clamped(self.0))`, and `SharedSecret::as_bytes`
+   returns the bytes of the point. `static_diffie_hellman_refines` and
+   `static_diffie_hellman_as_bytes_refines` compose `mul_clamped_refines` with these
+   steps.
 
 The real side reuses specs of `curve25519-dalek-lean-verify` at commit `26d49052`:
 `from_bytes`, `to_bytes`, `pow22501` and `invert`, ported to the Aeneas version of this
@@ -109,14 +125,14 @@ so this track proves its own.
 ### Gaps: RFC 7748, the reference and x25519-dalek
 
 Refinement is relative to the reference. A real function without a counterpart in the
-reference is not covered, and the theorem says nothing about it. This section states the
+reference is not covered, and the theorems say nothing about it. This section states the
 gaps at three levels: what the RFC describes, what the hacspec reference has, and what
 x25519-dalek 2.0.1 offers. It covers the Curve25519 part of the RFC.
 
 | RFC 7748 | hacspec `curve25519` | x25519-dalek 2.0.1 | Status |
 |---|---|---|---|
 | Section 5: the function `X25519(k, u)`. Mask bit 255 of `u` (MUST), accept non-canonical `u` (MUST) | `x25519_scalarmult` | `x25519` | proved (`x25519_refines`). For the translated reference, `decode_point_spec` (`lean/Sim/Full.lean`) proves both MUST rules under the trusted field model: it reads `u` as `u mod 2^255` in `ZMod p`. That the unchanged hacspec spec and the field model match the RFC rests on review and tests |
-| Section 6.1: the shared secret `X25519(a, K_B)` | `x25519_scalarmult` (no function of its own) | `diffie_hellman` on `EphemeralSecret`, `ReusableSecret`, `StaticSecret` | not proved. Each method is one call to `mul_clamped`, which is proved, but the methods are not extracted |
+| Section 6.1: the shared secret `X25519(a, K_B)` | `x25519_scalarmult` (no function of its own) | `diffie_hellman` on `EphemeralSecret`, `ReusableSecret`, `StaticSecret` | proved for `StaticSecret` (`static_diffie_hellman_refines`, and `static_diffie_hellman_as_bytes_refines` with `SharedSecret::as_bytes`). Not proved for `EphemeralSecret` and `ReusableSecret`. Each of their methods is one call to `mul_clamped`, which is proved, but the methods are not extracted |
 | Section 6.1: the public key `X25519(a, 9)` | `x25519_secret_to_public` | `PublicKey::from(&secret)` for the three secret types | not proved. The real code goes through `EdwardsPoint::mul_base_clamped`, with precomputed base point tables if the feature `precomputed-tables` is on, and is not extracted |
 | Section 6.1: the base point 9 | inside `x25519_secret_to_public` | `X25519_BASEPOINT_BYTES` | not proved |
 | Section 6.1: Alice generates 32 random bytes | missing | `random_from_rng`, `random` (feature `getrandom`) and the deprecated `new` on the three secret types | not covered. The reference does not describe it, and functional refinement cannot state that bytes are random |
@@ -141,7 +157,9 @@ x25519-dalek has these public APIs that the RFC does not describe:
 2. Conversions and accessors: `From<[u8; 32]>` for `PublicKey` and `StaticSecret`, and
    `to_bytes`, `as_bytes` and `AsRef<[u8]>` on `PublicKey`, `StaticSecret` and
    `SharedSecret`. They wrap and unwrap 32 bytes. `StaticSecret::to_bytes` returns the
-   private bytes.
+   private bytes. Of these, the theorems cover `SharedSecret::as_bytes`. The two
+   `From<[u8; 32]>` impls are linked to the theorems by review (section 4, source
+   correspondence).
 3. Traits: `PartialEq`, `Eq`, `Hash`, `Copy`, `Clone` and `Debug` on `PublicKey`, and
    `Clone` on `ReusableSecret` and `StaticSecret`. With the feature `zeroize`, all five
    types implement `Zeroize`, and the three secret types and `SharedSecret` also erase
@@ -151,7 +169,7 @@ x25519-dalek has these public APIs that the RFC does not describe:
    the canonical bytes, so it agrees with this equality. The RFC defines no equality of
    keys.
 
-The theorem also says nothing about constant time or about the erasure of secrets.
+The theorems also say nothing about constant time or about the erasure of secrets.
 
 ## 2. Translation
 
@@ -183,23 +201,34 @@ become `while` loops, some `debug_assert!`s are removed, and the ladder `mul` av
 iterator adapters. On the step's path, the changes touch `pow2k`, which `square` calls,
 and `add_assign`, which `add` calls. The shared library holds one extraction of this copy
 for tracks B and D. Charon starts from the entry points of both tracks. For this track,
-they are `differential_add_and_double`, `mul_clamped` and `MontgomeryPoint::to_bytes`, which
-`x25519` calls. The definitions on the path of this track have the same text as in the
-earlier extraction from these three entry points alone. The Lean side needs one shadowing
+they are `differential_add_and_double`, `mul_clamped`, `MontgomeryPoint::to_bytes` and
+`MontgomeryPoint::as_bytes`. The definitions on the path of `x25519` have the same text as
+in the earlier extraction from the first three entry points alone. The Lean side needs one shadowing
 fix in `Funs.lean`, in `mul`, outside the step. `shared/dalek/extract.sh` applies it as a
 patch to the clean Aeneas output. The path also needs 6 hand definitions for `subtle` and
 `zeroize` from `curve25519-dalek-lean-verify` (section 4).
 
 Real wrapper. `real-x25519/` holds x25519-dalek 2.0.1 from crates.io, with no source edits.
 Its `Cargo.toml` makes x25519-dalek use the curve25519-dalek copy above, and its
-`.cargo/config.toml` sets the same backend. Charon starts from `x25519`. The two
-curve25519-dalek functions that `x25519` calls, `mul_clamped` and `to_bytes`, belong to
-another crate, so Charon leaves them opaque. Aeneas declares them as axioms in
-`FunsExternal_Template.lean`. `lean/X25519Dalek/FunsExternal.lean` replaces the axioms: it
-imports `Curve25519Dalek.Funs` of the shared library, which defines both functions with the
-same names. The generated `Types.lean` defines `MontgomeryPoint` as `Array U8 32#usize`, as
-`Curve25519Dalek.Types` does. The proof of `x25519_refines` rewrites with
-`mul_clamped_refines`, so it fails if the name in `x25519` binds to another declaration.
+`.cargo/config.toml` sets the same backend. The extraction turns on the feature
+`static_secrets`. Charon starts from `x25519`, `StaticSecret::diffie_hellman` and
+`SharedSecret::as_bytes`. The three curve25519-dalek functions that they call,
+`mul_clamped`, `to_bytes` and `as_bytes`, belong to another crate, so Charon leaves them
+opaque. Aeneas declares them as axioms in `FunsExternal_Template.lean`.
+`lean/X25519Dalek/FunsExternal.lean` replaces the axioms: it imports `Curve25519Dalek.Funs`
+of the shared library, which defines the three functions with the same names. The proofs
+rewrite with `mul_clamped_refines`, so they fail if a name binds to another declaration.
+
+The generated `Types.lean` defines `MontgomeryPoint` as `Array U8 32#usize`, as
+`Curve25519Dalek.Types` does. It translates the newtypes `StaticSecret`, `PublicKey` and
+`SharedSecret` to the same array. So the `From<[u8; 32]>` impls of `StaticSecret` and
+`PublicKey`, whose bodies are the tuple constructors, are the identity in Lean, and the
+theorems take bytes for these types. Charon cannot start from a method of a generic trait
+impl such as `From<[u8; 32]>` ("does not support trait generics"), so the two `from`
+functions are not in the extraction. A start from the whole `x25519` module adds 28
+opaque functions (random number generation, `Debug`, `Hash` and others) as axioms to the
+Lean project. The track admits no axioms beyond the standard three, so it does not do that.
+Section 4 lists the `from` step as a source correspondence.
 
 Field proofs. `curve25519-dalek-lean-verify` proves the field operations on Aeneas
 `6e167c9b`. This track uses `d119a474`. The proofs are ported in
@@ -250,6 +279,21 @@ theorem x25519_refines (k u : Array U8 32#usize) :
 no overflow and no divergence. The reference returns the
 same 32 bytes. The relation on inputs and outputs is equality of bytes.
 
+The theorem for the call that libsignal makes is
+`X25519Sim.static_diffie_hellman_as_bytes_refines` (`lean/Sim/X25519.lean`). Here `s` is
+the 32 bytes that the stored `StaticSecret` wraps, and `u` is the argument of
+`PublicKey::from` (section 4, source correspondence):
+
+```lean
+theorem static_diffie_hellman_as_bytes_refines (s u : Array U8 32#usize) :
+    (do
+      let ss ← x25519_dalek.x25519.StaticSecret.diffie_hellman s u
+      x25519_dalek.x25519.SharedSecret.as_bytes ss) ⦃ r =>
+      x25519_ref.x25519_scalarmult s u = ok r ⦄
+```
+
+`X25519Sim.static_diffie_hellman_refines` states the same for `diffie_hellman` alone.
+
 The layer below is `X25519Sim.mul_clamped_refines` (`lean/Sim/Full.lean`). It states the
 same for `MontgomeryPoint::mul_clamped`, with the arguments in the other order:
 
@@ -262,7 +306,7 @@ theorem mul_clamped_refines (u s : Array U8 32#usize) :
 The theorems relate two Aeneas translations. The real side is x25519-dalek 2.0.1 on the
 `curve25519-dalek-lean-verify` copy of dalek, built with the serial u64 backend
 (`real-dalek/.cargo/config.toml`). The
-reference side is the plain-Rust port with the `ZMod p` field model. The theorem rests on
+reference side is the plain-Rust port with the `ZMod p` field model. The theorems rest on
 the trusted definitions of section 4.
 
 Inside the proof, a relation maps a real field element to the reference field. `toZ` is
@@ -309,7 +353,7 @@ statements agree.
 
 ## 4. Assumptions
 
-Premises. The full theorem has none. The step theorem has limb bounds: every limb of the
+Premises. The three full theorems have none. The step theorem has limb bounds: every limb of the
 four point coordinates is below `2^53`, and every limb of `u` is below `2^54`. The full
 theorem discharges them, because the ladder keeps every limb below `2^52`.
 
@@ -322,12 +366,12 @@ Trusted definitions. `#print axioms` does not show them.
    and `fe_sq` are the ring operations. `fe_inv` is the `ZMod` inverse, which maps 0 to 0
    as `nat_mod`'s `inv` does. `fe_from_bytes` decodes little-endian and reduces mod p.
    `fe_to_bytes` encodes the canonical representative. The ladder step uses only the ring
-   operations and `fe_lit`. The full theorem also uses `fe_inv`, `fe_from_bytes` and
+   operations and `fe_lit`. The full theorems also use `fe_inv`, `fe_from_bytes` and
    `fe_to_bytes`.
 3. The 6 hand definitions for `subtle` and `zeroize` on the real side: 5 functions in
    `shared/dalek/lean/Curve25519Dalek/FunsExternal.lean` and the type `subtle.Choice` in
    `shared/dalek/lean/Curve25519Dalek/TypesExternal.lean`. The step does not use them. The
-   full theorem uses all of them. A `Choice` carries a proof that its value is 0 or 1. Every `Choice`
+   full theorems use all of them. A `Choice` carries a proof that its value is 0 or 1. Every `Choice`
    that the ladder builds has this property, and the proof shows it. `conditional_select`
    returns `b` if the choice is 1 and `a` otherwise. Rust computes the same with a bit mask,
    in constant time, and the mask is correct only for 0 and 1. `conditional_swap` calls
@@ -335,14 +379,23 @@ Trusted definitions. `#print axioms` does not show them.
    panics on inputs other than 0 and 1, where Rust has only a `debug_assert!`. `zeroize`
    returns the default value. Its result is not used.
 4. The real code is the modified copy of dalek in `curve25519-dalek-lean-verify`, and
-   x25519-dalek 2.0.1. The theorem holds for that code.
+   x25519-dalek 2.0.1. The theorems hold for that code.
+
+Source correspondence. Two conversions that libsignal uses are not in the extraction.
+`StaticSecret::from` runs when libsignal builds the key, and `PublicKey::from` runs in
+`calculate_agreement`. Section 2 gives the reason. The `From<[u8; 32]>` impls of `StaticSecret` and `PublicKey` are the
+tuple constructors `StaticSecret(bytes)` and `PublicKey(MontgomeryPoint(bytes))`, in
+x25519-dalek 2.0.1 and, with the same text, in 3.0.0 (`compare-dalek5.py`). Aeneas
+translates the three newtypes to `Array U8 32#usize`, so these impls are the identity on
+the arguments of the theorems. This rests on review of the Rust source, not on a proof.
 
 Axioms. `lake env lean Sim/AxiomsDischarge.lean` gives only `propext`, `Classical.choice`
 and `Quot.sound` for the step theorem, for `field_contracts` and for each contract.
-`lake env lean Sim/AxiomsFull.lean` gives the same three for `x25519_refines`, for
-`mul_clamped_refines` and for the ported `from_bytes_spec`, `to_bytes_spec` and
+`lake env lean Sim/AxiomsFull.lean` gives the same three for `x25519_refines`,
+`static_diffie_hellman_refines`, `static_diffie_hellman_as_bytes_refines`,
+`mul_clamped_refines` and the ported `from_bytes_spec`, `to_bytes_spec` and
 `invert_spec`. The axioms of `X25519Dalek/FunsExternal_Template.lean` are not in the Lean
-project, so `x25519_refines` cannot depend on them.
+project, so the theorems cannot depend on them.
 
 ## 5. Proof structure
 
@@ -356,7 +409,7 @@ the ported field specs:
 | `Sim/Bytes.lean` | 38 | `fe_to_bytes` and `fe_from_bytes` against `U8x32_as_Nat`. The base-256 digits and the top-bit mask are in `shared/dalek/lean/DalekSim/Bytes.lean` |
 | `Sim/RealSide.lean` | 245 | `conditional_select`, `conditional_swap`, the bit read with `Isize` operations, and `mul_loop_spec` |
 | `Sim/Full.lean` | 227 | Clamping, decoding, `as_affine`, dalek's `mul`, and `mul_clamped_refines` |
-| `Sim/X25519.lean` | 28 | `x25519_refines`, from `mul_clamped_refines` and `to_bytes` |
+| `Sim/X25519.lean` | 62 | `x25519_refines` and the two `diffie_hellman` theorems, from `mul_clamped_refines`, `to_bytes` and `as_bytes` |
 
 The limb bound `Bnd`, `bnd_mono` and the `Result` lemmas `exists_ok_of_spec` and
 `eq_ok_of_spec` do not depend on the reference. They are in
@@ -419,7 +472,9 @@ specs build with a limit of 151,845. Some proofs set `maxRecDepth 4096`.
    the library.
 8. `check.sh` makes sure that `Funs.lean` and `Types.lean` in `lean/X25519Ref` and
    `lean/X25519Dalek` are the same as the Aeneas output in `ref-plain/Ref` and
-   `real-x25519/X25519`.
+   `real-x25519/X25519`. With `REPLAY_EXTRACTION=1`, it also runs `extract-real.sh --check`,
+   which extracts x25519-dalek again and fails if the output differs from
+   `real-x25519/X25519`. `shared/dalek/check.sh` then also extracts the shared library again.
 
 `check.sh` runs all eight checks, check 7 first, and stops at the first failure.
 
@@ -427,9 +482,10 @@ specs build with a limit of 151,845. Some proofs set `maxRecDepth 4096`.
 
 Strengths:
 
-1. The track proves full refinement for one API pair: x25519-dalek's `x25519` against
-   `x25519_scalarmult`. The theorem has no
-   premises, and the axioms are only the standard three.
+1. The track proves full refinement for x25519-dalek's `x25519` and
+   `StaticSecret::diffie_hellman` against `x25519_scalarmult`. The theorems have no
+   premises, and the axioms are only the standard three. With the source correspondence
+   of section 4, the second theorem covers the call of libsignal's `calculate_agreement`.
 2. No primitive is opaque. Both sides reduce to arithmetic mod p.
 3. The ladder step is the cleanest lockstep of the three tracks. The two sides match
    operation for operation.
@@ -447,20 +503,21 @@ Weaknesses:
    rule produces them.
 2. The reference is a port, and the field model is hand-written. Their faithfulness rests
    on review, on two RFC vectors and on the edge inputs of `ref-plain/tests/edge.rs`.
-3. The real code is a modified copy of dalek. The theorem covers upstream dalek only if
+3. The real code is a modified copy of dalek. The theorems cover upstream dalek only if
    the 361-line diff preserves meaning.
 4. The field proofs are ports of another project's proofs. Every Aeneas update can break
    them again, because they depend on the goal shapes after `step*`.
-5. The theorem covers one API pair only. It does not cover `x25519_secret_to_public`,
+5. The theorems cover two functions only. They do not cover `x25519_secret_to_public`,
    `mul_base_clamped` or the other public functions of x25519-dalek (section 1, "Gaps: RFC
-   7748, the reference and x25519-dalek"). libsignal calls `StaticSecret::diffie_hellman`,
-   not `x25519`. The theorem also does not cover the constant-time behavior of the real
+   7748, the reference and x25519-dalek"). The two `From<[u8; 32]>` impls on the call of
+   libsignal are not extracted. Their link to the theorems rests on review (section 4,
+   source correspondence). They also do not cover the constant-time behavior of the real
    code or the erasure of secrets.
 6. The reference misses two parts of RFC 7748, section 6.1: key generation and the check
    for the all-zero shared secret. So no refinement theorem against it can cover
    `random_from_rng` or `was_contributory`.
-7. The proved x25519-dalek is 2.0.1. libsignal uses 3.0.0, whose `x25519` has the same
-   text but builds on curve25519-dalek 5.0.0.
+7. The proved x25519-dalek is 2.0.1. libsignal uses 3.0.0, whose 5 compared items have
+   the same text but build on curve25519-dalek 5.0.0.
 
 ## 8. Reproduce
 
@@ -476,7 +533,7 @@ tracks/x25519/check.sh
 To skip the comparison, set `SKIP_DALEK5=1`. To use other copies of the two crates, set
 `DALEK5` and `X25519_DALEK3` to their directories.
 
-The extraction commands. Run them in `ref-plain/` and in `real-x25519/`, with the Aeneas
+The extraction commands for the reference. Run them in `ref-plain/`, with the Aeneas
 release of `.aeneas/` on `PATH`:
 
 ```bash
@@ -484,13 +541,17 @@ charon cargo --preset=aeneas --start-from crate::x25519_scalarmult --start-from 
 aeneas -backend lean -split-files -loops-to-rec -namespace x25519_ref -dest Ref x25519_ref.llbc
 ```
 
+For x25519-dalek, `extract-real.sh` holds the commands. It writes to `real-x25519/X25519/`.
+With `--check`, it extracts into a temporary directory and fails if the output differs.
+`check.sh` runs it in that mode if `REPLAY_EXTRACTION=1`:
+
 ```bash
-charon cargo --preset=aeneas --start-from 'x25519_dalek::x25519::x25519' -- --locked -p x25519-dalek --no-default-features --features alloc,zeroize --config "build.rustflags=[\"--remap-path-prefix=$(cd ../../.. && pwd)/=\"]"
-aeneas -backend lean -loops-to-rec -split-files -dest X25519 x25519_dalek.llbc
+tracks/x25519/extract-real.sh
 ```
 
-The `--remap-path-prefix` flag makes the `Source:` paths of the generated files relative to
-the repository root. Cargo adds it to the backend flags of `real-x25519/.cargo/config.toml`.
+The script passes `--remap-path-prefix` to rustc, so that the `Source:` paths of the
+curve25519-dalek items are relative to the repository root. The paths of the x25519-dalek
+items are relative to `real-x25519/`.
 
 `lean/X25519Ref` and `lean/X25519Dalek` hold copies of `ref-plain/Ref` and
 `real-x25519/X25519` without hand edits, plus the hand-written files

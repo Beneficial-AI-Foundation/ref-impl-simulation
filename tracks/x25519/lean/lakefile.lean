@@ -13,8 +13,9 @@ package x25519sim where
 @[default_target] lean_lib X25519Ref where
   globs := #[.submodules `X25519Ref]
 
-/-- Real: Aeneas output of x25519-dalek's `x25519`. Its two external functions are the
-definitions in `Curve25519Dalek.Funs` of the shared library. -/
+/-- Real: Aeneas output of x25519-dalek's `x25519`, `StaticSecret::diffie_hellman` and
+`SharedSecret::as_bytes`. Its three external functions are the definitions in
+`Curve25519Dalek.Funs` of the shared library. -/
 @[default_target] lean_lib X25519Dalek where
   globs := #[.submodules `X25519Dalek]
 

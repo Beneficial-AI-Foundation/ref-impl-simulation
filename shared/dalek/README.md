@@ -20,21 +20,24 @@ All paths are relative to `shared/dalek/`.
 | Aeneas | `nightly-2026.10.12-d119a47` |
 | Rust | `nightly-2026-09-17` (`../../tracks/x25519/real-dalek/rust-toolchain`) |
 
-Charon starts from five functions. Track B uses the first three, and track D uses the last
+Charon starts from six functions. Track B uses the first four, and track D uses the last
 two:
 
 1. `montgomery::differential_add_and_double`
 2. `montgomery::MontgomeryPoint::mul_clamped`
 3. `montgomery::MontgomeryPoint::to_bytes`
-4. `ristretto::CompressedRistretto::decompress`
-5. `ristretto::RistrettoPoint::compress`
+4. `montgomery::MontgomeryPoint::as_bytes`
+5. `ristretto::CompressedRistretto::decompress`
+6. `ristretto::RistrettoPoint::compress`
 
 The script writes the clean Aeneas output to `extract/`. It copies `Funs.lean` and
 `Types.lean` to `lean/Curve25519Dalek/` and applies the patches in `patches/` to the
 copies. There is one patch, `01-mul-scalar-shadowing.patch`. Its header gives the reason.
 
-The output has 54 functions and constants and 7 type and trait declarations. Each of them is also in the earlier
-extraction of track B or of track D, with the same text. The two templates list 11 external
+The output has 55 functions and constants and 7 type and trait declarations. Each of them
+except `MontgomeryPoint::as_bytes` is also in the earlier extraction of track B or of track
+D, with the same text. `as_bytes` came later, for `SharedSecret::as_bytes` in track B. Its
+Lean body is `ok self`. The two templates list 11 external
 functions and the external type `subtle.Choice`.
 
 Commands, from the repository root, with the Aeneas release in `.aeneas/`:

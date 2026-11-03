@@ -22,11 +22,12 @@ aeneas_version="nightly-2026.10.12-d119a47"
 # Its .cargo/config.toml selects the serial backend with 64-bit limbs.
 workspace="$root/tracks/x25519/real-dalek"
 features="alloc,zeroize"
-# The entry points. Track B uses the first three, track D the last two.
+# The entry points. Track B uses the first four, track D the last two.
 entry_points=(
   'crate::montgomery::differential_add_and_double'
   'crate::montgomery::MontgomeryPoint::mul_clamped'
   'crate::montgomery::MontgomeryPoint::to_bytes'
+  'crate::montgomery::MontgomeryPoint::as_bytes'
   'crate::ristretto::CompressedRistretto::decompress'
   'crate::ristretto::RistrettoPoint::compress'
 )
