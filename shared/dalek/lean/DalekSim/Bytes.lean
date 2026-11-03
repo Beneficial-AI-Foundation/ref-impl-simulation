@@ -94,4 +94,47 @@ theorem U8x32_mask_top (u : Array U8 32#usize) (x : U8) (hx : x.val = (u.val[31]
   norm_num at hA ⊢
   omega
 
+/-- Two byte arrays with the same value are equal. -/
+theorem U8x32_inj (a b : Array U8 32#usize) (h : U8x32_as_Nat a = U8x32_as_Nat b) : a = b := by
+  apply (Aeneas.Std.Array.eq_iff a b).mpr
+  apply List.ext_getElem (by simp)
+  intro i hia hib
+  have ha32 : i < 32 := by simpa using hia
+  have hd := U8x32_digit a i ha32
+  rw [h, U8x32_digit b i ha32] at hd
+  rw [← getElem!_pos a.val i hia, ← getElem!_pos b.val i hib]
+  exact (UScalar.eq_of_val_eq hd).symm
+
+/-- 32 zero bytes read as 0. -/
+theorem U8x32_zero : U8x32_as_Nat (Array.repeat 32#usize 0#u8) = 0 := by
+  simp [U8x32_as_Nat, Array.getElem!_Nat_eq, Array.repeat_val]
+  intro i hi
+  interval_cases i <;> rfl
+
+/-- 32 bytes read as 0 iff every byte is 0. -/
+theorem U8x32_eq_zero_iff (k : Array U8 32#usize) :
+    U8x32_as_Nat k = 0 ↔ ∀ j, j < 32 → k.val[j]! = 0#u8 := by
+  constructor
+  · intro h j hj
+    apply UScalar.eq_of_val_eq
+    rw [← U8x32_digit k j hj, h]
+    simp
+  · intro h
+    rw [U8x32_as_Nat_eq]
+    refine Finset.sum_eq_zero (fun j hj => ?_)
+    rw [h j (Finset.mem_range.mp hj)]
+    simp
+
+/-- If byte `j` of `r` is digit `j` of `n < 256 ^ 32` in base 256, then `r` reads as `n`. -/
+theorem U8x32_of_digits (r : Array U8 32#usize) (n : Nat) (hn : n < 256 ^ 32)
+    (hr : ∀ j < 32, (r.val[j]!).val = n / 256 ^ j % 256) : U8x32_as_Nat r = n := by
+  rw [U8x32_as_Nat_eq]
+  rw [Finset.sum_congr rfl (fun j hj => by rw [hr j (Finset.mem_range.mp hj)])]
+  have key : ∀ N, ∑ j ∈ Finset.range N, 256 ^ j * (n / 256 ^ j % 256) = n % 256 ^ N := by
+    intro N
+    induction N with
+    | zero => simp [Nat.mod_one]
+    | succ N ih => rw [Finset.sum_range_succ, ih, Nat.mod_pow_succ]
+  rw [key, Nat.mod_eq_of_lt hn]
+
 end DalekSim

@@ -80,6 +80,10 @@ import Sim.Contributory
 #guard_msgs (whitespace := lax) in
 #print axioms X25519Sim.was_contributory_spec
 
+/-- info: 'X25519Sim.x25519_scalarmult_canonical' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms X25519Sim.x25519_scalarmult_canonical
+
 /-- info: 'X25519Sim.was_contributory_refines' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms X25519Sim.was_contributory_refines

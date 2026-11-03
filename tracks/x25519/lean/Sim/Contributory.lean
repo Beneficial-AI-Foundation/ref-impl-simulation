@@ -21,9 +21,6 @@ namespace X25519Sim
 
 open DalekSim
 
-/-- `p` is not zero, for the lemmas on `ZMod.val`. -/
-instance : NeZero _root_.field.p := ⟨by norm_num [_root_.field.p]⟩
-
 /-! ## The reference check -/
 
 /-- If `a ||| b = 0`, then `a = 0` and `b = 0`. -/
@@ -76,20 +73,6 @@ theorem is_all_zero_loop_spec (k : Array U8 32#usize) :
         rw [hacc, hv'', hall i.val le_rfl hi]
         rfl
 
-/-- 32 bytes read as 0 iff every byte is 0. -/
-theorem U8x32_eq_zero_iff (k : Array U8 32#usize) :
-    U8x32_as_Nat k = 0 ↔ ∀ j, j < 32 → k.val[j]! = 0#u8 := by
-  constructor
-  · intro h j hj
-    apply UScalar.eq_of_val_eq
-    rw [← U8x32_digit k j hj, h]
-    simp
-  · intro h
-    rw [U8x32_as_Nat_eq]
-    refine Finset.sum_eq_zero (fun j hj => ?_)
-    rw [h j (Finset.mem_range.mp hj)]
-    simp
-
 /-- `x25519_is_all_zero k` returns `true` iff `k` reads as 0. -/
 theorem is_all_zero_eq (k : Array U8 32#usize) :
     x25519_ref.x25519_is_all_zero k = ok (decide (U8x32_as_Nat k = 0)) := by
@@ -100,30 +83,14 @@ theorem is_all_zero_eq (k : Array U8 32#usize) :
 
 /-! ## The real check -/
 
-/-- `to_bytes` returns the canonical bytes of the field element. -/
-theorem to_bytes_val (f : FE) :
-    backend.serial.u64.field.FieldElement51.to_bytes f
-      ⦃ r => U8x32_as_Nat r = (toZ f).val ⦄ := by
-  apply spec_mono (backend.serial.u64.field.FieldElement51.to_bytes_spec f)
-  rintro r ⟨h1, h2⟩
-  simp only [toZ]
-  rw [← Nat.mod_eq_of_lt h2]
-  exact h1
-
-/-- The field `ct_eq` returns 1 iff the two elements are equal in `ZMod p`. -/
+/-- The field `ct_eq` returns 1 iff `toZ a = toZ b`. -/
 theorem fe_ct_eq_z (a b : FE) :
     backend.serial.u64.field.FieldElement51.Insts.SubtleConstantTimeEq.ct_eq a b
       ⦃ c => (c.val = 1#u8 ↔ toZ a = toZ b) ⦄ := by
-  unfold backend.serial.u64.field.FieldElement51.Insts.SubtleConstantTimeEq.ct_eq
-  simp only [lift, bind_ok]
-  step with to_bytes_val as ⟨ra, ha⟩
-  step with to_bytes_val as ⟨rb, hb⟩
-  apply spec_mono (slice_ct_eq_arr ra rb)
+  apply spec_mono (fe_ct_eq_mod a b)
   intro c hc
   rw [hc]
-  constructor
-  · rintro rfl; exact ZMod.val_injective _ (ha.symm.trans hb)
-  · intro h; apply U8x32_inj; rw [ha, hb, h]
+  exact (ZMod.natCast_eq_natCast_iff' _ _ _).symm
 
 /-- `MontgomeryPoint::ct_eq` returns 1 iff the two u-coordinates decode to the same element of
 `ZMod p`. -/
@@ -153,30 +120,6 @@ theorem was_contributory_spec (x : Array U8 32#usize) :
 
 /-! ## Canonical output -/
 
-/-- If byte `j` of `r` is digit `j` of `n < 256 ^ 32` in base 256, then `r` reads as `n`. -/
-theorem U8x32_of_digits (r : Array U8 32#usize) (n : Nat) (hn : n < 256 ^ 32)
-    (hr : ∀ j < 32, (r.val[j]!).val = n / 256 ^ j % 256) : U8x32_as_Nat r = n := by
-  rw [U8x32_as_Nat_eq]
-  rw [Finset.sum_congr rfl (fun j hj => by rw [hr j (Finset.mem_range.mp hj)])]
-  have key : ∀ N, ∑ j ∈ Finset.range N, 256 ^ j * (n / 256 ^ j % 256) = n % 256 ^ N := by
-    intro N
-    induction N with
-    | zero => simp [Nat.mod_one]
-    | succ N ih => rw [Finset.sum_range_succ, ih, Nat.mod_pow_succ]
-  rw [key, Nat.mod_eq_of_lt hn]
-
-/-- `fe_to_bytes` returns bytes that read as the canonical representative. -/
-theorem fe_to_bytes_val (a : _root_.field.Fe) (r : Array U8 32#usize)
-    (h : _root_.field.fe_to_bytes a = ok r) :
-    U8x32_as_Nat r = ZMod.val (show ZMod _root_.field.p from a) := by
-  unfold _root_.field.fe_to_bytes at h
-  simp only [ok.injEq] at h
-  subst h
-  apply U8x32_of_digits _ _ (lt_of_lt_of_le (ZMod.val_lt _) (by simp [_root_.field.p]))
-  intro j hj
-  rw [Array.from_val, getElem!_pos _ j (by simpa using hj), List.getElem_ofFn,
-    UScalar.ofNatCore_val_eq]
-
 /-- `x25519_scalarmult` returns canonical bytes: they read as a number below `p`. -/
 theorem x25519_scalarmult_canonical (s u r : Array U8 32#usize)
     (h : x25519_ref.x25519_scalarmult s u = ok r) : U8x32_as_Nat r < p := by
@@ -200,8 +143,8 @@ theorem decodeU_eq_zero_iff (r : Array U8 32#usize) (h : U8x32_as_Nat r < p) :
 
 /-! ## The composition theorems -/
 
-/-- After any of the three `diffie_hellman` methods, which return the bytes `r` of
-`x25519_scalarmult`, `was_contributory` returns the negation of `x25519_is_all_zero r`. -/
+/-- If `x25519_scalarmult s u = ok r`, then `was_contributory r` returns
+`!x25519_is_all_zero r`. -/
 theorem was_contributory_refines (s u r : Array U8 32#usize)
     (hr : x25519_ref.x25519_scalarmult s u = ok r) :
     x25519_dalek.x25519.SharedSecret.was_contributory r ⦃ b =>
@@ -215,10 +158,8 @@ theorem was_contributory_refines (s u r : Array U8 32#usize)
   rw [hr, bind_ok, is_all_zero_eq, bind_ok, ok.injEq]
   cases b <;> simp_all
 
-/-- For all 32-byte `s` and `u`, `StaticSecret.diffie_hellman s u` followed by
-`SharedSecret.was_contributory` returns `ok b` for some `b`, with no panic, overflow or
-divergence. The reference computes `K = x25519_scalarmult s u`, and `b` is `true` iff `K` is
-not all zero. -/
+/-- `StaticSecret.diffie_hellman s u` followed by `SharedSecret.was_contributory` returns
+`!x25519_is_all_zero (x25519_scalarmult s u)`. -/
 theorem static_diffie_hellman_was_contributory_refines (s u : Array U8 32#usize) :
     (do
       let ss ← x25519_dalek.x25519.StaticSecret.diffie_hellman s u

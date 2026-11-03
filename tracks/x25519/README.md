@@ -1,18 +1,19 @@
 # Track B: X25519 (RFC 7748)
 
-Track B proves full refinement for the X25519 functions of x25519-dalek, except key
-generation and public-key derivation. For every 32-byte scalar and u-coordinate,
-x25519-dalek's `x25519` returns without panic, overflow or divergence, and the reference
-`x25519_scalarmult` returns the same 32 bytes. The theorem is `X25519Sim.x25519_refines`
-(section 3). The same holds for `diffie_hellman` on `StaticSecret`, the type that libsignal
-uses, on `EphemeralSecret` and on `ReusableSecret`. `SharedSecret::was_contributory` after
-`diffie_hellman` returns `true` iff the reference result is not all zero. The all-zero check
-is our addition to the reference (section 1). `x25519` on the constant
-`X25519_BASEPOINT_BYTES` agrees with `x25519_secret_to_public`, and the accessors return
-their bytes. The theorems have no premises and use only the three standard axioms. Every
-function calls curve25519-dalek's `MontgomeryPoint::mul_clamped`, and
-`X25519Sim.mul_clamped_refines` proves the same result for that function. Section 1 lists
-the functions that are not covered, with the gaps between RFC 7748, the reference and
+Track B proves full refinement for five functions of x25519-dalek against the reference.
+For every 32-byte scalar and u-coordinate, x25519-dalek's `x25519` returns without panic,
+overflow or divergence, and the reference `x25519_scalarmult` returns the same 32 bytes. The
+theorem is `X25519Sim.x25519_refines` (section 3). The same holds for `diffie_hellman` on
+`StaticSecret`, the type that libsignal uses, on `EphemeralSecret` and on `ReusableSecret`.
+`x25519` on the constant `X25519_BASEPOINT_BYTES` agrees with `x25519_secret_to_public`.
+`SharedSecret::was_contributory` after `diffie_hellman` returns `true` iff the reference
+result is not all zero. The all-zero check is our addition to the reference (section 1). The
+six accessors `to_bytes` and `as_bytes` are proved to be the identity. The theorems have no
+premises and use only the three standard axioms. `x25519` and the three `diffie_hellman`
+methods call curve25519-dalek's `MontgomeryPoint::mul_clamped`, and
+`X25519Sim.mul_clamped_refines` proves the same result for that function. Key generation,
+public-key derivation, the `From` and `AsRef` conversions and the trait impls are not
+covered. Section 1 lists them, with the gaps between RFC 7748, the reference and
 x25519-dalek.
 
 All paths are relative to `tracks/x25519/`, except the paths that start with `shared/` or
@@ -118,11 +119,12 @@ Changed, 4 items of curve25519-dalek, 5 of x25519-dalek, and 1 absent:
    `zeroize`. 3.0.0 has explicit `impl Drop` blocks that call `self.0.zeroize()`, plus
    `impl ZeroizeOnDrop`, and for `PublicKey` an explicit `impl Zeroize`. Matters: not for
    the returned bytes. For `EphemeralSecret::diffie_hellman`, which takes `self` by value,
-   the drop of the secret is on the path. The 3.0.0 `Drop` impls exist even without the
-   feature `zeroize`, with an empty body. So the extraction of 3.0.0 has drop code where the
-   extraction of 2.0.1 has none. A theorem about return values does not see the erasure.
-   `ephemeral_diffie_hellman_refines` covers the returned bytes on 2.0.1. A theorem about
-   3.0.0 needs to handle this drop code.
+   the drop of the secret is on the path in both versions. The 3.0.0 `Drop` impls exist
+   even without the feature `zeroize`, with an empty body. In the extraction of 2.0.1,
+   Charon reaches the `Drop` impl of `EphemeralSecret`, and Aeneas emits no call to it
+   (section 2). The track does not extract 3.0.0, so the translation of its drop code is
+   not known. A theorem about return values does not see the erasure.
+   `ephemeral_diffie_hellman_refines` covers the returned bytes on 2.0.1.
 
 Not compared, because they are not on the path: `random_from_rng`, `random` and the removed
 `new` (3.0.0 uses `getrandom` and takes `&mut R`), `to_montgomery_batch`, and the
@@ -194,9 +196,9 @@ The layers needed these results:
    `static_diffie_hellman_as_bytes_refines` compose `mul_clamped_refines` with these
    steps. `EphemeralSecret::diffie_hellman` and `ReusableSecret::diffie_hellman` have the
    same body. `EphemeralSecret::diffie_hellman` takes `self` by value, so Rust drops the
-   secret at the end and erases its bytes. Aeneas does not translate the drop, so the Lean
-   body is the same as for `StaticSecret`. The theorem covers the returned bytes on
-   2.0.1. In 3.0.0, an explicit `Drop` impl puts drop code on this path (section 1).
+   secret at the end and erases its bytes. The extraction has no call to the `Drop` impl, so
+   the Lean body is the same as for `StaticSecret`. The theorem covers the returned bytes
+   on 2.0.1 (section 1, item 5).
 7. The base point and the accessors. `X25519_BASEPOINT_BYTES` is 9 followed by 31 zero
    bytes, the base that `x25519_secret_to_public` builds (`basepoint_eq`). So
    `x25519_basepoint_refines` follows from `x25519_refines`. The six accessors return the
@@ -274,8 +276,9 @@ the x25519-dalek wrapper and the proofs. It requires the shared library of curve
 
 Reference. Aeneas fails on the original spec, because of the supertraits of
 `hacspec_lib::SeqTrait` (Aeneas issue #1164). The track uses a port to plain Rust
-(`ref-plain/src/lib.rs`, 166 changed lines against the 110-line spec, plus the new
-32-line `ref-plain/src/field.rs`). The unchanged spec, as a crate, is in `ref-hacspec/`.
+(`ref-plain/src/lib.rs`, 229 changed lines against the 110-line spec, plus the new
+32-line `ref-plain/src/field.rs`). Of the 229 lines, 166 are the port, and 63 are our
+all-zero check and the new RFC tests. The unchanged spec, as a crate, is in `ref-hacspec/`.
 The port also has our addition `x25519_is_all_zero`, a 9-line function that the spec does
 not have (section 1). The port:
 
@@ -547,15 +550,17 @@ the ported field specs:
 |---|---|---|
 | `Sim/LadderMath.lean` | 191 | The ladder as a pure function over any commutative ring. The scaling invariant `Rel`, the case `u = 0`, and `enc_ladder_extra_step` over a field |
 | `Sim/RefSide.lean` | 117 | The reference `scalar_bit`, `ladder_step`, `ladder_loop`, `montgomery_ladder` and `encode_point` in closed form |
-| `Sim/Bytes.lean` | 38 | `fe_to_bytes` and `fe_from_bytes` against `U8x32_as_Nat`. The base-256 digits and the top-bit mask are in `shared/dalek/lean/DalekSim/Bytes.lean` |
+| `Sim/Bytes.lean` | 53 | `fe_to_bytes` and `fe_from_bytes` against `U8x32_as_Nat`, in both directions for `fe_to_bytes`. The base-256 digits and the top-bit mask are in `shared/dalek/lean/DalekSim/Bytes.lean` |
 | `Sim/RealSide.lean` | 245 | `conditional_select`, `conditional_swap`, the bit read with `Isize` operations, and `mul_loop_spec` |
 | `Sim/Full.lean` | 227 | Clamping, decoding, `as_affine`, dalek's `mul`, and `mul_clamped_refines` |
-| `Sim/X25519.lean` | 133 | `x25519_refines`, the `diffie_hellman` theorems, the accessors and the base point, from `mul_clamped_refines`, `to_bytes` and `as_bytes` |
-| `Sim/Contributory.lean` | 260 | The loop of `x25519_is_all_zero`, `ct_eq` and `was_contributory` over `ZMod p`, the canonical output of `x25519_scalarmult`, and the three `was_contributory` theorems |
+| `Sim/X25519.lean` | 125 | `x25519_refines`, the `diffie_hellman` theorems, the accessors and the base point, from `mul_clamped_refines`, `to_bytes` and `as_bytes` |
+| `Sim/Contributory.lean` | 201 | The loop of `x25519_is_all_zero`, `ct_eq` and `was_contributory` over `ZMod p`, the canonical output of `x25519_scalarmult`, and the three `was_contributory` theorems |
 
 The limb bound `Bnd`, `bnd_mono` and the `Result` lemmas `exists_ok_of_spec` and
 `eq_ok_of_spec` do not depend on the reference. They are in
-`shared/dalek/lean/DalekSim/Basic.lean`, which track D also uses.
+`shared/dalek/lean/DalekSim/Basic.lean`, which track D also uses. The slice and field
+`ct_eq` lemmas and the byte lemmas that `Sim/Contributory.lean` uses are in
+`shared/dalek/lean/DalekSim/Choice.lean` and `Bytes.lean`, shared with track D.
 
 `Sim/EdwardsBridge.lean` (114 lines) is a first step toward a proof of public-key derivation
 (`PublicKey::from`). It is not part of the proofs above. dalek computes the public key on
@@ -692,12 +697,12 @@ Weaknesses:
    code or the erasure of secrets.
 6. The hacspec reference misses two parts of RFC 7748, section 6.1: key generation and
    the check for the all-zero shared secret. The theorem for `was_contributory` is against
-   our addition to the reference, which only review and tests link to the RFC. No
-   refinement theorem can cover `random_from_rng`.
+   our addition to the reference, which only review and tests link to the RFC. Key
+   generation is not covered. The reference has none, and the extraction does not model
+   the RNG.
 7. The proved x25519-dalek is 2.0.1. libsignal uses 3.0.0, whose 14 items on the proved
    paths have the same text but build on curve25519-dalek 5.0.0. 3.0.0 has different drop
-   and zeroize code for the secret types. `EphemeralSecret::diffie_hellman` takes `self` by
-   value, so in 3.0.0 this drop code is on its path (section 1).
+   and zeroize code for the secret types, and the track does not extract it (section 1).
 
 ## 8. Reproduce
 

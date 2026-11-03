@@ -28,26 +28,19 @@ def cZero : subtle.Choice := ⟨0#u8, Or.inl rfl⟩
 theorem to_bytes_val (f : FE) :
     backend.serial.u64.field.FieldElement51.to_bytes f
       ⦃ r => U8x32_as_Nat r = (toZ f).val ⦄ := by
-  apply spec_mono (backend.serial.u64.field.FieldElement51.to_bytes_spec f)
-  rintro r ⟨h1, h2⟩
-  simp only [toZ]
-  rw [← Nat.mod_eq_of_lt h2]
-  exact h1
+  apply spec_mono (to_bytes_mod f)
+  intro r hr
+  rw [hr]
+  exact (ZMod.val_natCast ..).symm
 
 /-- The field `ct_eq` returns 1 iff the two elements are equal in `ZMod p`. -/
 theorem ct_eq_z (a b : FE) :
     backend.serial.u64.field.FieldElement51.Insts.SubtleConstantTimeEq.ct_eq a b
       ⦃ c => (c.val = 1#u8 ↔ toZ a = toZ b) ⦄ := by
-  unfold backend.serial.u64.field.FieldElement51.Insts.SubtleConstantTimeEq.ct_eq
-  simp only [lift, bind_ok]
-  step with to_bytes_val as ⟨ra, ha⟩
-  step with to_bytes_val as ⟨rb, hb⟩
-  apply spec_mono (slice_ct_eq_arr ra rb)
+  apply spec_mono (fe_ct_eq_mod a b)
   intro c hc
   rw [hc]
-  constructor
-  · rintro rfl; exact ZMod.val_injective _ (ha.symm.trans hb)
-  · intro h; apply U8x32_inj; rw [ha, hb, h]
+  exact (ZMod.natCast_eq_natCast_iff' _ _ _).symm
 
 /-- `Choice::from` on a value that is 0 or 1. -/
 theorem choice_from_01 (x : U8) (hx : x = 0#u8 ∨ x = 1#u8) :

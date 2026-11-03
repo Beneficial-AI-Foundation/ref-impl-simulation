@@ -1,12 +1,13 @@
 import Curve25519Dalek.Funs
+import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.ToBytes
 import DalekSim.Bytes
 
-/-! # The slice `ct_eq` of `subtle` on 32 bytes
+/-! # The slice `ct_eq` of `subtle` and the field `ct_eq`
 
 Lemmas about the hand definitions of `subtle` (`Curve25519Dalek/FunsExternal.lean`) on the
 values 0 and 1: the slice `ct_eq` on two 32-byte arrays returns 1 iff the arrays are equal.
-Also the injectivity of `U8x32_as_Nat` and the value of 32 zero bytes. They do not depend on
-a reference program. Tracks B and D use them for the byte tests of dalek. -/
+Also `to_bytes` and the field `ct_eq` of `FieldElement51` over `Field51_as_Nat` mod `p`. They
+do not depend on a reference program. Tracks B and D use them for the byte tests of dalek. -/
 
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 open curve25519_dalek
@@ -71,21 +72,28 @@ theorem slice_ct_eq_arr (a b : Array U8 32#usize) :
     have := (hyiff.mp h1).2
     exact (Aeneas.Std.Array.eq_iff a b).mpr (by simpa [Array.to_slice] using this)
 
-/-- Two byte arrays with the same value are equal. -/
-theorem U8x32_inj (a b : Array U8 32#usize) (h : U8x32_as_Nat a = U8x32_as_Nat b) : a = b := by
-  apply (Aeneas.Std.Array.eq_iff a b).mpr
-  apply List.ext_getElem (by simp)
-  intro i hia hib
-  have ha32 : i < 32 := by simpa using hia
-  have hd := U8x32_digit a i ha32
-  rw [h, U8x32_digit b i ha32] at hd
-  rw [← getElem!_pos a.val i hia, ← getElem!_pos b.val i hib]
-  exact (UScalar.eq_of_val_eq hd).symm
+/-- `to_bytes f` reads as `Field51_as_Nat f % p`. -/
+theorem to_bytes_mod (f : backend.serial.u64.field.FieldElement51) :
+    backend.serial.u64.field.FieldElement51.to_bytes f
+      ⦃ r => U8x32_as_Nat r = Field51_as_Nat f % p ⦄ := by
+  apply spec_mono (backend.serial.u64.field.FieldElement51.to_bytes_spec f)
+  rintro r ⟨h1, h2⟩
+  rw [← Nat.mod_eq_of_lt h2]
+  exact h1
 
-/-- 32 zero bytes read as 0. -/
-theorem U8x32_zero : U8x32_as_Nat (Array.repeat 32#usize 0#u8) = 0 := by
-  simp [U8x32_as_Nat, Array.getElem!_Nat_eq, Array.repeat_val]
-  intro i hi
-  interval_cases i <;> rfl
+/-- The field `ct_eq` returns 1 iff the two elements are equal mod `p`. -/
+theorem fe_ct_eq_mod (a b : backend.serial.u64.field.FieldElement51) :
+    backend.serial.u64.field.FieldElement51.Insts.SubtleConstantTimeEq.ct_eq a b
+      ⦃ c => (c.val = 1#u8 ↔ Field51_as_Nat a % p = Field51_as_Nat b % p) ⦄ := by
+  unfold backend.serial.u64.field.FieldElement51.Insts.SubtleConstantTimeEq.ct_eq
+  simp only [lift, bind_ok]
+  step with to_bytes_mod as ⟨ra, ha⟩
+  step with to_bytes_mod as ⟨rb, hb⟩
+  apply spec_mono (slice_ct_eq_arr ra rb)
+  intro c hc
+  rw [hc]
+  constructor
+  · rintro rfl; rw [← ha, ← hb]
+  · intro h; apply U8x32_inj; rw [ha, hb, h]
 
 end DalekSim
