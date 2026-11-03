@@ -461,8 +461,11 @@ and `Quot.sound` for the step theorem, for `field_contracts` and for each contra
 `lake env lean Sim/AxiomsFull.lean` gives the same three for `x25519_refines`,
 `static_diffie_hellman_refines`, `static_diffie_hellman_as_bytes_refines`,
 `mul_clamped_refines` and the ported `from_bytes_spec`, `to_bytes_spec` and
-`invert_spec`. The axioms of `X25519Dalek/FunsExternal_Template.lean` are not in the Lean
-project, so the theorems cannot depend on them.
+`invert_spec`. `lake env lean Sim/AxiomsBridge.lean` gives the same three for `toU_dblY`
+and `toU_dblY_curve25519`, and only `propext` and `Quot.sound` for `dadd_core` (section 5).
+The axioms of
+`X25519Dalek/FunsExternal_Template.lean` are not in the Lean project, so the theorems cannot
+depend on them.
 
 ## 5. Proof structure
 
@@ -481,6 +484,32 @@ the ported field specs:
 The limb bound `Bnd`, `bnd_mono` and the `Result` lemmas `exists_ok_of_spec` and
 `eq_ok_of_spec` do not depend on the reference. They are in
 `shared/dalek/lean/DalekSim/Basic.lean`, which track D also uses.
+
+`Sim/EdwardsBridge.lean` (114 lines) is a first step toward a proof of public-key derivation
+(`PublicKey::from`). It is not part of the proofs above. dalek computes the public key on
+the Edwards curve and maps it to the Montgomery u-coordinate `(1 + y) / (1 - y)`, but the
+reference uses the Montgomery ladder. `toU_dblY` shows that this map sends the affine
+Edwards double of a point to the encoding of the ladder doubling `dbl`.
+`toU_dblY_curve25519` is its instance for Curve25519, with the curve equation as the only
+premise. `dadd_core` is the identity behind the differential addition, with the
+denominators multiplied out. The proofs use the curve equation, not the Edwards group law.
+The Curve25519 constant `d` and its two facts are in
+`shared/dalek/lean/DalekSim/Edwards.lean`.
+
+A proof of `PublicKey::from` needs more:
+
+1. dalek adds and doubles in extended coordinates. `dblY` is the affine formula.
+2. With the feature `precomputed-tables`, `mul_base_clamped` multiplies with a radix-16
+   table of multiples of the base point, not with a ladder. A proof must show that both
+   compute the same multiple, so it needs a group law on one of the two curves.
+3. `toU_dblY` equates encodings, not projective points. The encoding maps `(1 : 0)` and
+   `(0 : 1)` to 0, but `dadd` does not respect this, so an equal encoding does not let a
+   proof replace an intermediate ladder state.
+4. No theorem links `dEd` to dalek's `EDWARDS_D`. Track D proves this link for its own copy
+   of the constant (`edwards_d_spec`).
+
+So far, the route needs only the curve equation and `linear_combination`. Item 2 is the
+part that this file does not test.
 
 `mul_loop_spec` is an induction on the number of remaining bits. The loop body reads a bit,
 swaps, calls the step theorem and recurses. A fold lemma, `mul_loop_unfold`, moves the bit
@@ -513,9 +542,9 @@ specs build with a limit of 151,845. Some proofs set `maxRecDepth 4096`.
 
 1. `lake build` in `lean/` passes. No file in `lean/Sim/` or
    `shared/dalek/lean/Curve25519Dalek/` has a `sorry`.
-2. `Sim/Axioms.lean`, `Sim/AxiomsDischarge.lean` and `Sim/AxiomsFull.lean` check the axiom
-   lists of section 4 with `#guard_msgs`. `lake build` builds them (target `Checks`), and
-   the build fails if a list changes.
+2. `Sim/Axioms.lean`, `Sim/AxiomsDischarge.lean`, `Sim/AxiomsFull.lean` and
+   `Sim/AxiomsBridge.lean` check the axiom lists of section 4 with `#guard_msgs`.
+   `lake build` builds them (target `Checks`), and the build fails if a list changes.
 3. `cargo test` in `ref-plain/` passes the two RFC tests and the edge tests of
    `tests/edge.rs`. The edge inputs are the low-order points 0, 1, `p - 1`, `p`, `p + 1` and
    a point of order 8, the values `p + 9` and `2^255 - 1` above `p`, a u-coordinate with bit

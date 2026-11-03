@@ -21,10 +21,10 @@ package x25519sim where
 
 @[default_target] lean_lib Sim where
   globs := #[.one `Sim.Pilot, .one `Sim.Discharge, .one `Sim.LadderMath, .one `Sim.RefSide,
-    .one `Sim.Bytes, .one `Sim.RealSide, .one `Sim.Full, .one `Sim.X25519]
+    .one `Sim.Bytes, .one `Sim.RealSide, .one `Sim.Full, .one `Sim.X25519, .one `Sim.EdwardsBridge]
 
 /-- Checks that fail the build on a wrong result: the axiom lists (`#guard_msgs`) and the
 reference test vectors (`#guard`). -/
 @[default_target] lean_lib Checks where
   globs := #[.one `Sim.Axioms, .one `Sim.AxiomsDischarge, .one `Sim.AxiomsFull,
-    .one `Sim.RefVectors]
+    .one `Sim.AxiomsBridge, .one `Sim.RefVectors]
