@@ -120,8 +120,9 @@ Changed, 4 items of curve25519-dalek, 5 of x25519-dalek, and 1 absent:
 
 Not compared, because they are not on the path: `random_from_rng`, `random` and the removed
 `new` (3.0.0 uses `getrandom` and takes `&mut R`), `to_montgomery_batch`, and the
-multiscalar and variable-time code. The script does not read `subtle`. libsignal's
-`subtle` version is not checked here. The proofs of the copy assume `subtle` 2.6.1.
+multiscalar and variable-time code. The script does not read `subtle`. libsignal
+`fc90b90f` locks `subtle` 2.6.1 in its `Cargo.lock`, the version that the proofs of the copy
+assume. `check.sh` checks this if you set `LIBSIGNAL_LOCK` to that lock file.
 
 Size of a port of the extraction edits to 5.0.0, as an estimate from this comparison: the
 8 changed items of curve25519-dalek differ from the copy in 67 lines (41 on the ladder path
