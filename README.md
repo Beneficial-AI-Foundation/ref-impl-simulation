@@ -4,9 +4,10 @@ This repository tests one question. Take an RFC, a small Rust reference implemen
 it and a real Rust implementation. Aeneas translates both Rust programs to Lean. Can Lean
 then prove that the real implementation computes what the reference computes? Four
 studies, one per RFC, answer this. Each study ends in a Lean theorem with no `sorry`.
-Track B proves full refinement for one API pair of X25519: x25519-dalek's `x25519` and the
-reference `x25519_scalarmult` agree on every input. The other public functions of the two
-crates are not covered. Track D proves full refinement for two API pairs of Ristretto:
+Track B proves full refinement for two API pairs of X25519: x25519-dalek's `x25519` and
+`StaticSecret::diffie_hellman`, which libsignal calls, each agree with the reference
+`x25519_scalarmult` on every input. The other public functions of the two crates are not
+covered. Track D proves full refinement for two API pairs of Ristretto:
 decoding on every input, and encoding on every input whose limbs are below `2^53`. Tracks
 A and C prove one unit of their implementation each. Section 2 shows where each unit sits
 in the larger goal.
@@ -68,7 +69,7 @@ it also lists the missing results:
 | Track | Public API pair | Main missing result |
 |---|---|---|
 | [A](tracks/chacha20poly1305/README.md#the-unit-in-full-refinement) | `chacha20_encrypt` against `chacha20`, then the AEAD | the key setup, the message loop, and a Poly1305 reference |
-| [B](tracks/x25519/README.md#layers-of-the-full-refinement) | `x25519_dalek::x25519` against `x25519_scalarmult` | none for this pair. `X25519Sim.x25519_refines` is proved. The other public functions are not covered ([list](tracks/x25519/README.md#gaps-rfc-7748-the-reference-and-x25519-dalek)) |
+| [B](tracks/x25519/README.md#layers-of-the-full-refinement) | `x25519_dalek::x25519` and `StaticSecret::diffie_hellman` against `x25519_scalarmult` | none for these pairs. `X25519Sim.x25519_refines` and `X25519Sim.static_diffie_hellman_as_bytes_refines` are proved. The other public functions are not covered ([list](tracks/x25519/README.md#gaps-rfc-7748-the-reference-and-x25519-dalek)) |
 | [C](tracks/hpke/README.md#the-unit-in-full-refinement) | `Hpke::seal` and `open` against `HpkeSeal` and `HpkeOpen` | extraction of the reference API, the KEM, and the context as a forward simulation |
 | [D](tracks/ristretto/README.md#3-statement) | `decompress` against `decode`, `compress` against `encode` | none for these pairs. `RistrettoSim.decompress_refines` and `RistrettoSim.compress_refines` are proved. The group operations, scalar multiplication and `from_uniform_bytes` are not covered |
 
@@ -107,7 +108,7 @@ into lemmas. The files that Aeneas generates set 1,000,000 for their own definit
 
 | | A ChaCha20 | B X25519 | C HPKE | D Ristretto |
 |---|---|---|---|---|
-| Main theorem | `Sim.core_refines` | `X25519Sim.x25519_refines` (full refinement for one API pair), with `X25519Sim.mul_clamped_refines` and the ladder step `X25519Sim.differential_add_and_double_refines_proved` as layers | `Sim.key_schedule_base_refines` | `RistrettoSim.decompress_refines` and `RistrettoSim.compress_refines` (full refinement for two API pairs) |
+| Main theorem | `Sim.core_refines` | `X25519Sim.x25519_refines` and `X25519Sim.static_diffie_hellman_as_bytes_refines` (full refinement for two API pairs), with `X25519Sim.mul_clamped_refines` and the ladder step `X25519Sim.differential_add_and_double_refines_proved` as layers | `Sim.key_schedule_base_refines` | `RistrettoSim.decompress_refines` and `RistrettoSim.compress_refines` (full refinement for two API pairs) |
 | Premises | output buffer of 16 words, `ctx` equals the reference state | none | the provider computes the shared HKDF model and the RFC lengths, and its PRNG call succeeds. Base mode with empty PSK, HKDF-SHA256, matching identifiers, a bound on the length of `info` | none for decoding. For encoding, every limb of the point is below `2^53` |
 | Trusted definitions | none | the plain-Rust port, the `ZMod p` field model, 6 `subtle` and `zeroize` models | the shared HKDF model (HMAC opaque), the cryptolib model, the `hacspec_lib` shim, 6 `std` models | the plain-Rust port, the `ZMod p` field model, 7 `subtle` models and the type `Choice` from the shared library |
 | Axioms beyond the standard 3 | none | none | 4 formatting declarations, 24 `native_decide` auxiliary axioms | none |
@@ -132,8 +133,8 @@ agree.
    explained, and no proof raises the heartbeat limit.
 5. The method finds real differences between the implementations. Examples are the HKDF
    salt of hpke-rs, its short-PSK check and the different `z2` formula of dalek.
-6. libsignal ships code that the tracks prove: dalek's X25519 agreement path below
-   `StaticSecret::diffie_hellman` (track B), the hpke-rs key schedule (track C), and
+6. libsignal ships code that the tracks prove: dalek's X25519 agreement path from
+   `StaticSecret::diffie_hellman` down (track B), the hpke-rs key schedule (track C), and
    dalek's Ristretto decoding and encoding (track D). libsignal uses later versions of
    dalek. For tracks B and D, a source comparison, not a proof, relates the proved code
    to those versions.
@@ -151,9 +152,9 @@ agree.
    parts of RFC 7748: key generation and the check for the all-zero shared secret. The
    track B README lists the gaps between the RFC, the reference and x25519-dalek.
 3. Only tracks B and D prove full refinement, and only for some API pairs. Track B covers
-   x25519-dalek's `x25519` against `x25519_scalarmult`. It does not cover the reference's
-   `x25519_secret_to_public` or the other public functions of x25519-dalek, for example
-   `StaticSecret::diffie_hellman`, which libsignal calls. Track D covers Ristretto
+   x25519-dalek's `x25519` and `StaticSecret::diffie_hellman` against
+   `x25519_scalarmult`. It does not cover the reference's `x25519_secret_to_public` or the
+   other public functions of x25519-dalek, for example `PublicKey::from(&secret)`. Track D covers Ristretto
    decoding and encoding, but not the group operations. Tracks A and C prove one small
    unit each: a block core and one key schedule mode. Section 2 lists what they
    still need. Loops whose shapes differ between the two sides need hand-written

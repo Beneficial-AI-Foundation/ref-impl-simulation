@@ -24,6 +24,24 @@ noncomputable section
 
 namespace x25519_dalek
 
+/-- [x25519_dalek::x25519::{x25519_dalek::x25519::StaticSecret}::diffie_hellman]:
+    Source: 'x25519-dalek/src/x25519.rs', lines 204:4-206:5
+    Visibility: public -/
+def x25519.StaticSecret.diffie_hellman
+  (self : x25519.StaticSecret) (their_public : x25519.PublicKey) :
+  Result x25519.SharedSecret
+  := do
+  let mp ←
+    curve25519_dalek.montgomery.MontgomeryPoint.mul_clamped their_public self
+  ok mp
+
+/-- [x25519_dalek::x25519::{x25519_dalek::x25519::SharedSecret}::as_bytes]:
+    Source: 'x25519-dalek/src/x25519.rs', lines 286:4-288:5
+    Visibility: public -/
+def x25519.SharedSecret.as_bytes
+  (self : x25519.SharedSecret) : Result (Array Std.U8 32#usize) := do
+  curve25519_dalek.montgomery.MontgomeryPoint.as_bytes self
+
 /-- [x25519_dalek::x25519::x25519]:
     Source: 'x25519-dalek/src/x25519.rs', lines 368:0-370:1
     Visibility: public -/

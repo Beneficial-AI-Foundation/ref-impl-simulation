@@ -26,4 +26,22 @@ namespace x25519_dalek
 @[reducible, rust_type "curve25519_dalek::montgomery::MontgomeryPoint"]
 def curve25519_dalek.montgomery.MontgomeryPoint := Array Std.U8 32#usize
 
+/-- [x25519_dalek::x25519::PublicKey]
+    Source: 'x25519-dalek/src/x25519.rs', lines 34:0-34:49
+    Visibility: public -/
+@[reducible]
+def x25519.PublicKey := curve25519_dalek.montgomery.MontgomeryPoint
+
+/-- [x25519_dalek::x25519::StaticSecret]
+    Source: 'x25519-dalek/src/x25519.rs', lines 198:0-198:34
+    Visibility: public -/
+@[reducible]
+def x25519.StaticSecret := Array Std.U8 32#usize
+
+/-- [x25519_dalek::x25519::SharedSecret]
+    Source: 'x25519-dalek/src/x25519.rs', lines 275:0-275:52
+    Visibility: public -/
+@[reducible]
+def x25519.SharedSecret := curve25519_dalek.montgomery.MontgomeryPoint
+
 end x25519_dalek
