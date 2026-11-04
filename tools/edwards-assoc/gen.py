@@ -54,9 +54,25 @@ def run(singular):
         script += 'print(L[1,1]); "SEP"; print(L[2,1]); "SEP"; print(L[3,1]);\n'
         script += f'"END {name}"; kill T; kill L;\n'
     script += "quit;\n"
-    out = subprocess.run([singular, "-q"], input=script, capture_output=True, text=True,
-                         check=True).stdout
-    return out
+    res = subprocess.run([singular, "-q"], input=script, capture_output=True, text=True,
+                         check=True)
+    check_output(res.stdout + res.stderr)
+    return res.stdout
+
+
+def check_output(out):
+    """Exit with status 1 if Singular reports an error or a block is incomplete.
+
+    Singular can report an error and still exit with status 0."""
+    errors = [line for line in out.splitlines() if line.lstrip().startswith("?")]
+    for name in TARGETS:
+        if out.count(f"BEGIN {name}") != 1 or out.count(f"END {name}") != 1:
+            errors.append(f"no complete block for {name}")
+        elif out.split(f"BEGIN {name}")[1].split(f"END {name}")[0].count("SEP") != 2:
+            errors.append(f"the block for {name} does not have three cofactors")
+    if errors:
+        sys.stderr.write(out + "\n" + "\n".join(errors) + "\n")
+        sys.exit(1)
 
 
 def lean(p):
@@ -65,10 +81,17 @@ def lean(p):
 
 
 def wrap(line, width=100):
-    """Break a long `linear_combination` line before a `+` or `-` sign."""
+    """Break a long `linear_combination` line before a `+` or `-` sign.
+
+    A line does not break at its own leading sign. If a term is longer than `width`, the line
+    breaks at the first sign after the term, so the line is longer than `width`."""
     out, cur = [], line
     while len(cur) > width:
-        cut = max(cur.rfind("+", 0, width), cur.rfind("-", 0, width))
+        cut = max(cur.rfind("+", 5, width), cur.rfind("-", 5, width))
+        if cut == -1:
+            cut = min([i for i in (cur.find("+", 5), cur.find("-", 5)) if i != -1], default=-1)
+            if cut == -1:
+                break
         out.append(cur[:cut].rstrip())
         cur = "    " + cur[cut:]
     out.append(cur)
@@ -84,7 +107,7 @@ def main():
         body = "\n".join(lines[2:])
         q = [lean(s) for s in body.split("SEP")]
         print(f"-- {name}: target with {size} terms, degree {deg}; cofactor sizes "
-              + ", ".join(str(0 if s == "0" else s.count("+") + s.count("-") + 1) for s in q))
+              + ", ".join(str(0 if s == "0" else len(re.findall(r"[+-]", s.lstrip("+-"))) + 1) for s in q))
         terms = [f"({c}) * h{i + 1}" for i, c in enumerate(q) if c != "0"]
         print(wrap("  linear_combination " + " + ".join(terms)))
         print()

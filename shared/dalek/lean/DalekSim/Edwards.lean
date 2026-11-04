@@ -9,17 +9,25 @@ import Mathlib.Tactic.NormNum.LegendreSymbol
 Affine points `(x, y)` on the curve with `a = -1`, and the unified addition
 `(x₁, y₁) + (x₂, y₂) = ((x₁ y₂ + y₁ x₂) / (1 + t), (y₁ y₂ + x₁ x₂) / (1 - t))`
 with `t = d x₁ x₂ y₁ y₂`. Over a field with `2 ≠ 0`, `-1` a square and `d` not a square, the
-denominators `1 ± t` are never 0 (`one_add_ne_zero`, `one_sub_ne_zero`: Bernstein, Birkner, Joye,
-Lange and Peters, "Twisted Edwards curves", 2008). So the addition is
-total, and the points form a commutative group (`Point`).
+denominators `1 ± t` are not 0 for two points on the curve (`one_add_ne_zero`,
+`one_sub_ne_zero`). This is the completeness theorem of Bernstein and Lange, "Faster addition
+and doubling on elliptic curves", 2007, Theorem 3.3, for `a = 1`. Bernstein, Birkner, Joye,
+Lange and Peters, "Twisted Edwards curves", 2008, extend it to a square `a`. So the sum of two
+points on the curve is on the curve, and the points form a commutative group (`Point`).
 
 The proof of associativity is direct. Substitute the inner sums, multiply out the
 denominators, and write the result as a combination of the three curve equations. The
 cofactors come from Singular (`tools/edwards-assoc/gen.py`), and `linear_combination` checks
 them. The file uses no transfer to another curve model and no `sorry`.
 
-`Curve25519` gives the instance for `ZMod p` with `d = -121665 / 121666`. `dEd`, `dEd_rel` and
-`dEd_not_square` are in the namespace `DalekSim`. -/
+The section `Curve25519` gives the instance for `ZMod p` with `d = -121665 / 121666`. `dEd`,
+`dEd_rel` and `dEd_not_square` are in the namespace `DalekSim`.
+
+`Point d` is a new type. It does not replace `Edwards.Point Ed25519` of
+curve25519-dalek-lean-verify, and a proof that uses that type still depends on the `sorry` in
+`add_assoc_Ed25519`. `Point d` is the full group of the curve, with its torsion points. The
+`nsmul` lemmas take natural numbers. They say nothing about clamped scalars, the prime-order
+subgroup or the Montgomery ladder. -/
 
 namespace DalekSim
 
@@ -104,7 +112,9 @@ theorem assoc_x_core (d x1 y1 x2 y2 x3 y3 : R)
     +x1^2*x2*y1*y2^4*y3*d+x1*x2^3*x3*y2^2*d+x2^2*x3*y1*y2^3*d+x2^3*y1*y2^2*y3*d
     +x1*x2^2*y2^3*y3*d) * h3
 
-/-- Associativity of the y-coordinate, with the denominators multiplied out. -/
+/-- Associativity of the y-coordinate, with the denominators multiplied out. The left side is
+`A' B'`, the right side is `C' E'`, where `(P + Q) + R` has the y-coordinate `A' / E'` and
+`P + (Q + R)` has the y-coordinate `C' / B'`. -/
 theorem assoc_y_core (d x1 y1 x2 y2 x3 y3 : R)
     (h1 : -x1 ^ 2 + y1 ^ 2 = 1 + d * x1 ^ 2 * y1 ^ 2)
     (h2 : -x2 ^ 2 + y2 ^ 2 = 1 + d * x2 ^ 2 * y2 ^ 2)
@@ -157,7 +167,8 @@ def add (d : F) (P Q : F × F) : F × F :=
   ((P.1 * Q.2 + P.2 * Q.1) / (1 + d * P.1 * Q.1 * P.2 * Q.2),
    (P.2 * Q.2 + P.1 * Q.1) / (1 - d * P.1 * Q.1 * P.2 * Q.2))
 
-/-- The hypotheses of a complete Edwards curve with `a = -1`. -/
+/-- Sufficient conditions for the unified addition with `a = -1` to be complete: `2 ≠ 0`, `-1`
+is a square and `d` is not a square. -/
 class Complete (d : F) : Prop where
   two_ne_zero : (2 : F) ≠ 0
   neg_one_square : IsSquare (-1 : F)
@@ -205,11 +216,13 @@ theorem sq_ne_one [hc : Complete d] {x1 y1 x2 y2 : F} (h1 : OnCurve d (x1, y1))
     · exact sq _ _ hm eM
   · exact sq _ _ hp eP
 
+/-- `1 + d x₁ x₂ y₁ y₂ ≠ 0` for two points on the curve. -/
 theorem one_add_ne_zero [Complete d] {x1 y1 x2 y2 : F} (h1 : OnCurve d (x1, y1))
     (h2 : OnCurve d (x2, y2)) : 1 + d * x1 * x2 * y1 * y2 ≠ 0 := by
   intro h
   exact sq_ne_one h1 h2 (by linear_combination (d * x1 * x2 * y1 * y2 - 1) * h)
 
+/-- `1 - d x₁ x₂ y₁ y₂ ≠ 0` for two points on the curve. -/
 theorem one_sub_ne_zero [Complete d] {x1 y1 x2 y2 : F} (h1 : OnCurve d (x1, y1))
     (h2 : OnCurve d (x2, y2)) : 1 - d * x1 * x2 * y1 * y2 ≠ 0 := by
   intro h
@@ -223,8 +236,8 @@ section GroupLaw
 
 variable {d : F}
 
-/-- The curve equation of a point with coordinates `a / b` and `c / e`, with the denominators
-multiplied out. -/
+/-- If `b ≠ 0`, `e ≠ 0` and the curve equation holds for `(a / b, c / e)` with the denominators
+multiplied out, then `(a / b, c / e)` is on the curve. -/
 theorem onCurve_div {a b c e : F} (hb : b ≠ 0) (he : e ≠ 0)
     (h : -a ^ 2 * e ^ 2 + c ^ 2 * b ^ 2 = b ^ 2 * e ^ 2 + d * a ^ 2 * c ^ 2) :
     OnCurve d (a / b, c / e) := by
@@ -241,12 +254,15 @@ theorem add_onCurve [Complete d] {P Q : F × F} (hP : OnCurve d P) (hQ : OnCurve
   simp only [OnCurve] at hP hQ
   linear_combination closure_core d x1 y1 x2 y2 hP hQ
 
+/-- The addition is commutative, for all `P` and `Q`, with no curve hypothesis. -/
 theorem add_comm' (P Q : F × F) : add d P Q = add d Q P := by
   simp only [add]; ring_nf
 
+/-- `(0, 1)` is a right identity, for all `P`, with no curve hypothesis. -/
 theorem add_zero' (P : F × F) : add d P (0, 1) = P := by
   simp [add]
 
+/-- `(-x, y)` is the inverse of a point `(x, y)` on the curve. -/
 theorem add_neg' [Complete d] {P : F × F} (hP : OnCurve d P) :
     add d P (-P.1, P.2) = (0, 1) := by
   obtain ⟨x, y⟩ := P
@@ -257,7 +273,7 @@ theorem add_neg' [Complete d] {P : F × F} (hP : OnCurve d P) :
   rw [div_eq_one_iff_eq hm]
   linear_combination hP
 
-/-- `x / (b e) / (y / (b e)) = x / y`, the step that removes the inner denominators. -/
+/-- `n / (b e) / (m / (b e)) = n / m`, the step that removes the inner denominators. -/
 private theorem div_div_cancel {b e n m : F} (hb : b ≠ 0) (he : e ≠ 0) :
     n / (b * e) / (m / (b * e)) = n / m :=
   div_div_div_cancel_right₀ (mul_ne_zero hb he) n m
@@ -372,7 +388,8 @@ theorem val_two_mul_nsmul (n : ℕ) (P : Point d) :
     ((2 * n) • P).1 = add d (n • P).1 (n • P).1 := by
   rw [two_mul, add_nsmul]; rfl
 
-/-- `(2 n + 1) • P` is `(n + 1) • P` plus `n • P`: the ladder keeps the difference `P`. -/
+/-- `(2 n + 1) • P = (n + 1) • P + n • P`, by the addition formula. A ladder proof uses this
+with the invariant that its two registers differ by `P`. -/
 theorem val_two_mul_add_one_nsmul (n : ℕ) (P : Point d) :
     ((2 * n + 1) • P).1 = add d ((n + 1) • P).1 (n • P).1 := by
   rw [show 2 * n + 1 = (n + 1) + n by ring, add_nsmul]; rfl
