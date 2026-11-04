@@ -24,6 +24,121 @@ noncomputable section
 
 namespace x25519_dalek
 
+/-- [curve25519_dalek::montgomery::{impl subtle::ConstantTimeEq for curve25519_dalek::montgomery::MontgomeryPoint}::ct_eq]:
+    Source: 'tracks/x25519/real-dalek/curve25519-dalek/src/montgomery.rs', lines 79:4-79:54
+    Name pattern: [curve25519_dalek::montgomery::{subtle::ConstantTimeEq<curve25519_dalek::montgomery::MontgomeryPoint>}::ct_eq]
+    Visibility: public -/
+@[rust_fun
+  "curve25519_dalek::montgomery::{subtle::ConstantTimeEq<curve25519_dalek::montgomery::MontgomeryPoint>}::ct_eq"]
+def
+  curve25519_dalek.montgomery.MontgomeryPoint.Insts.SubtleConstantTimeEq.ct_eq
+  (self : curve25519_dalek.montgomery.MontgomeryPoint)
+  (other : curve25519_dalek.montgomery.MontgomeryPoint) :
+  Result subtle.Choice
+  := do
+  let self_fe ←
+    curve25519_dalek.backend.serial.u64.field.FieldElement51.from_bytes self
+  let other_fe ←
+    curve25519_dalek.backend.serial.u64.field.FieldElement51.from_bytes other
+  curve25519_dalek.backend.serial.u64.field.FieldElement51.Insts.SubtleConstantTimeEq.ct_eq
+    self_fe other_fe
+
+/-- Trait implementation: [curve25519_dalek::montgomery::{impl subtle::ConstantTimeEq for curve25519_dalek::montgomery::MontgomeryPoint}]
+    Source: 'tracks/x25519/real-dalek/curve25519-dalek/src/montgomery.rs', lines 78:0-78:39
+    Name pattern: [subtle::ConstantTimeEq<curve25519_dalek::montgomery::MontgomeryPoint>] -/
+@[reducible, rust_trait_impl
+  "subtle::ConstantTimeEq<curve25519_dalek::montgomery::MontgomeryPoint>"]
+def curve25519_dalek.montgomery.MontgomeryPoint.Insts.SubtleConstantTimeEq :
+  subtle.ConstantTimeEq curve25519_dalek.montgomery.MontgomeryPoint := {
+  ct_eq :=
+    curve25519_dalek.montgomery.MontgomeryPoint.Insts.SubtleConstantTimeEq.ct_eq
+}
+
+/-- [curve25519_dalek::montgomery::{impl curve25519_dalek::traits::Identity for curve25519_dalek::montgomery::MontgomeryPoint}::identity]:
+    Source: 'tracks/x25519/real-dalek/curve25519-dalek/src/montgomery.rs', lines 114:4-114:36
+    Name pattern: [curve25519_dalek::montgomery::{curve25519_dalek::traits::Identity<curve25519_dalek::montgomery::MontgomeryPoint>}::identity]
+    Visibility: public -/
+@[rust_fun
+  "curve25519_dalek::montgomery::{curve25519_dalek::traits::Identity<curve25519_dalek::montgomery::MontgomeryPoint>}::identity"]
+def
+  curve25519_dalek.montgomery.MontgomeryPoint.Insts.Curve25519_dalekTraitsIdentity.identity
+  : Result curve25519_dalek.montgomery.MontgomeryPoint := do
+  let a := Array.repeat 32#usize 0#u8
+  ok a
+
+/-- Trait implementation: [curve25519_dalek::montgomery::{impl curve25519_dalek::traits::Identity for curve25519_dalek::montgomery::MontgomeryPoint}]
+    Source: 'tracks/x25519/real-dalek/curve25519-dalek/src/montgomery.rs', lines 112:0-112:33
+    Name pattern: [curve25519_dalek::traits::Identity<curve25519_dalek::montgomery::MontgomeryPoint>] -/
+@[reducible, rust_trait_impl
+  "curve25519_dalek::traits::Identity<curve25519_dalek::montgomery::MontgomeryPoint>"]
+def
+  curve25519_dalek.montgomery.MontgomeryPoint.Insts.Curve25519_dalekTraitsIdentity
+  : curve25519_dalek.traits.Identity
+  curve25519_dalek.montgomery.MontgomeryPoint := {
+  identity :=
+    curve25519_dalek.montgomery.MontgomeryPoint.Insts.Curve25519_dalekTraitsIdentity.identity
+}
+
+/-- Trait implementation: [subtle::{impl core::convert::From<subtle::Choice> for bool}]
+    Source: '/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/subtle-2.6.1/src/lib.rs', lines 138:0-138:26
+    Name pattern: [core::convert::From<bool, subtle::Choice>] -/
+@[reducible, rust_trait_impl "core::convert::From<bool, subtle::Choice>"]
+def Bool.Insts.CoreConvertFromChoice : core.convert.From Bool subtle.Choice
+  := {
+  «from» := Bool.Insts.CoreConvertFromChoice.from
+}
+
+/-- [curve25519_dalek::traits::{impl curve25519_dalek::traits::IsIdentity for T}::is_identity]:
+    Source: 'tracks/x25519/real-dalek/curve25519-dalek/src/traits.rs', lines 45:4-45:33
+    Name pattern: [curve25519_dalek::traits::{curve25519_dalek::traits::IsIdentity<@T>}::is_identity]
+    Visibility: public -/
+@[rust_fun
+  "curve25519_dalek::traits::{curve25519_dalek::traits::IsIdentity<@T>}::is_identity"]
+def curve25519_dalek.traits.IsIdentity.Blanket.is_identity
+  {T : Type} (subtleConstantTimeEqInst : subtle.ConstantTimeEq T) (IdentityInst
+  : curve25519_dalek.traits.Identity T) (self : T) :
+  Result Bool
+  := do
+  let t ← IdentityInst.identity
+  let c ← subtleConstantTimeEqInst.ct_eq self t
+  core.convert.IntoFrom.into Bool.Insts.CoreConvertFromChoice c
+
+/-- [x25519_dalek::x25519::{x25519_dalek::x25519::PublicKey}::to_bytes]:
+    Source: 'x25519-dalek/src/x25519.rs', lines 46:4-48:5
+    Visibility: public -/
+def x25519.PublicKey.to_bytes
+  (self : x25519.PublicKey) : Result (Array Std.U8 32#usize) := do
+  curve25519_dalek.montgomery.MontgomeryPoint.to_bytes self
+
+/-- [x25519_dalek::x25519::{x25519_dalek::x25519::PublicKey}::as_bytes]:
+    Source: 'x25519-dalek/src/x25519.rs', lines 52:4-54:5
+    Visibility: public -/
+def x25519.PublicKey.as_bytes
+  (self : x25519.PublicKey) : Result (Array Std.U8 32#usize) := do
+  curve25519_dalek.montgomery.MontgomeryPoint.as_bytes self
+
+/-- [x25519_dalek::x25519::{x25519_dalek::x25519::EphemeralSecret}::diffie_hellman]:
+    Source: 'x25519-dalek/src/x25519.rs', lines 80:4-82:5
+    Visibility: public -/
+def x25519.EphemeralSecret.diffie_hellman
+  (self : x25519.EphemeralSecret) (their_public : x25519.PublicKey) :
+  Result x25519.SharedSecret
+  := do
+  let mp ←
+    curve25519_dalek.montgomery.MontgomeryPoint.mul_clamped their_public self
+  ok mp
+
+/-- [x25519_dalek::x25519::{x25519_dalek::x25519::ReusableSecret}::diffie_hellman]:
+    Source: 'x25519-dalek/src/x25519.rs', lines 143:4-145:5
+    Visibility: public -/
+def x25519.ReusableSecret.diffie_hellman
+  (self : x25519.ReusableSecret) (their_public : x25519.PublicKey) :
+  Result x25519.SharedSecret
+  := do
+  let mp ←
+    curve25519_dalek.montgomery.MontgomeryPoint.mul_clamped their_public self
+  ok mp
+
 /-- [x25519_dalek::x25519::{x25519_dalek::x25519::StaticSecret}::diffie_hellman]:
     Source: 'x25519-dalek/src/x25519.rs', lines 204:4-206:5
     Visibility: public -/
@@ -35,12 +150,45 @@ def x25519.StaticSecret.diffie_hellman
     curve25519_dalek.montgomery.MontgomeryPoint.mul_clamped their_public self
   ok mp
 
+/-- [x25519_dalek::x25519::{x25519_dalek::x25519::StaticSecret}::to_bytes]:
+    Source: 'x25519-dalek/src/x25519.rs', lines 233:4-235:5
+    Visibility: public -/
+def x25519.StaticSecret.to_bytes
+  (self : x25519.StaticSecret) : Result (Array Std.U8 32#usize) := do
+  ok self
+
+/-- [x25519_dalek::x25519::{x25519_dalek::x25519::StaticSecret}::as_bytes]:
+    Source: 'x25519-dalek/src/x25519.rs', lines 239:4-241:5
+    Visibility: public -/
+def x25519.StaticSecret.as_bytes
+  (self : x25519.StaticSecret) : Result (Array Std.U8 32#usize) := do
+  ok self
+
+/-- [x25519_dalek::x25519::{x25519_dalek::x25519::SharedSecret}::to_bytes]:
+    Source: 'x25519-dalek/src/x25519.rs', lines 280:4-282:5
+    Visibility: public -/
+def x25519.SharedSecret.to_bytes
+  (self : x25519.SharedSecret) : Result (Array Std.U8 32#usize) := do
+  curve25519_dalek.montgomery.MontgomeryPoint.to_bytes self
+
 /-- [x25519_dalek::x25519::{x25519_dalek::x25519::SharedSecret}::as_bytes]:
     Source: 'x25519-dalek/src/x25519.rs', lines 286:4-288:5
     Visibility: public -/
 def x25519.SharedSecret.as_bytes
   (self : x25519.SharedSecret) : Result (Array Std.U8 32#usize) := do
   curve25519_dalek.montgomery.MontgomeryPoint.as_bytes self
+
+/-- [x25519_dalek::x25519::{x25519_dalek::x25519::SharedSecret}::was_contributory]:
+    Source: 'x25519-dalek/src/x25519.rs', lines 324:4-326:5
+    Visibility: public -/
+def x25519.SharedSecret.was_contributory
+  (self : x25519.SharedSecret) : Result Bool := do
+  let b ←
+    curve25519_dalek.traits.IsIdentity.Blanket.is_identity
+      curve25519_dalek.montgomery.MontgomeryPoint.Insts.SubtleConstantTimeEq
+      curve25519_dalek.montgomery.MontgomeryPoint.Insts.Curve25519_dalekTraitsIdentity
+      self
+  ok (¬ b)
 
 /-- [x25519_dalek::x25519::x25519]:
     Source: 'x25519-dalek/src/x25519.rs', lines 368:0-370:1
@@ -51,5 +199,16 @@ def x25519.x25519
   := do
   let mp ← curve25519_dalek.montgomery.MontgomeryPoint.mul_clamped u k
   curve25519_dalek.montgomery.MontgomeryPoint.to_bytes mp
+
+/-- [x25519_dalek::x25519::X25519_BASEPOINT_BYTES]
+    Source: 'x25519-dalek/src/x25519.rs', lines 375:0-377:2
+    Visibility: public -/
+@[global_simps, irreducible]
+def x25519.X25519_BASEPOINT_BYTES : Array Std.U8 32#usize :=
+  Array.make 32#usize [
+    9#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8,
+    0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8,
+    0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8, 0#u8
+    ]
 
 end x25519_dalek

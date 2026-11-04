@@ -28,6 +28,21 @@ theorem fe_to_bytes_eq (a : _root_.field.Fe) (b : Array U8 32#usize)
     rw [UScalar.ofNatCore_val_eq, ← h, U8x32_digit b i (by simpa using h1),
       getElem!_pos b.val i h2]
 
+/-- `p` is not zero, for the lemmas on `ZMod.val`. -/
+instance : NeZero _root_.field.p := ⟨by norm_num [_root_.field.p]⟩
+
+/-- `fe_to_bytes` returns bytes that read as the canonical representative. -/
+theorem fe_to_bytes_val (a : _root_.field.Fe) (r : Array U8 32#usize)
+    (h : _root_.field.fe_to_bytes a = ok r) :
+    U8x32_as_Nat r = ZMod.val (show ZMod _root_.field.p from a) := by
+  unfold _root_.field.fe_to_bytes at h
+  simp only [ok.injEq] at h
+  subst h
+  apply U8x32_of_digits _ _ (lt_of_lt_of_le (ZMod.val_lt _) (by simp [_root_.field.p]))
+  intro j hj
+  rw [Array.from_val, getElem!_pos _ j (by simpa using hj), List.getElem_ofFn,
+    UScalar.ofNatCore_val_eq]
+
 /-- `fe_from_bytes` reads the bytes as `U8x32_as_Nat`, reduced mod p. -/
 theorem fe_from_bytes_eq (b : Array U8 32#usize) :
     _root_.field.fe_from_bytes b =

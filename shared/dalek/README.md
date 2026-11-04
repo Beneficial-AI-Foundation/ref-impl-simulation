@@ -77,8 +77,9 @@ not depend on a reference, in the namespace `DalekSim`:
 
 | File | Content |
 |---|---|
-| `Bytes.lean` | `U8x32_as_Nat` as base-256 digits (`digits_lt`, `digits_get`, `U8x32_as_Nat_eq`, `byte_lt`, `U8x32_digit`), Horner's rule (`foldr_horner`), and clearing bit 255 (`U8x32_mask_top`) |
+| `Bytes.lean` | `U8x32_as_Nat` as base-256 digits (`digits_lt`, `digits_get`, `U8x32_as_Nat_eq`, `byte_lt`, `U8x32_digit`), Horner's rule (`foldr_horner`), clearing bit 255 (`U8x32_mask_top`), the injectivity of `U8x32_as_Nat` (`U8x32_inj`), the value 0 (`U8x32_zero`, `U8x32_eq_zero_iff`) and bytes from digits (`U8x32_of_digits`) |
 | `Basic.lean` | the limb bound `Bnd` and `bnd_mono`, and the `Result` lemmas `exists_ok_of_spec` and `eq_ok_of_spec` |
+| `Choice.lean` | the slice `ct_eq` of `subtle` on two 32-byte arrays (`ct_eq_loop_u8`, `slice_ct_eq_arr`), and `to_bytes` and the field `ct_eq` over `Field51_as_Nat` mod `p` (`to_bytes_mod`, `fe_ct_eq_mod`). Track D wrote the slice lemmas. Both tracks use them |
 | `Edwards.lean` | the Edwards parameter `dEd` as an element of `ZMod p`, `dEd_not_square` and `dEd_rel` (`121666 d = -121665`). Track B uses them in `Sim/EdwardsBridge.lean` |
 
 Tracks B and D open the namespace `DalekSim` in their proofs.

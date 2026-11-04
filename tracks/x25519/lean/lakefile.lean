@@ -13,15 +13,16 @@ package x25519sim where
 @[default_target] lean_lib X25519Ref where
   globs := #[.submodules `X25519Ref]
 
-/-- Real: Aeneas output of x25519-dalek's `x25519`, `StaticSecret::diffie_hellman` and
-`SharedSecret::as_bytes`. Its three external functions are the definitions in
-`Curve25519Dalek.Funs` of the shared library. -/
+/-- Real: Aeneas output of x25519-dalek's `x25519`, `X25519_BASEPOINT_BYTES`, the three
+`diffie_hellman` methods, the accessors and `SharedSecret::was_contributory`. Its external
+functions and types are the definitions of the shared library. -/
 @[default_target] lean_lib X25519Dalek where
   globs := #[.submodules `X25519Dalek]
 
 @[default_target] lean_lib Sim where
   globs := #[.one `Sim.Pilot, .one `Sim.Discharge, .one `Sim.LadderMath, .one `Sim.RefSide,
-    .one `Sim.Bytes, .one `Sim.RealSide, .one `Sim.Full, .one `Sim.X25519, .one `Sim.EdwardsBridge]
+    .one `Sim.Bytes, .one `Sim.RealSide, .one `Sim.Full, .one `Sim.X25519,
+    .one `Sim.Contributory, .one `Sim.EdwardsBridge]
 
 /-- Checks that fail the build on a wrong result: the axiom lists (`#guard_msgs`) and the
 reference test vectors (`#guard`). -/

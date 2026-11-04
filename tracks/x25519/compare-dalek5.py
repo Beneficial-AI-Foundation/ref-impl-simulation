@@ -68,13 +68,15 @@ ITEMS = [
     (SCALAR, ["impl Scalar {"], "fn", "bits_le"),
     (SCALAR, None, "fn", "clamp_integer"),
     ("src/macros.rs", None, "macro", "define_mul_variants"),
-    # Public-key derivation (steps X1 and X2): `mul_base_clamped` of the Montgomery curve and
-    # of the Edwards curve, the table multiplication and the map back to Montgomery.
-    (MONT, ["impl MontgomeryPoint {"], "fn", "mul_base"),
-    (MONT, ["impl MontgomeryPoint {"], "fn", "mul_base_clamped"),
+    # `was_contributory`: the identity test and the field `ct_eq` that it calls.
     (MONT, ["ConstantTimeEq for MontgomeryPoint"], "fn", "ct_eq"),
     (MONT, ["Identity for MontgomeryPoint"], "fn", "identity"),
     ("src/traits.rs", ["IsIdentity for T"], "fn", "is_identity"),
+    ("src/field.rs", ["ConstantTimeEq for FieldElement"], "fn", "ct_eq"),
+    # Public-key derivation: `mul_base_clamped` of the Montgomery curve and of the Edwards
+    # curve, the table multiplication and the map back to Montgomery.
+    (MONT, ["impl MontgomeryPoint {"], "fn", "mul_base"),
+    (MONT, ["impl MontgomeryPoint {"], "fn", "mul_base_clamped"),
     (EDW, ["impl EdwardsPoint {"], "fn", "mul_base"),
     (EDW, ["impl EdwardsPoint {"], "fn", "mul_base_clamped"),
     (EDW, ["impl EdwardsPoint {"], "fn", "to_montgomery"),
@@ -107,17 +109,16 @@ ITEMS = [
     (U64C, None, "static", "ED25519_BASEPOINT_TABLE_INNER_DOC_HIDDEN"),
 ]
 
-# The items of x25519-dalek on the paths of `x25519_refines` and of the `diffie_hellman`
-# theorems. The two `from` functions are not in the extraction (README, section 2,
-# "Real wrapper").
+# The items of x25519-dalek: those on the paths of the theorems, the three
+# `PublicKey::from(&secret)` and the structs. The two `From<[u8; 32]>` functions are not in
+# the extraction (README, section 2, "Real wrapper").
 X_ITEMS = [
     ("src/x25519.rs", None, "fn", "x25519"),
     ("src/x25519.rs", ["impl StaticSecret {"], "fn", "diffie_hellman"),
     ("src/x25519.rs", ["impl SharedSecret {"], "fn", "as_bytes"),
     ("src/x25519.rs", ["From<[u8; 32]> for StaticSecret"], "fn", "from"),
     ("src/x25519.rs", ["From<[u8; 32]> for PublicKey"], "fn", "from"),
-    # Steps X1 and X2: the other two secret wrappers, public-key derivation and the
-    # contributory check.
+    # The other two secret wrappers, public-key derivation and the contributory check.
     ("src/x25519.rs", ["impl EphemeralSecret {"], "fn", "diffie_hellman"),
     ("src/x25519.rs", ["impl ReusableSecret {"], "fn", "diffie_hellman"),
     ("src/x25519.rs", ["From<&'a EphemeralSecret> for PublicKey"], "fn", "from"),
@@ -125,6 +126,10 @@ X_ITEMS = [
     ("src/x25519.rs", ["From<&'a StaticSecret> for PublicKey"], "fn", "from"),
     ("src/x25519.rs", ["impl SharedSecret {"], "fn", "was_contributory"),
     ("src/x25519.rs", ["impl SharedSecret {"], "fn", "to_bytes"),
+    ("src/x25519.rs", ["impl StaticSecret {"], "fn", "to_bytes"),
+    ("src/x25519.rs", ["impl StaticSecret {"], "fn", "as_bytes"),
+    ("src/x25519.rs", ["impl PublicKey {"], "fn", "to_bytes"),
+    ("src/x25519.rs", ["impl PublicKey {"], "fn", "as_bytes"),
     ("src/x25519.rs", None, "struct", "PublicKey"),
     ("src/x25519.rs", None, "struct", "EphemeralSecret"),
     ("src/x25519.rs", None, "struct", "ReusableSecret"),

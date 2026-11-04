@@ -179,8 +179,8 @@ Trusted definitions. `#print axioms` does not show them.
    (`shared/dalek/lean/Curve25519Dalek/FunsExternal.lean`) and the type `subtle.Choice`
    (`shared/dalek/lean/Curve25519Dalek/TypesExternal.lean`). A `Choice` carries a proof that
    its value is 0 or 1. The definitions follow `subtle` 2.6.1 on these values:
-   `Choice::from(u8)` (shared with track B), `bool::from(Choice)`, `not`, `bitor`, `ct_eq` on
-   `u8` and on slices, and `conditional_assign` on `u64`. Rust computes them with bit
+   `Choice::from(u8)`, `bool::from(Choice)`, `ct_eq` on `u8` and on slices, `not`, `bitor`
+   and `conditional_assign` on `u64`. Track B also uses the first four. Rust computes them with bit
    operations in constant time. If the lengths differ, the slice `ct_eq` returns 0.
    Otherwise it starts from the value 1 and folds `&=` over the elementwise `ct_eq`, as
    Rust does.
@@ -196,15 +196,15 @@ Axioms. `lean/Sim/Axioms.lean` checks with `#guard_msgs` that `decompress_refine
 |---|---|---|
 | `Sim/Field.lean` | 155 | The relation `toZ`, the field specs over `toZ`, `pow_p58` and `negate` |
 | `Sim/Bytes.lean` | 38 | `fe_to_bytes` and `fe_from_bytes` against `U8x32_as_Nat`, as in track B |
-| `Sim/Choice.lean` | 203 | Slice `ct_eq` on 32 bytes, field `ct_eq`, `is_negative`, `is_zero`, `conditional_assign` |
+| `Sim/Choice.lean` | 122 | Field `ct_eq` over `toZ`, `is_negative`, `is_zero`, `conditional_assign`. The slice `ct_eq` on 32 bytes and the field `ct_eq` mod `p` are in `shared/dalek/lean/DalekSim/Choice.lean` |
 | `Sim/Consts.lean` | 84 | `EDWARDS_D`, `SQRT_M1`, `INVSQRT_A_MINUS_D` and `ONE` against the reference constants |
 | `Sim/SqrtRatio.lean` | 179 | The reference `sqrt_ratio_m1` in closed form, the exponent `p58_field`, and `sqrt_ratio_i_refines` |
 | `Sim/GeqP.lean` | 118 | The reference `geq_p` loop computes `p ≤ x` |
 | `Sim/Decode.lean` | 378 | `step_1`, `invsqrt`, `step_2`, the reference `decode` in three cases, and `decompress_refines` |
 | `Sim/Encode.lean` | 253 | The reference `encode` in closed form, `compress_refines` and `decompress_compress_refines` |
 
-The base-256 digit lemmas, the limb bound `Bnd`, `bnd_mono` and the `Result` lemma
-`exists_ok_of_spec` do not depend on the reference. They are in the library `DalekSim` of
+The base-256 digit lemmas, the slice `ct_eq` on 32 bytes, the field `ct_eq` mod `p`, the limb bound `Bnd`, `bnd_mono`
+and the `Result` lemma `exists_ok_of_spec` do not depend on the reference. They are in the library `DalekSim` of
 `shared/dalek` (`lean/DalekSim/`), which track B also uses.
 
 The proof goes call by call. For each real field operation, a spec gives the value under

@@ -14,13 +14,30 @@ root=$(cd "$here/../.." && pwd)
 charon_version="0.1.281"
 aeneas_version="nightly-2026.10.12-d119a47"
 workspace="$here/real-x25519"
-features="alloc,zeroize,static_secrets"
+features="alloc,zeroize,static_secrets,reusable_secrets"
 entry_points=(
   'x25519_dalek::x25519::x25519'
   'x25519_dalek::x25519::StaticSecret::diffie_hellman'
   'x25519_dalek::x25519::SharedSecret::as_bytes'
+  'x25519_dalek::x25519::SharedSecret::to_bytes'
+  'x25519_dalek::x25519::SharedSecret::was_contributory'
+  'x25519_dalek::x25519::EphemeralSecret::diffie_hellman'
+  'x25519_dalek::x25519::ReusableSecret::diffie_hellman'
+  'x25519_dalek::x25519::StaticSecret::to_bytes'
+  'x25519_dalek::x25519::StaticSecret::as_bytes'
+  'x25519_dalek::x25519::PublicKey::to_bytes'
+  'x25519_dalek::x25519::PublicKey::as_bytes'
+  'x25519_dalek::x25519::X25519_BASEPOINT_BYTES'
 )
-generated=(Funs.lean Types.lean FunsExternal_Template.lean)
+include=(
+  'curve25519_dalek::traits::{impl curve25519_dalek::traits::IsIdentity for _}::is_identity'
+  'curve25519_dalek::montgomery::{impl subtle::ConstantTimeEq for curve25519_dalek::montgomery::MontgomeryPoint}::ct_eq'
+  'curve25519_dalek::montgomery::{impl curve25519_dalek::traits::Identity for curve25519_dalek::montgomery::MontgomeryPoint}::identity'
+)
+opaque=(
+  'x25519_dalek::x25519::{impl core::ops::drop::Drop for x25519_dalek::x25519::EphemeralSecret}'
+)
+generated=(Funs.lean Types.lean FunsExternal_Template.lean TypesExternal_Template.lean)
 
 mode=${1:-write}
 case "$mode" in
@@ -39,6 +56,8 @@ have=$(aeneas -version | cut -d' ' -f2)
 
 start=()
 for e in "${entry_points[@]}"; do start+=(--start-from "$e"); done
+for e in "${include[@]}"; do start+=(--include "$e"); done
+for e in "${opaque[@]}"; do start+=(--opaque "$e"); done
 # The name of the .llbc file gives the Lean module prefix. The path remap makes the
 # `Source:` paths of curve25519-dalek relative to the repository root.
 (cd "$workspace" && charon cargo --preset=aeneas --dest-file "$tmp/x25519_dalek.llbc" \

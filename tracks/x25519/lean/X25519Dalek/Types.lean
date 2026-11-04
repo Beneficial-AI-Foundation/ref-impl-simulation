@@ -2,6 +2,7 @@
 -- [x25519_dalek]: type definitions
 module
 public import Aeneas
+public import X25519Dalek.TypesExternal
 @[expose] public section
 open Aeneas Aeneas.Std Result ControlFlow Error
 set_option linter.dupNamespace false
@@ -26,22 +27,50 @@ namespace x25519_dalek
 @[reducible, rust_type "curve25519_dalek::montgomery::MontgomeryPoint"]
 def curve25519_dalek.montgomery.MontgomeryPoint := Array Std.U8 32#usize
 
+/-- Trait declaration: [subtle::ConstantTimeEq]
+    Source: '/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/subtle-2.6.1/src/lib.rs', lines 262:0-262:24
+    Name pattern: [subtle::ConstantTimeEq]
+    Visibility: public -/
+@[rust_trait "subtle::ConstantTimeEq"]
+structure subtle.ConstantTimeEq (Self : Type) where
+  ct_eq : Self → Self → Result subtle.Choice
+
+/-- Trait declaration: [curve25519_dalek::traits::Identity]
+    Source: 'tracks/x25519/real-dalek/curve25519-dalek/src/traits.rs', lines 26:0-26:18
+    Name pattern: [curve25519_dalek::traits::Identity]
+    Visibility: public -/
+@[rust_trait "curve25519_dalek::traits::Identity"]
+structure curve25519_dalek.traits.Identity (Self : Type) where
+  identity : Result Self
+
 /-- [x25519_dalek::x25519::PublicKey]
     Source: 'x25519-dalek/src/x25519.rs', lines 34:0-34:49
     Visibility: public -/
 @[reducible]
 def x25519.PublicKey := curve25519_dalek.montgomery.MontgomeryPoint
 
-/-- [x25519_dalek::x25519::StaticSecret]
-    Source: 'x25519-dalek/src/x25519.rs', lines 198:0-198:34
+/-- [x25519_dalek::x25519::EphemeralSecret]
+    Source: 'x25519-dalek/src/x25519.rs', lines 75:0-75:48
     Visibility: public -/
 @[reducible]
-def x25519.StaticSecret := Array Std.U8 32#usize
+def x25519.EphemeralSecret := Array Std.U8 32#usize
 
 /-- [x25519_dalek::x25519::SharedSecret]
     Source: 'x25519-dalek/src/x25519.rs', lines 275:0-275:52
     Visibility: public -/
 @[reducible]
 def x25519.SharedSecret := curve25519_dalek.montgomery.MontgomeryPoint
+
+/-- [x25519_dalek::x25519::ReusableSecret]
+    Source: 'x25519-dalek/src/x25519.rs', lines 137:0-137:47
+    Visibility: public -/
+@[reducible]
+def x25519.ReusableSecret := Array Std.U8 32#usize
+
+/-- [x25519_dalek::x25519::StaticSecret]
+    Source: 'x25519-dalek/src/x25519.rs', lines 198:0-198:34
+    Visibility: public -/
+@[reducible]
+def x25519.StaticSecret := Array Std.U8 32#usize
 
 end x25519_dalek
