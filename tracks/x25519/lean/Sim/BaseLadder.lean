@@ -16,7 +16,7 @@ namespace X25519Sim
 
 /-! ## The number of a list of bits -/
 
-/-- Start values add `n 2^len` to the number. -/
+/-- `bitsVal n bits = n * 2 ^ bits.length + bitsVal 0 bits`. -/
 theorem bitsVal_eq (n : ℕ) (bits : List Bool) :
     bitsVal n bits = n * 2 ^ bits.length + bitsVal 0 bits := by
   induction bits generalizing n with
@@ -105,7 +105,7 @@ theorem enc_ladder_nine_bytes (k : Array U8 32#usize) :
       toU ((U8x32_as_Nat k % 2 ^ 255) • basePoint).1.2 := by
   rw [enc_ladder_nine, bitsVal_bitsFrom_255]
 
-/-- **The ladder at `u = 9` computes the public key.** If bit 255 of `k` is 0, as after
+/-- **The ladder at `u = 9` computes `toU (k • B)`.** If bit 255 of `k` is 0, as after
 clamping, the ladder at `u = 9` over bits 254 down to 0 of `k` returns `toU` of `k • B`. -/
 theorem enc_ladder_nine_clamped (k : Array U8 32#usize) (hk : (k.val[31]!).val < 128) :
     enc (ladder (9 : ZMod p) (bitsFrom k 255) ((1, 0), (9, 1))).1 =

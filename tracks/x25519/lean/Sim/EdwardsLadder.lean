@@ -8,18 +8,21 @@ Its encoding is `toU y`, and the identity `(0, 1)` has `rep = (2 : 0)` and the e
 On `-x² + y² = 1 + d x² y²` with `Complete d` and `121666 d = -121665`:
 
 1. `dbl_rep`: `dbl (rep P)` is `rep (P + P)` times a nonzero factor, for every point `P`.
-2. `dadd_rep`: `dadd u (rep P) (rep Q)` is `rep (P + Q)` times a nonzero factor, if `u` is the
-   u-coordinate of `P - Q` and `u ≠ 0`. The factor is 0 only if `P` and `Q` have `y = 0`
-   and `P - Q = (0, -1)`, the point with `u = 0`. So no other case is excluded: `P`, `Q`
-   or `P + Q` can be the identity, and `P` and `Q` can be negatives of each other.
-3. `ladder_rep`: from `(n • B, (n + 1) • B)`, up to nonzero factors, the ladder over `bits`
-   reaches `(m • B, (m + 1) • B)`, where `m` is `n` extended by `bits`. The difference of the
-   two points is always `B`, so `dadd_rep` applies at each step.
+2. `dadd_rep`: `dadd u (rep P) (rep Q)` is `rep (P + Q)` times a nonzero factor, if
+   `u (1 - y_D) = 1 + y_D` for the y-coordinate `y_D` of `P - Q`, and `u ≠ 0`. Both the
+   identity and `(0, -1)` have `toU = 0`, so the hypotheses exclude `P = Q` and
+   `P - Q = (0, -1)`. `P`, `Q` or `P + Q` can be the identity, and `P` and `Q` can be
+   negatives of each other.
+3. `ladder_rep`: if `u ≠ 0` is the u-coordinate of `B`, the ladder over `bits` takes
+   `(n • B, (n + 1) • B)` to `(m • B, (m + 1) • B)` with `m = bitsVal n bits`, up to nonzero
+   factors. The difference of the two points is always `B`, so `dadd_rep` applies at each
+   step.
 4. `enc_ladder`: from `((1 : 0), (u : 1))`, the first point encodes `toU (m • B)`.
 
 The section `Curve25519` gives the base point `B` of edwards25519, with `toU y = 9`, and
-`enc_ladder_nine`. The encoding uses `a⁻¹ = 0` for `a = 0`, so the final division needs no
-case split. -/
+`enc_ladder_nine`. The projective invariant covers the identity inside the ladder with
+nonzero factors. Only the final encoding uses `a⁻¹ = 0` for `a = 0`, where `toU` of the
+identity is 0. -/
 
 namespace X25519Sim.EdwardsLadder
 
@@ -32,10 +35,6 @@ def rep (P : F × F) : Pt F := (1 + P.2, 1 - P.2)
 
 /-- The encoding of `rep P` is `toU` of the y-coordinate. -/
 theorem enc_rep (P : F × F) : enc (rep P) = toU P.2 := rfl
-
-/-- Two scalings are one scaling by the product. -/
-theorem smul_smul' (a b : F) (P : Pt F) : smul a (smul b P) = smul (a * b) P := by
-  simp only [smul, Prod.mk.injEq]; constructor <;> ring
 
 /-- If `a (1 - y) = b (1 + y)`, then `(a, b)` is `(1 + y, 1 - y)` times `(a + b) / 2`. -/
 theorem smul_of_cross {a b y : F} (h2 : (2 : F) ≠ 0) (h : a * (1 - y) = b * (1 + y)) :
@@ -53,22 +52,8 @@ theorem dbl_rep {d : F} [Complete d] (hd' : 121666 * d = -121665) {P : F × F}
   obtain ⟨x, y⟩ := P
   simp only [OnCurve] at hP hs
   have h2 : (2 : F) ≠ 0 := Complete.two_ne_zero (d := d)
-  have hx : x ^ 2 * (1 + d * y ^ 2) = y ^ 2 - 1 := by linear_combination -hP
-  have hdy : 1 + d * y ^ 2 ≠ 0 := by
-    intro h
-    have hy : y ^ 2 = 1 := by linear_combination hP + x ^ 2 * h
-    exact one_ne_zero
-      (by linear_combination 121666 * h - 121666 * d * hy - hd' : (1 : F) = 0)
-  have hk : (1 + x ^ 2) * (1 + 121665 * (1 - y ^ 2)) = y ^ 2 := by
-    have : (1 + d * y ^ 2) * ((1 + x ^ 2) * (1 + 121665 * (1 - y ^ 2)) - y ^ 2) = 0 := by
-      linear_combination (1 + 121665 * (1 - y ^ 2)) * hx + y ^ 2 * (1 - y ^ 2) * hd'
-    linear_combination (mul_eq_zero.mp this).resolve_left hdy
-  have hK : 1 + 121665 * (1 - y ^ 2) ≠ 0 := by
-    intro h0
-    rw [h0, mul_zero] at hk
-    have hy0 : y = 0 := pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hk.symm
-    subst hy0
-    exact one_ne_zero (by linear_combination (1 + d) * h0 - hd' : (1 : F) = 0)
+  have hk := dbl_key hd' hP
+  have hK := dbl_factor_ne_zero hd' hP
   refine ⟨8 * (1 + 121665 * (1 - y ^ 2)) * (1 - d * x * x * y * y),
     mul_ne_zero (mul_ne_zero (by
       rw [show (8 : F) = 2 ^ 3 by norm_num]; exact pow_ne_zero _ h2) hK) hs, ?_⟩
@@ -80,9 +65,9 @@ theorem dbl_rep {d : F} [Complete d] (hd' : 121666 * d = -121665) {P : F × F}
   · field_simp
     linear_combination 8 * (1 + 121665 * (1 - y ^ 2)) * (hsd - hP)
 
-/-- **Differential addition.** If `u` is the u-coordinate of `P - Q` and `u ≠ 0`, then
-`dadd u (rep P) (rep Q)` is `rep (P + Q)` times a nonzero factor. `P - Q` is
-`add d P (-Q.1, Q.2)`. -/
+/-- **Differential addition.** Let `y_D` be the y-coordinate of `P - Q = add d P (-Q.1, Q.2)`.
+If `u (1 - y_D) = 1 + y_D` and `u ≠ 0`, then `dadd u (rep P) (rep Q)` is `rep (P + Q)` times a
+nonzero factor. The hypotheses exclude `P = Q` and `P - Q = (0, -1)`. -/
 theorem dadd_rep {d : F} [Complete d] {P Q : F × F} (hP : OnCurve d P) (hQ : OnCurve d Q)
     {u : F} (hu : u * (1 - (add d P (-Q.1, Q.2)).2) = 1 + (add d P (-Q.1, Q.2)).2)
     (hu0 : u ≠ 0) : ∃ c : F, c ≠ 0 ∧ dadd u (rep P) (rep Q) = smul c (rep (add d P Q)) := by
@@ -104,8 +89,7 @@ theorem dadd_rep {d : F} [Complete d] {P Q : F × F} (hP : OnCurve d P) (hQ : On
   have core := dadd_core d x1 y1 x2 y2 hP hQ
   set t := d * x1 * x2 * y1 * y2 with ht
   set s3 := y1 * y2 + x1 * x2 with hs3
-  have hD : 1 - yD ≠ 0 := by
-    intro h; apply h2; linear_combination -hu + u * h + h
+  have hD := one_sub_ne_zero_of_u h2 hu
   have m1' : 1 + d * x1 * x2 * y1 * y2 ≠ 0 := by
     intro h; apply m1; linear_combination h
   have key : (1 - yD) * (1 - d * x1 * x2 * y1 * y2) * (1 + d * x1 * x2 * y1 * y2) *
@@ -147,10 +131,6 @@ theorem dadd_rep {d : F} [Complete d] {P Q : F × F} (hP : OnCurve d P) (hQ : On
   have : 2 * u = 0 := by linear_combination hu + (1 + u) * h1'
   simpa [h2] using this
 
-/-- `dadd` is symmetric in the two points. -/
-theorem dadd_comm (x1 : F) (P Q : Pt F) : dadd x1 P Q = dadd x1 Q P := by
-  simp only [dadd, Prod.mk.injEq]; constructor <;> ring
-
 /-! ## The ladder on multiples of a point -/
 
 /-- The number read from `bits`, most significant first, after the bits before them gave `n`. -/
@@ -191,9 +171,9 @@ theorem dbl_rep_nsmul (n : ℕ) : ∃ c : F, c ≠ 0 ∧
   obtain ⟨c, hc, h⟩ := dbl_rep hd' (n • B).2
   exact ⟨c, hc, by rw [h, Point.val_two_mul_nsmul]⟩
 
-/-- **The ladder invariant.** If the state holds `n • B` and `(n + 1) • B` up to nonzero
-factors, then after the bits `bits` it holds `m • B` and `(m + 1) • B`, where `m` is the number
-that `bits` extend `n` to. The difference of the two points is always `B`. -/
+/-- **The ladder invariant.** Let `121666 d = -121665`, `u (1 - B.y) = 1 + B.y` and `u ≠ 0`. If
+the state holds `n • B` and `(n + 1) • B` up to nonzero factors, then after `bits` it holds
+`m • B` and `(m + 1) • B` up to nonzero factors, with `m = bitsVal n bits`. -/
 theorem ladder_rep (bits : List Bool) (n : ℕ) (a b : F) (ha : a ≠ 0) (hb : b ≠ 0) :
     ∃ a' b' : F, a' ≠ 0 ∧ b' ≠ 0 ∧
       ladder u bits (smul a (rep (n • B).1), smul b (rep ((n + 1) • B).1)) =
@@ -225,14 +205,13 @@ theorem ladder_rep (bits : List Bool) (n : ℕ) (a b : F) (ha : a ≠ 0) (hb : b
       exact ih _ _ _ (mul_ne_zero (pow_ne_zero _ (mul_ne_zero ha hb)) he)
         (mul_ne_zero (pow_ne_zero _ hb) hc)
 
-/-- **The ladder computes `toU (m • B)`.** From the start state `((1 : 0), (u : 1))`, where `u`
-is the u-coordinate of `B`, the first point of the ladder encodes the u-coordinate of `m • B`,
-where `m` is the number with the bits `bits`. -/
+/-- **The ladder computes `toU (m • B)`.** Let `121666 d = -121665`, `u (1 - B.y) = 1 + B.y`
+and `u ≠ 0`. From the start state `((1 : 0), (u : 1))`, the first point of the ladder over
+`bits` encodes `toU (m • B)`, with `m = bitsVal 0 bits`. -/
 theorem enc_ladder (bits : List Bool) :
     enc (ladder u bits ((1, 0), (u, 1))).1 = toU (bitsVal 0 bits • B).1.2 := by
   have h2 : (2 : F) ≠ 0 := Complete.two_ne_zero (d := d)
-  have hB1 : 1 - B.1.2 ≠ 0 := by
-    intro h; apply h2; linear_combination -hB + u * h + h
+  have hB1 := one_sub_ne_zero_of_u h2 hB
   have hstart : (((1 : F), (0 : F)), (u, (1 : F))) =
       (smul 2⁻¹ (rep ((0 : ℕ) • B).1), smul (1 - B.1.2)⁻¹ (rep (((0 : ℕ) + 1) • B).1)) := by
     simp only [zero_nsmul, zero_add, one_nsmul, Point.val_zero, rep, smul, Prod.mk.injEq]
@@ -250,8 +229,8 @@ end Ladder
 
 section Curve25519
 
-/-- The base point `B` of edwards25519 (RFC 8032, section 5.1), with `y = 4 / 5` and positive
-(even) `x`. -/
+/-- The base point `B` of edwards25519 (RFC 8032, section 5.1): `y = 4 / 5`, and the canonical
+representative of `x` is even. -/
 def basePoint : Point dEd :=
   ⟨(15112221349535400772501151409588531511454012693041857206046113283949847762202,
     46316835694926478169428394003475163141307993866256225615783033603165251855960), by
@@ -259,6 +238,10 @@ def basePoint : Point dEd :=
 
 /-- `y = 4 / 5`: `5 y = 4`. -/
 theorem basePoint_y : 5 * basePoint.1.2 = 4 := by
+  unfold basePoint p; decide +kernel
+
+/-- The canonical representative of `x` is even. -/
+theorem basePoint_x_even : basePoint.1.1.val % 2 = 0 := by
   unfold basePoint p; decide +kernel
 
 /-- `B` maps to `u = 9`: `9 (1 - y) = 1 + y`. -/

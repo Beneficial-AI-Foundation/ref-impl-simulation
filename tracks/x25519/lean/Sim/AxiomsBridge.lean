@@ -55,3 +55,15 @@ import Sim.BaseLadder
 /-- info: 'X25519Sim.mul_basepoint_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms X25519Sim.mul_basepoint_spec
+
+/-- info: 'X25519Sim.EdwardsLadder.basePoint_y' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms X25519Sim.EdwardsLadder.basePoint_y
+
+/-- info: 'X25519Sim.EdwardsLadder.basePoint_x_even' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms X25519Sim.EdwardsLadder.basePoint_x_even
+
+/-- info: 'X25519Sim.EdwardsLadder.toU_basePoint' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms X25519Sim.EdwardsLadder.toU_basePoint

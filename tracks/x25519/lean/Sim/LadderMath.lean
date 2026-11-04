@@ -78,6 +78,14 @@ theorem dadd_smul' (x1 a b : R) (P Q : Pt R) :
     dadd x1 (smul b Q) (smul a P) = smul ((a * b) ^ 2) (dadd x1 Q P) := by
   rw [dadd_smul, mul_comm b a]
 
+/-- Two scalings are one scaling by the product. -/
+theorem smul_smul' (a b : R) (P : Pt R) : smul a (smul b P) = smul (a * b) P := by
+  simp only [smul, Prod.mk.injEq]; constructor <;> ring
+
+/-- `dadd` is symmetric in the two points. -/
+theorem dadd_comm (x1 : R) (P Q : Pt R) : dadd x1 P Q = dadd x1 Q P := by
+  simp only [dadd, Prod.mk.injEq]; constructor <;> ring
+
 section Domain
 variable [IsDomain R]
 
