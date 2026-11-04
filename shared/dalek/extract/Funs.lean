@@ -67,6 +67,33 @@ def Bool.Insts.ZeroizeDefaultIsZeroes : zeroize.DefaultIsZeroes Bool := {
   coredefaultDefaultInst := Bool.Insts.CoreDefaultDefault
 }
 
+/-- [curve25519_dalek::backend::serial::curve_models::{impl core::clone::Clone for curve25519_dalek::backend::serial::curve_models::AffineNielsPoint}::clone]:
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 182:15-182:20
+    Visibility: public -/
+def backend.serial.curve_models.AffineNielsPoint.Insts.CoreCloneClone.clone
+  (self : backend.serial.curve_models.AffineNielsPoint) :
+  Result backend.serial.curve_models.AffineNielsPoint
+  := do
+  ok self
+
+/-- Trait implementation: [curve25519_dalek::backend::serial::curve_models::{impl core::clone::Clone for curve25519_dalek::backend::serial::curve_models::AffineNielsPoint}]
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 182:15-182:20 -/
+@[reducible]
+def backend.serial.curve_models.AffineNielsPoint.Insts.CoreCloneClone :
+  core.clone.Clone backend.serial.curve_models.AffineNielsPoint := {
+  clone :=
+    backend.serial.curve_models.AffineNielsPoint.Insts.CoreCloneClone.clone
+}
+
+/-- Trait implementation: [curve25519_dalek::backend::serial::curve_models::{impl core::marker::Copy for curve25519_dalek::backend::serial::curve_models::AffineNielsPoint}]
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 182:9-182:13 -/
+@[reducible]
+def backend.serial.curve_models.AffineNielsPoint.Insts.CoreMarkerCopy :
+  core.marker.Copy backend.serial.curve_models.AffineNielsPoint := {
+  cloneInst :=
+    backend.serial.curve_models.AffineNielsPoint.Insts.CoreCloneClone
+}
+
 /-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::from_limbs]:
     Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 260:4-262:5 -/
 def backend.serial.u64.field.FieldElement51.from_limbs
@@ -75,182 +102,168 @@ def backend.serial.u64.field.FieldElement51.from_limbs
   := do
   ok limbs
 
-/-- [curve25519_dalek::backend::serial::u64::constants::EDWARDS_D]
-    Source: 'curve25519-dalek/src/backend/serial/u64/constants.rs', lines 45:0-51:3 -/
-@[global_simps, irreducible]
-def backend.serial.u64.constants.EDWARDS_D
-  : Result backend.serial.u64.field.FieldElement51 :=
-  backend.serial.u64.field.FieldElement51.from_limbs
-    (Array.make 5#usize [
-      929955233495203#u64, 466365720129213#u64, 1662059464998953#u64,
-      2033849074728123#u64, 1442794654840575#u64
-      ])
-
-/-- [curve25519_dalek::backend::serial::u64::constants::INVSQRT_A_MINUS_D]
-    Source: 'curve25519-dalek/src/backend/serial/u64/constants.rs', lines 90:0-96:3 -/
-@[global_simps, irreducible]
-def backend.serial.u64.constants.INVSQRT_A_MINUS_D
-  : Result backend.serial.u64.field.FieldElement51 :=
-  backend.serial.u64.field.FieldElement51.from_limbs
-    (Array.make 5#usize [
-      278908739862762#u64, 821645201101625#u64, 8113234426968#u64,
-      1777959178193151#u64, 2118520810568447#u64
-      ])
-
-/-- [curve25519_dalek::backend::serial::u64::constants::SQRT_M1]
-    Source: 'curve25519-dalek/src/backend/serial/u64/constants.rs', lines 99:0-105:3 -/
-@[global_simps, irreducible]
-def backend.serial.u64.constants.SQRT_M1
-  : Result backend.serial.u64.field.FieldElement51 :=
-  backend.serial.u64.field.FieldElement51.from_limbs
-    (Array.make 5#usize [
-      1718705420411056#u64, 234908883556509#u64, 2233514472574048#u64,
-      2117202627021982#u64, 765476049583133#u64
-      ])
-
-/-- [curve25519_dalek::backend::serial::u64::constants::APLUS2_OVER_FOUR]
-    Source: 'curve25519-dalek/src/backend/serial/u64/constants.rs', lines 108:0-109:53 -/
-@[global_simps, irreducible]
-def backend.serial.u64.constants.APLUS2_OVER_FOUR
-  : Result backend.serial.u64.field.FieldElement51 :=
-  backend.serial.u64.field.FieldElement51.from_limbs
-    (Array.make 5#usize [ 121666#u64, 0#u64, 0#u64, 0#u64, 0#u64 ])
-
-/-- [curve25519_dalek::backend::serial::u64::field::{impl core::ops::arith::AddAssign<&'a curve25519_dalek::backend::serial::u64::field::FieldElement51> for curve25519_dalek::backend::serial::u64::field::FieldElement51}::add_assign]: loop 0:
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 61:8-64:9
+/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::ONE]
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 267:4-267:80
     Visibility: public -/
-@[rust_loop]
+@[global_simps, irreducible]
+def backend.serial.u64.field.FieldElement51.ONE
+  : Result backend.serial.u64.field.FieldElement51 :=
+  backend.serial.u64.field.FieldElement51.from_limbs
+    (Array.make 5#usize [ 1#u64, 0#u64, 0#u64, 0#u64, 0#u64 ])
+
+/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::ZERO]
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 265:4-265:81
+    Visibility: public -/
+@[global_simps, irreducible]
+def backend.serial.u64.field.FieldElement51.ZERO
+  : Result backend.serial.u64.field.FieldElement51 :=
+  let a := Array.repeat 5#usize 0#u64
+  backend.serial.u64.field.FieldElement51.from_limbs a
+
+/-- [curve25519_dalek::backend::serial::curve_models::{impl curve25519_dalek::traits::Identity for curve25519_dalek::backend::serial::curve_models::AffineNielsPoint}::identity]:
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 258:4-264:5
+    Visibility: public -/
 def
-  backend.serial.u64.field.FieldElement51.Insts.CoreOpsArithAddAssignSharedAFieldElement51.add_assign_loop
-  (self : backend.serial.u64.field.FieldElement51)
-  (_rhs : backend.serial.u64.field.FieldElement51) (i : Std.Usize) :
-  Result backend.serial.u64.field.FieldElement51
-  := do
-  if i < 5#usize
-  then
-    let i1 ← Array.index_usize _rhs i
-    let i2 ← Array.index_usize self i
-    let i3 ← i2 + i1
-    let a ← Array.update self i i3
-    let i4 ← i + 1#usize
-    backend.serial.u64.field.FieldElement51.Insts.CoreOpsArithAddAssignSharedAFieldElement51.add_assign_loop
-      a _rhs i4
-  else ok self
-partial_fixpoint
+  backend.serial.curve_models.AffineNielsPoint.Insts.Curve25519_dalekTraitsIdentity.identity
+  : Result backend.serial.curve_models.AffineNielsPoint := do
+  let fe ← backend.serial.u64.field.FieldElement51.ONE
+  let fe1 ← backend.serial.u64.field.FieldElement51.ZERO
+  ok { y_plus_x := fe, y_minus_x := fe, xy2d := fe1 }
 
-/-- [curve25519_dalek::backend::serial::u64::field::{impl core::ops::arith::AddAssign<&'a curve25519_dalek::backend::serial::u64::field::FieldElement51> for curve25519_dalek::backend::serial::u64::field::FieldElement51}::add_assign]:
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 59:4-65:5
-    Visibility: public -/
+/-- Trait implementation: [curve25519_dalek::backend::serial::curve_models::{impl curve25519_dalek::traits::Identity for curve25519_dalek::backend::serial::curve_models::AffineNielsPoint}]
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 257:0-265:1 -/
 @[reducible]
 def
-  backend.serial.u64.field.FieldElement51.Insts.CoreOpsArithAddAssignSharedAFieldElement51.add_assign
-  (self : backend.serial.u64.field.FieldElement51)
-  (_rhs : backend.serial.u64.field.FieldElement51) :
-  Result backend.serial.u64.field.FieldElement51
-  := do
-  backend.serial.u64.field.FieldElement51.Insts.CoreOpsArithAddAssignSharedAFieldElement51.add_assign_loop
-    self _rhs 0#usize
+  backend.serial.curve_models.AffineNielsPoint.Insts.Curve25519_dalekTraitsIdentity
+  : traits.Identity backend.serial.curve_models.AffineNielsPoint := {
+  identity :=
+    backend.serial.curve_models.AffineNielsPoint.Insts.Curve25519_dalekTraitsIdentity.identity
+}
 
-/-- [curve25519_dalek::backend::serial::u64::field::{impl core::ops::arith::Add<&'a curve25519_dalek::backend::serial::u64::field::FieldElement51, curve25519_dalek::backend::serial::u64::field::FieldElement51> for &'_1 curve25519_dalek::backend::serial::u64::field::FieldElement51}::add]:
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 70:4-74:5
+/-- [curve25519_dalek::backend::serial::u64::field::{impl subtle::ConditionallySelectable for curve25519_dalek::backend::serial::u64::field::FieldElement51}::conditional_assign]:
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 250:4-256:5
     Visibility: public -/
 def
-  Shared0FieldElement51.Insts.CoreOpsArithAddSharedAFieldElement51FieldElement51.add
+  backend.serial.u64.field.FieldElement51.Insts.SubtleConditionallySelectable.conditional_assign
   (self : backend.serial.u64.field.FieldElement51)
-  (_rhs : backend.serial.u64.field.FieldElement51) :
+  (other : backend.serial.u64.field.FieldElement51) (choice : subtle.Choice) :
   Result backend.serial.u64.field.FieldElement51
   := do
-  backend.serial.u64.field.FieldElement51.Insts.CoreOpsArithAddAssignSharedAFieldElement51.add_assign
-    self _rhs
+  let (i, index_mut_back) ← Array.index_mut_usize self 0#usize
+  let i1 ← Array.index_usize other 0#usize
+  let i2 ←
+    U64.Insts.SubtleConditionallySelectable.conditional_assign i i1 choice
+  let a := index_mut_back i2
+  let (i3, index_mut_back1) ← Array.index_mut_usize a 1#usize
+  let i4 ← Array.index_usize other 1#usize
+  let i5 ←
+    U64.Insts.SubtleConditionallySelectable.conditional_assign i3 i4 choice
+  let a1 := index_mut_back1 i5
+  let (i6, index_mut_back2) ← Array.index_mut_usize a1 2#usize
+  let i7 ← Array.index_usize other 2#usize
+  let i8 ←
+    U64.Insts.SubtleConditionallySelectable.conditional_assign i6 i7 choice
+  let a2 := index_mut_back2 i8
+  let (i9, index_mut_back3) ← Array.index_mut_usize a2 3#usize
+  let i10 ← Array.index_usize other 3#usize
+  let i11 ←
+    U64.Insts.SubtleConditionallySelectable.conditional_assign i9 i10 choice
+  let a3 := index_mut_back3 i11
+  let (i12, index_mut_back4) ← Array.index_mut_usize a3 4#usize
+  let i13 ← Array.index_usize other 4#usize
+  let i14 ←
+    U64.Insts.SubtleConditionallySelectable.conditional_assign i12 i13 choice
+  let a4 := index_mut_back4 i14
+  ok a4
 
-/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::reduce::LOW_51_BIT_MASK]
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 293:8-293:54 -/
-@[global_simps, irreducible]
-def backend.serial.u64.field.FieldElement51.reduce.LOW_51_BIT_MASK
-  : Result Std.U64 := do
-  let i ← 1#u64 <<< 51#i32
-  i - 1#u64
-
-/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::reduce]:
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 292:4-325:5 -/
-def backend.serial.u64.field.FieldElement51.reduce
-  (limbs : Array Std.U64 5#usize) :
-  Result backend.serial.u64.field.FieldElement51
-  := do
-  let i ← Array.index_usize limbs 0#usize
-  let c0 ← i >>> 51#i32
-  let i1 ← Array.index_usize limbs 1#usize
-  let c1 ← i1 >>> 51#i32
-  let i2 ← Array.index_usize limbs 2#usize
-  let c2 ← i2 >>> 51#i32
-  let i3 ← Array.index_usize limbs 3#usize
-  let c3 ← i3 >>> 51#i32
-  let i4 ← Array.index_usize limbs 4#usize
-  let c4 ← i4 >>> 51#i32
-  let i5 ← backend.serial.u64.field.FieldElement51.reduce.LOW_51_BIT_MASK
-  let i6 ← lift (i &&& i5)
-  let limbs1 ← Array.update limbs 0#usize i6
-  let i7 ← Array.index_usize limbs1 1#usize
-  let i8 ← lift (i7 &&& i5)
-  let limbs2 ← Array.update limbs1 1#usize i8
-  let i9 ← Array.index_usize limbs2 2#usize
-  let i10 ← lift (i9 &&& i5)
-  let limbs3 ← Array.update limbs2 2#usize i10
-  let i11 ← Array.index_usize limbs3 3#usize
-  let i12 ← lift (i11 &&& i5)
-  let limbs4 ← Array.update limbs3 3#usize i12
-  let i13 ← Array.index_usize limbs4 4#usize
-  let i14 ← lift (i13 &&& i5)
-  let limbs5 ← Array.update limbs4 4#usize i14
-  let i15 ← c4 * 19#u64
-  let i16 ← Array.index_usize limbs5 0#usize
-  let i17 ← i16 + i15
-  let limbs6 ← Array.update limbs5 0#usize i17
-  let i18 ← Array.index_usize limbs6 1#usize
-  let i19 ← i18 + c0
-  let limbs7 ← Array.update limbs6 1#usize i19
-  let i20 ← Array.index_usize limbs7 2#usize
-  let i21 ← i20 + c1
-  let limbs8 ← Array.update limbs7 2#usize i21
-  let i22 ← Array.index_usize limbs8 3#usize
-  let i23 ← i22 + c2
-  let limbs9 ← Array.update limbs8 3#usize i23
-  let i24 ← Array.index_usize limbs9 4#usize
-  let i25 ← i24 + c3
-  let limbs10 ← Array.update limbs9 4#usize i25
-  ok limbs10
-
-/-- [curve25519_dalek::backend::serial::u64::field::{impl core::ops::arith::Sub<&'a curve25519_dalek::backend::serial::u64::field::FieldElement51, curve25519_dalek::backend::serial::u64::field::FieldElement51> for &'_1 curve25519_dalek::backend::serial::u64::field::FieldElement51}::sub]:
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 86:4-103:5
+/-- [curve25519_dalek::backend::serial::curve_models::{impl subtle::ConditionallySelectable for curve25519_dalek::backend::serial::curve_models::AffineNielsPoint}::conditional_assign]:
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 323:4-327:5
     Visibility: public -/
 def
-  Shared0FieldElement51.Insts.CoreOpsArithSubSharedAFieldElement51FieldElement51.sub
-  (self : backend.serial.u64.field.FieldElement51)
-  (_rhs : backend.serial.u64.field.FieldElement51) :
+  backend.serial.curve_models.AffineNielsPoint.Insts.SubtleConditionallySelectable.conditional_assign
+  (self : backend.serial.curve_models.AffineNielsPoint)
+  (other : backend.serial.curve_models.AffineNielsPoint)
+  (choice : subtle.Choice) :
+  Result backend.serial.curve_models.AffineNielsPoint
+  := do
+  let fe ←
+    backend.serial.u64.field.FieldElement51.Insts.SubtleConditionallySelectable.conditional_assign
+      self.y_plus_x other.y_plus_x choice
+  let fe1 ←
+    backend.serial.u64.field.FieldElement51.Insts.SubtleConditionallySelectable.conditional_assign
+      self.y_minus_x other.y_minus_x choice
+  let fe2 ←
+    backend.serial.u64.field.FieldElement51.Insts.SubtleConditionallySelectable.conditional_assign
+      self.xy2d other.xy2d choice
+  ok { y_plus_x := fe, y_minus_x := fe1, xy2d := fe2 }
+
+/-- [curve25519_dalek::backend::serial::u64::field::{impl subtle::ConditionallySelectable for curve25519_dalek::backend::serial::u64::field::FieldElement51}::conditional_select]:
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 228:4-240:5
+    Visibility: public -/
+def
+  backend.serial.u64.field.FieldElement51.Insts.SubtleConditionallySelectable.conditional_select
+  (a : backend.serial.u64.field.FieldElement51)
+  (b : backend.serial.u64.field.FieldElement51) (choice : subtle.Choice) :
   Result backend.serial.u64.field.FieldElement51
   := do
-  let i ← Array.index_usize self 0#usize
-  let i1 ← i + 36028797018963664#u64
-  let i2 ← Array.index_usize _rhs 0#usize
-  let i3 ← i1 - i2
-  let i4 ← Array.index_usize self 1#usize
-  let i5 ← i4 + 36028797018963952#u64
-  let i6 ← Array.index_usize _rhs 1#usize
-  let i7 ← i5 - i6
-  let i8 ← Array.index_usize self 2#usize
-  let i9 ← i8 + 36028797018963952#u64
-  let i10 ← Array.index_usize _rhs 2#usize
-  let i11 ← i9 - i10
-  let i12 ← Array.index_usize self 3#usize
-  let i13 ← i12 + 36028797018963952#u64
-  let i14 ← Array.index_usize _rhs 3#usize
-  let i15 ← i13 - i14
-  let i16 ← Array.index_usize self 4#usize
-  let i17 ← i16 + 36028797018963952#u64
-  let i18 ← Array.index_usize _rhs 4#usize
-  let i19 ← i17 - i18
-  backend.serial.u64.field.FieldElement51.reduce
-    (Array.make 5#usize [ i3, i7, i11, i15, i19 ])
+  let i ← Array.index_usize a 0#usize
+  let i1 ← Array.index_usize b 0#usize
+  let i2 ←
+    U64.Insts.SubtleConditionallySelectable.conditional_select i i1 choice
+  let i3 ← Array.index_usize a 1#usize
+  let i4 ← Array.index_usize b 1#usize
+  let i5 ←
+    U64.Insts.SubtleConditionallySelectable.conditional_select i3 i4 choice
+  let i6 ← Array.index_usize a 2#usize
+  let i7 ← Array.index_usize b 2#usize
+  let i8 ←
+    U64.Insts.SubtleConditionallySelectable.conditional_select i6 i7 choice
+  let i9 ← Array.index_usize a 3#usize
+  let i10 ← Array.index_usize b 3#usize
+  let i11 ←
+    U64.Insts.SubtleConditionallySelectable.conditional_select i9 i10 choice
+  let i12 ← Array.index_usize a 4#usize
+  let i13 ← Array.index_usize b 4#usize
+  let i14 ←
+    U64.Insts.SubtleConditionallySelectable.conditional_select i12 i13 choice
+  ok (Array.make 5#usize [ i2, i5, i8, i11, i14 ])
+
+/-- [curve25519_dalek::backend::serial::curve_models::{impl subtle::ConditionallySelectable for curve25519_dalek::backend::serial::curve_models::AffineNielsPoint}::conditional_select]:
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 315:4-321:5
+    Visibility: public -/
+def
+  backend.serial.curve_models.AffineNielsPoint.Insts.SubtleConditionallySelectable.conditional_select
+  (a : backend.serial.curve_models.AffineNielsPoint)
+  (b : backend.serial.curve_models.AffineNielsPoint) (choice : subtle.Choice) :
+  Result backend.serial.curve_models.AffineNielsPoint
+  := do
+  let fe ←
+    backend.serial.u64.field.FieldElement51.Insts.SubtleConditionallySelectable.conditional_select
+      a.y_plus_x b.y_plus_x choice
+  let fe1 ←
+    backend.serial.u64.field.FieldElement51.Insts.SubtleConditionallySelectable.conditional_select
+      a.y_minus_x b.y_minus_x choice
+  let fe2 ←
+    backend.serial.u64.field.FieldElement51.Insts.SubtleConditionallySelectable.conditional_select
+      a.xy2d b.xy2d choice
+  ok { y_plus_x := fe, y_minus_x := fe1, xy2d := fe2 }
+
+/-- Trait implementation: [curve25519_dalek::backend::serial::curve_models::{impl subtle::ConditionallySelectable for curve25519_dalek::backend::serial::curve_models::AffineNielsPoint}]
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 314:0-328:1 -/
+@[reducible]
+impl_def
+  backend.serial.curve_models.AffineNielsPoint.Insts.SubtleConditionallySelectable
+  : subtle.ConditionallySelectable backend.serial.curve_models.AffineNielsPoint
+  := {
+  coremarkerCopyInst :=
+    backend.serial.curve_models.AffineNielsPoint.Insts.CoreMarkerCopy
+  conditional_select :=
+    backend.serial.curve_models.AffineNielsPoint.Insts.SubtleConditionallySelectable.conditional_select
+  conditional_assign :=
+    backend.serial.curve_models.AffineNielsPoint.Insts.SubtleConditionallySelectable.conditional_assign
+  conditional_swap := subtle.ConditionallySelectable.conditional_swap.default
+    backend.serial.curve_models.AffineNielsPoint.Insts.SubtleConditionallySelectable
+}
 
 /-- [curve25519_dalek::backend::serial::u64::field::{impl core::ops::arith::Mul<&'a curve25519_dalek::backend::serial::u64::field::FieldElement51, curve25519_dalek::backend::serial::u64::field::FieldElement51> for &'_1 curve25519_dalek::backend::serial::u64::field::FieldElement51}::mul::LOW_51_BIT_MASK]
     Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 174:8-174:54 -/
@@ -449,6 +462,412 @@ def
   let out8 ← Array.update out7 0#usize i83
   ok out8
 
+/-- [curve25519_dalek::backend::serial::curve_models::{curve25519_dalek::backend::serial::curve_models::CompletedPoint}::as_projective]:
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 354:4-360:5
+    Visibility: public -/
+def backend.serial.curve_models.CompletedPoint.as_projective
+  (self : backend.serial.curve_models.CompletedPoint) :
+  Result backend.serial.curve_models.ProjectivePoint
+  := do
+  let fe ←
+    Shared0FieldElement51.Insts.CoreOpsArithMulSharedAFieldElement51FieldElement51.mul
+      self.X self.T
+  let fe1 ←
+    Shared0FieldElement51.Insts.CoreOpsArithMulSharedAFieldElement51FieldElement51.mul
+      self.Y self.Z
+  let fe2 ←
+    Shared0FieldElement51.Insts.CoreOpsArithMulSharedAFieldElement51FieldElement51.mul
+      self.Z self.T
+  ok { X := fe, Y := fe1, Z := fe2 }
+
+/-- [curve25519_dalek::backend::serial::curve_models::{curve25519_dalek::backend::serial::curve_models::CompletedPoint}::as_extended]:
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 366:4-373:5
+    Visibility: public -/
+def backend.serial.curve_models.CompletedPoint.as_extended
+  (self : backend.serial.curve_models.CompletedPoint) :
+  Result edwards.EdwardsPoint
+  := do
+  let fe ←
+    Shared0FieldElement51.Insts.CoreOpsArithMulSharedAFieldElement51FieldElement51.mul
+      self.X self.T
+  let fe1 ←
+    Shared0FieldElement51.Insts.CoreOpsArithMulSharedAFieldElement51FieldElement51.mul
+      self.Y self.Z
+  let fe2 ←
+    Shared0FieldElement51.Insts.CoreOpsArithMulSharedAFieldElement51FieldElement51.mul
+      self.Z self.T
+  let fe3 ←
+    Shared0FieldElement51.Insts.CoreOpsArithMulSharedAFieldElement51FieldElement51.mul
+      self.X self.Y
+  ok { X := fe, Y := fe1, Z := fe2, T := fe3 }
+
+/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::pow2k::LOW_51_BIT_MASK]
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 519:12-519:58 -/
+@[global_simps, irreducible]
+def backend.serial.u64.field.FieldElement51.pow2k.LOW_51_BIT_MASK
+  : Result Std.U64 := do
+  let i ← 1#u64 <<< 51#i32
+  i - 1#u64
+
+/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::pow2k::m]:
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 468:8-470:9 -/
+def backend.serial.u64.field.FieldElement51.pow2k.m
+  (x : Std.U64) (y : Std.U64) : Result Std.U128 := do
+  let i ← lift (UScalar.cast .U128 x)
+  let i1 ← lift (UScalar.cast .U128 y)
+  i * i1
+
+/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::pow2k]: loop 0:
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 474:8-561:9
+    Visibility: public -/
+@[rust_loop]
+def backend.serial.u64.field.FieldElement51.pow2k_loop
+  (k : Std.U32) (a : Array Std.U64 5#usize) :
+  Result (Array Std.U64 5#usize)
+  := do
+  if k > 0#u32
+  then
+    let i ← Array.index_usize a 3#usize
+    let a3_19 ← 19#u64 * i
+    let i1 ← Array.index_usize a 4#usize
+    let a4_19 ← 19#u64 * i1
+    let i2 ← Array.index_usize a 0#usize
+    let i3 ← backend.serial.u64.field.FieldElement51.pow2k.m i2 i2
+    let i4 ← Array.index_usize a 1#usize
+    let i5 ← backend.serial.u64.field.FieldElement51.pow2k.m i4 a4_19
+    let i6 ← Array.index_usize a 2#usize
+    let i7 ← backend.serial.u64.field.FieldElement51.pow2k.m i6 a3_19
+    let i8 ← i5 + i7
+    let i9 ← 2#u128 * i8
+    let c0 ← i3 + i9
+    let i10 ← backend.serial.u64.field.FieldElement51.pow2k.m i a3_19
+    let i11 ← backend.serial.u64.field.FieldElement51.pow2k.m i2 i4
+    let i12 ← backend.serial.u64.field.FieldElement51.pow2k.m i6 a4_19
+    let i13 ← i11 + i12
+    let i14 ← 2#u128 * i13
+    let c1 ← i10 + i14
+    let i15 ← backend.serial.u64.field.FieldElement51.pow2k.m i4 i4
+    let i16 ← backend.serial.u64.field.FieldElement51.pow2k.m i2 i6
+    let i17 ← backend.serial.u64.field.FieldElement51.pow2k.m i1 a3_19
+    let i18 ← i16 + i17
+    let i19 ← 2#u128 * i18
+    let c2 ← i15 + i19
+    let i20 ← backend.serial.u64.field.FieldElement51.pow2k.m i1 a4_19
+    let i21 ← backend.serial.u64.field.FieldElement51.pow2k.m i2 i
+    let i22 ← backend.serial.u64.field.FieldElement51.pow2k.m i4 i6
+    let i23 ← i21 + i22
+    let i24 ← 2#u128 * i23
+    let c3 ← i20 + i24
+    let i25 ← backend.serial.u64.field.FieldElement51.pow2k.m i6 i6
+    let i26 ← backend.serial.u64.field.FieldElement51.pow2k.m i2 i1
+    let i27 ← backend.serial.u64.field.FieldElement51.pow2k.m i4 i
+    let i28 ← i26 + i27
+    let i29 ← 2#u128 * i28
+    let c4 ← i25 + i29
+    let i30 ← c0 >>> 51#i32
+    let i31 ← lift (UScalar.cast .U64 i30)
+    let i32 ← lift (UScalar.cast .U128 i31)
+    let c11 ← c1 + i32
+    let i33 ← lift (UScalar.cast .U64 c0)
+    let i34 ← backend.serial.u64.field.FieldElement51.pow2k.LOW_51_BIT_MASK
+    let i35 ← lift (i33 &&& i34)
+    let a1 ← Array.update a 0#usize i35
+    let i36 ← c11 >>> 51#i32
+    let i37 ← lift (UScalar.cast .U64 i36)
+    let i38 ← lift (UScalar.cast .U128 i37)
+    let c21 ← c2 + i38
+    let i39 ← lift (UScalar.cast .U64 c11)
+    let i40 ← lift (i39 &&& i34)
+    let a2 ← Array.update a1 1#usize i40
+    let i41 ← c21 >>> 51#i32
+    let i42 ← lift (UScalar.cast .U64 i41)
+    let i43 ← lift (UScalar.cast .U128 i42)
+    let c31 ← c3 + i43
+    let i44 ← lift (UScalar.cast .U64 c21)
+    let i45 ← lift (i44 &&& i34)
+    let a3 ← Array.update a2 2#usize i45
+    let i46 ← c31 >>> 51#i32
+    let i47 ← lift (UScalar.cast .U64 i46)
+    let i48 ← lift (UScalar.cast .U128 i47)
+    let c41 ← c4 + i48
+    let i49 ← lift (UScalar.cast .U64 c31)
+    let i50 ← lift (i49 &&& i34)
+    let a4 ← Array.update a3 3#usize i50
+    let i51 ← c41 >>> 51#i32
+    let carry ← lift (UScalar.cast .U64 i51)
+    let i52 ← lift (UScalar.cast .U64 c41)
+    let i53 ← lift (i52 &&& i34)
+    let a5 ← Array.update a4 4#usize i53
+    let i54 ← carry * 19#u64
+    let i55 ← Array.index_usize a5 0#usize
+    let i56 ← i55 + i54
+    let a6 ← Array.update a5 0#usize i56
+    let i57 ← Array.index_usize a6 0#usize
+    let i58 ← i57 >>> 51#i32
+    let i59 ← Array.index_usize a6 1#usize
+    let i60 ← i59 + i58
+    let a7 ← Array.update a6 1#usize i60
+    let i61 ← Array.index_usize a7 0#usize
+    let i62 ← lift (i61 &&& i34)
+    let a8 ← Array.update a7 0#usize i62
+    let k1 ← k - 1#u32
+    backend.serial.u64.field.FieldElement51.pow2k_loop k1 a8
+  else ok a
+partial_fixpoint
+
+/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::pow2k]:
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 462:4-564:5
+    Visibility: public -/
+def backend.serial.u64.field.FieldElement51.pow2k
+  (self : backend.serial.u64.field.FieldElement51) (k : Std.U32) :
+  Result backend.serial.u64.field.FieldElement51
+  := do
+  massert (k > 0#u32)
+  let a ← backend.serial.u64.field.FieldElement51.pow2k_loop k self
+  ok a
+
+/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::square2]: loop 0:
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 575:8-578:9
+    Visibility: public -/
+@[rust_loop]
+def backend.serial.u64.field.FieldElement51.square2_loop
+  (square : backend.serial.u64.field.FieldElement51) (i : Std.Usize) :
+  Result backend.serial.u64.field.FieldElement51
+  := do
+  if i < 5#usize
+  then
+    let i1 ← Array.index_usize square i
+    let i2 ← i1 * 2#u64
+    let a ← Array.update square i i2
+    let i3 ← i + 1#usize
+    backend.serial.u64.field.FieldElement51.square2_loop a i3
+  else ok square
+partial_fixpoint
+
+/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::square2]:
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 572:4-581:5
+    Visibility: public -/
+def backend.serial.u64.field.FieldElement51.square2
+  (self : backend.serial.u64.field.FieldElement51) :
+  Result backend.serial.u64.field.FieldElement51
+  := do
+  let square ← backend.serial.u64.field.FieldElement51.pow2k self 1#u32
+  backend.serial.u64.field.FieldElement51.square2_loop square 0#usize
+
+/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::square]:
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 567:4-569:5
+    Visibility: public -/
+def backend.serial.u64.field.FieldElement51.square
+  (self : backend.serial.u64.field.FieldElement51) :
+  Result backend.serial.u64.field.FieldElement51
+  := do
+  backend.serial.u64.field.FieldElement51.pow2k self 1#u32
+
+/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::reduce::LOW_51_BIT_MASK]
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 293:8-293:54 -/
+@[global_simps, irreducible]
+def backend.serial.u64.field.FieldElement51.reduce.LOW_51_BIT_MASK
+  : Result Std.U64 := do
+  let i ← 1#u64 <<< 51#i32
+  i - 1#u64
+
+/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::reduce]:
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 292:4-325:5 -/
+def backend.serial.u64.field.FieldElement51.reduce
+  (limbs : Array Std.U64 5#usize) :
+  Result backend.serial.u64.field.FieldElement51
+  := do
+  let i ← Array.index_usize limbs 0#usize
+  let c0 ← i >>> 51#i32
+  let i1 ← Array.index_usize limbs 1#usize
+  let c1 ← i1 >>> 51#i32
+  let i2 ← Array.index_usize limbs 2#usize
+  let c2 ← i2 >>> 51#i32
+  let i3 ← Array.index_usize limbs 3#usize
+  let c3 ← i3 >>> 51#i32
+  let i4 ← Array.index_usize limbs 4#usize
+  let c4 ← i4 >>> 51#i32
+  let i5 ← backend.serial.u64.field.FieldElement51.reduce.LOW_51_BIT_MASK
+  let i6 ← lift (i &&& i5)
+  let limbs1 ← Array.update limbs 0#usize i6
+  let i7 ← Array.index_usize limbs1 1#usize
+  let i8 ← lift (i7 &&& i5)
+  let limbs2 ← Array.update limbs1 1#usize i8
+  let i9 ← Array.index_usize limbs2 2#usize
+  let i10 ← lift (i9 &&& i5)
+  let limbs3 ← Array.update limbs2 2#usize i10
+  let i11 ← Array.index_usize limbs3 3#usize
+  let i12 ← lift (i11 &&& i5)
+  let limbs4 ← Array.update limbs3 3#usize i12
+  let i13 ← Array.index_usize limbs4 4#usize
+  let i14 ← lift (i13 &&& i5)
+  let limbs5 ← Array.update limbs4 4#usize i14
+  let i15 ← c4 * 19#u64
+  let i16 ← Array.index_usize limbs5 0#usize
+  let i17 ← i16 + i15
+  let limbs6 ← Array.update limbs5 0#usize i17
+  let i18 ← Array.index_usize limbs6 1#usize
+  let i19 ← i18 + c0
+  let limbs7 ← Array.update limbs6 1#usize i19
+  let i20 ← Array.index_usize limbs7 2#usize
+  let i21 ← i20 + c1
+  let limbs8 ← Array.update limbs7 2#usize i21
+  let i22 ← Array.index_usize limbs8 3#usize
+  let i23 ← i22 + c2
+  let limbs9 ← Array.update limbs8 3#usize i23
+  let i24 ← Array.index_usize limbs9 4#usize
+  let i25 ← i24 + c3
+  let limbs10 ← Array.update limbs9 4#usize i25
+  ok limbs10
+
+/-- [curve25519_dalek::backend::serial::u64::field::{impl core::ops::arith::Sub<&'a curve25519_dalek::backend::serial::u64::field::FieldElement51, curve25519_dalek::backend::serial::u64::field::FieldElement51> for &'_1 curve25519_dalek::backend::serial::u64::field::FieldElement51}::sub]:
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 86:4-103:5
+    Visibility: public -/
+def
+  Shared0FieldElement51.Insts.CoreOpsArithSubSharedAFieldElement51FieldElement51.sub
+  (self : backend.serial.u64.field.FieldElement51)
+  (_rhs : backend.serial.u64.field.FieldElement51) :
+  Result backend.serial.u64.field.FieldElement51
+  := do
+  let i ← Array.index_usize self 0#usize
+  let i1 ← i + 36028797018963664#u64
+  let i2 ← Array.index_usize _rhs 0#usize
+  let i3 ← i1 - i2
+  let i4 ← Array.index_usize self 1#usize
+  let i5 ← i4 + 36028797018963952#u64
+  let i6 ← Array.index_usize _rhs 1#usize
+  let i7 ← i5 - i6
+  let i8 ← Array.index_usize self 2#usize
+  let i9 ← i8 + 36028797018963952#u64
+  let i10 ← Array.index_usize _rhs 2#usize
+  let i11 ← i9 - i10
+  let i12 ← Array.index_usize self 3#usize
+  let i13 ← i12 + 36028797018963952#u64
+  let i14 ← Array.index_usize _rhs 3#usize
+  let i15 ← i13 - i14
+  let i16 ← Array.index_usize self 4#usize
+  let i17 ← i16 + 36028797018963952#u64
+  let i18 ← Array.index_usize _rhs 4#usize
+  let i19 ← i17 - i18
+  backend.serial.u64.field.FieldElement51.reduce
+    (Array.make 5#usize [ i3, i7, i11, i15, i19 ])
+
+/-- [curve25519_dalek::backend::serial::u64::field::{impl core::ops::arith::AddAssign<&'a curve25519_dalek::backend::serial::u64::field::FieldElement51> for curve25519_dalek::backend::serial::u64::field::FieldElement51}::add_assign]: loop 0:
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 61:8-64:9
+    Visibility: public -/
+@[rust_loop]
+def
+  backend.serial.u64.field.FieldElement51.Insts.CoreOpsArithAddAssignSharedAFieldElement51.add_assign_loop
+  (self : backend.serial.u64.field.FieldElement51)
+  (_rhs : backend.serial.u64.field.FieldElement51) (i : Std.Usize) :
+  Result backend.serial.u64.field.FieldElement51
+  := do
+  if i < 5#usize
+  then
+    let i1 ← Array.index_usize _rhs i
+    let i2 ← Array.index_usize self i
+    let i3 ← i2 + i1
+    let a ← Array.update self i i3
+    let i4 ← i + 1#usize
+    backend.serial.u64.field.FieldElement51.Insts.CoreOpsArithAddAssignSharedAFieldElement51.add_assign_loop
+      a _rhs i4
+  else ok self
+partial_fixpoint
+
+/-- [curve25519_dalek::backend::serial::u64::field::{impl core::ops::arith::AddAssign<&'a curve25519_dalek::backend::serial::u64::field::FieldElement51> for curve25519_dalek::backend::serial::u64::field::FieldElement51}::add_assign]:
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 59:4-65:5
+    Visibility: public -/
+@[reducible]
+def
+  backend.serial.u64.field.FieldElement51.Insts.CoreOpsArithAddAssignSharedAFieldElement51.add_assign
+  (self : backend.serial.u64.field.FieldElement51)
+  (_rhs : backend.serial.u64.field.FieldElement51) :
+  Result backend.serial.u64.field.FieldElement51
+  := do
+  backend.serial.u64.field.FieldElement51.Insts.CoreOpsArithAddAssignSharedAFieldElement51.add_assign_loop
+    self _rhs 0#usize
+
+/-- [curve25519_dalek::backend::serial::u64::field::{impl core::ops::arith::Add<&'a curve25519_dalek::backend::serial::u64::field::FieldElement51, curve25519_dalek::backend::serial::u64::field::FieldElement51> for &'_1 curve25519_dalek::backend::serial::u64::field::FieldElement51}::add]:
+    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 70:4-74:5
+    Visibility: public -/
+def
+  Shared0FieldElement51.Insts.CoreOpsArithAddSharedAFieldElement51FieldElement51.add
+  (self : backend.serial.u64.field.FieldElement51)
+  (_rhs : backend.serial.u64.field.FieldElement51) :
+  Result backend.serial.u64.field.FieldElement51
+  := do
+  backend.serial.u64.field.FieldElement51.Insts.CoreOpsArithAddAssignSharedAFieldElement51.add_assign
+    self _rhs
+
+/-- [curve25519_dalek::backend::serial::curve_models::{curve25519_dalek::backend::serial::curve_models::ProjectivePoint}::double]:
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 382:4-398:5
+    Visibility: public -/
+def backend.serial.curve_models.ProjectivePoint.double
+  (self : backend.serial.curve_models.ProjectivePoint) :
+  Result backend.serial.curve_models.CompletedPoint
+  := do
+  let XX ← backend.serial.u64.field.FieldElement51.square self.X
+  let YY ← backend.serial.u64.field.FieldElement51.square self.Y
+  let ZZ2 ← backend.serial.u64.field.FieldElement51.square2 self.Z
+  let X_plus_Y ←
+    Shared0FieldElement51.Insts.CoreOpsArithAddSharedAFieldElement51FieldElement51.add
+      self.X self.Y
+  let X_plus_Y_sq ← backend.serial.u64.field.FieldElement51.square X_plus_Y
+  let YY_plus_XX ←
+    Shared0FieldElement51.Insts.CoreOpsArithAddSharedAFieldElement51FieldElement51.add
+      YY XX
+  let YY_minus_XX ←
+    Shared0FieldElement51.Insts.CoreOpsArithSubSharedAFieldElement51FieldElement51.sub
+      YY XX
+  let fe ←
+    Shared0FieldElement51.Insts.CoreOpsArithSubSharedAFieldElement51FieldElement51.sub
+      X_plus_Y_sq YY_plus_XX
+  let fe1 ←
+    Shared0FieldElement51.Insts.CoreOpsArithSubSharedAFieldElement51FieldElement51.sub
+      ZZ2 YY_minus_XX
+  ok { X := fe, Y := YY_plus_XX, Z := YY_minus_XX, T := fe1 }
+
+/-- [curve25519_dalek::backend::serial::curve_models::{impl core::ops::arith::Add<&'a curve25519_dalek::backend::serial::curve_models::AffineNielsPoint, curve25519_dalek::backend::serial::curve_models::CompletedPoint> for &'_1 curve25519_dalek::edwards::EdwardsPoint}::add]:
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 459:4-473:5
+    Visibility: public -/
+def
+  Shared0EdwardsPoint.Insts.CoreOpsArithAddSharedAAffineNielsPointCompletedPoint.add
+  (self : edwards.EdwardsPoint)
+  (other : backend.serial.curve_models.AffineNielsPoint) :
+  Result backend.serial.curve_models.CompletedPoint
+  := do
+  let Y_plus_X ←
+    Shared0FieldElement51.Insts.CoreOpsArithAddSharedAFieldElement51FieldElement51.add
+      self.Y self.X
+  let Y_minus_X ←
+    Shared0FieldElement51.Insts.CoreOpsArithSubSharedAFieldElement51FieldElement51.sub
+      self.Y self.X
+  let PP ←
+    Shared0FieldElement51.Insts.CoreOpsArithMulSharedAFieldElement51FieldElement51.mul
+      Y_plus_X other.y_plus_x
+  let MM ←
+    Shared0FieldElement51.Insts.CoreOpsArithMulSharedAFieldElement51FieldElement51.mul
+      Y_minus_X other.y_minus_x
+  let Txy2d ←
+    Shared0FieldElement51.Insts.CoreOpsArithMulSharedAFieldElement51FieldElement51.mul
+      self.T other.xy2d
+  let Z2 ←
+    Shared0FieldElement51.Insts.CoreOpsArithAddSharedAFieldElement51FieldElement51.add
+      self.Z self.Z
+  let fe ←
+    Shared0FieldElement51.Insts.CoreOpsArithSubSharedAFieldElement51FieldElement51.sub
+      PP MM
+  let fe1 ←
+    Shared0FieldElement51.Insts.CoreOpsArithAddSharedAFieldElement51FieldElement51.add
+      PP MM
+  let fe2 ←
+    Shared0FieldElement51.Insts.CoreOpsArithAddSharedAFieldElement51FieldElement51.add
+      Z2 Txy2d
+  let fe3 ←
+    Shared0FieldElement51.Insts.CoreOpsArithSubSharedAFieldElement51FieldElement51.sub
+      Z2 Txy2d
+  ok { X := fe, Y := fe1, Z := fe2, T := fe3 }
+
 /-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::negate]:
     Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 278:4-288:5
     Visibility: public -/
@@ -480,90 +899,5023 @@ def Shared0FieldElement51.Insts.CoreOpsArithNegFieldElement51.neg
   := do
   backend.serial.u64.field.FieldElement51.negate self
 
-/-- [curve25519_dalek::backend::serial::u64::field::{impl subtle::ConditionallySelectable for curve25519_dalek::backend::serial::u64::field::FieldElement51}::conditional_select]:
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 228:4-240:5
+/-- [curve25519_dalek::backend::serial::curve_models::{impl core::ops::arith::Neg<curve25519_dalek::backend::serial::curve_models::AffineNielsPoint> for &'_0 curve25519_dalek::backend::serial::curve_models::AffineNielsPoint}::neg]:
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 525:4-531:5
+    Visibility: public -/
+def Shared0AffineNielsPoint.Insts.CoreOpsArithNegAffineNielsPoint.neg
+  (self : backend.serial.curve_models.AffineNielsPoint) :
+  Result backend.serial.curve_models.AffineNielsPoint
+  := do
+  let fe ←
+    Shared0FieldElement51.Insts.CoreOpsArithNegFieldElement51.neg self.xy2d
+  ok { y_plus_x := self.y_minus_x, y_minus_x := self.y_plus_x, xy2d := fe }
+
+/-- [curve25519_dalek::backend::serial::curve_models::{impl core::ops::arith::Neg<curve25519_dalek::backend::serial::curve_models::AffineNielsPoint> for curve25519_dalek::backend::serial::curve_models::AffineNielsPoint}::neg]:
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 537:4-539:5
     Visibility: public -/
 def
-  backend.serial.u64.field.FieldElement51.Insts.SubtleConditionallySelectable.conditional_select
-  (a : backend.serial.u64.field.FieldElement51)
-  (b : backend.serial.u64.field.FieldElement51) (choice : subtle.Choice) :
-  Result backend.serial.u64.field.FieldElement51
+  backend.serial.curve_models.AffineNielsPoint.Insts.CoreOpsArithNegAffineNielsPoint.neg
+  (self : backend.serial.curve_models.AffineNielsPoint) :
+  Result backend.serial.curve_models.AffineNielsPoint
   := do
-  let i ← Array.index_usize a 0#usize
-  let i1 ← Array.index_usize b 0#usize
-  let i2 ←
-    U64.Insts.SubtleConditionallySelectable.conditional_select i i1 choice
-  let i3 ← Array.index_usize a 1#usize
-  let i4 ← Array.index_usize b 1#usize
-  let i5 ←
-    U64.Insts.SubtleConditionallySelectable.conditional_select i3 i4 choice
-  let i6 ← Array.index_usize a 2#usize
-  let i7 ← Array.index_usize b 2#usize
-  let i8 ←
-    U64.Insts.SubtleConditionallySelectable.conditional_select i6 i7 choice
-  let i9 ← Array.index_usize a 3#usize
-  let i10 ← Array.index_usize b 3#usize
-  let i11 ←
-    U64.Insts.SubtleConditionallySelectable.conditional_select i9 i10 choice
-  let i12 ← Array.index_usize a 4#usize
-  let i13 ← Array.index_usize b 4#usize
-  let i14 ←
-    U64.Insts.SubtleConditionallySelectable.conditional_select i12 i13 choice
-  ok (Array.make 5#usize [ i2, i5, i8, i11, i14 ])
+  Shared0AffineNielsPoint.Insts.CoreOpsArithNegAffineNielsPoint.neg self
 
-/-- [curve25519_dalek::backend::serial::u64::field::{impl subtle::ConditionallySelectable for curve25519_dalek::backend::serial::u64::field::FieldElement51}::conditional_assign]:
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 250:4-256:5
-    Visibility: public -/
+/-- Trait implementation: [curve25519_dalek::backend::serial::curve_models::{impl core::ops::arith::Neg<curve25519_dalek::backend::serial::curve_models::AffineNielsPoint> for curve25519_dalek::backend::serial::curve_models::AffineNielsPoint}]
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 534:0-540:1 -/
+@[reducible]
 def
-  backend.serial.u64.field.FieldElement51.Insts.SubtleConditionallySelectable.conditional_assign
-  (self : backend.serial.u64.field.FieldElement51)
-  (other : backend.serial.u64.field.FieldElement51) (choice : subtle.Choice) :
-  Result backend.serial.u64.field.FieldElement51
-  := do
-  let (i, index_mut_back) ← Array.index_mut_usize self 0#usize
-  let i1 ← Array.index_usize other 0#usize
-  let i2 ←
-    U64.Insts.SubtleConditionallySelectable.conditional_assign i i1 choice
-  let a := index_mut_back i2
-  let (i3, index_mut_back1) ← Array.index_mut_usize a 1#usize
-  let i4 ← Array.index_usize other 1#usize
-  let i5 ←
-    U64.Insts.SubtleConditionallySelectable.conditional_assign i3 i4 choice
-  let a1 := index_mut_back1 i5
-  let (i6, index_mut_back2) ← Array.index_mut_usize a1 2#usize
-  let i7 ← Array.index_usize other 2#usize
-  let i8 ←
-    U64.Insts.SubtleConditionallySelectable.conditional_assign i6 i7 choice
-  let a2 := index_mut_back2 i8
-  let (i9, index_mut_back3) ← Array.index_mut_usize a2 3#usize
-  let i10 ← Array.index_usize other 3#usize
-  let i11 ←
-    U64.Insts.SubtleConditionallySelectable.conditional_assign i9 i10 choice
-  let a3 := index_mut_back3 i11
-  let (i12, index_mut_back4) ← Array.index_mut_usize a3 4#usize
-  let i13 ← Array.index_usize other 4#usize
-  let i14 ←
-    U64.Insts.SubtleConditionallySelectable.conditional_assign i12 i13 choice
-  let a4 := index_mut_back4 i14
-  ok a4
+  backend.serial.curve_models.AffineNielsPoint.Insts.CoreOpsArithNegAffineNielsPoint
+  : core.ops.arith.Neg backend.serial.curve_models.AffineNielsPoint
+  backend.serial.curve_models.AffineNielsPoint := {
+  neg :=
+    backend.serial.curve_models.AffineNielsPoint.Insts.CoreOpsArithNegAffineNielsPoint.neg
+}
 
-/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::ZERO]
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 265:4-265:81
-    Visibility: public -/
+/-- [curve25519_dalek::backend::serial::u64::constants::EDWARDS_D]
+    Source: 'curve25519-dalek/src/backend/serial/u64/constants.rs', lines 45:0-51:3 -/
 @[global_simps, irreducible]
-def backend.serial.u64.field.FieldElement51.ZERO
-  : Result backend.serial.u64.field.FieldElement51 :=
-  let a := Array.repeat 5#usize 0#u64
-  backend.serial.u64.field.FieldElement51.from_limbs a
-
-/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::ONE]
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 267:4-267:80
-    Visibility: public -/
-@[global_simps, irreducible]
-def backend.serial.u64.field.FieldElement51.ONE
+def backend.serial.u64.constants.EDWARDS_D
   : Result backend.serial.u64.field.FieldElement51 :=
   backend.serial.u64.field.FieldElement51.from_limbs
-    (Array.make 5#usize [ 1#u64, 0#u64, 0#u64, 0#u64, 0#u64 ])
+    (Array.make 5#usize [
+      929955233495203#u64, 466365720129213#u64, 1662059464998953#u64,
+      2033849074728123#u64, 1442794654840575#u64
+      ])
+
+/-- [curve25519_dalek::backend::serial::u64::constants::INVSQRT_A_MINUS_D]
+    Source: 'curve25519-dalek/src/backend/serial/u64/constants.rs', lines 90:0-96:3 -/
+@[global_simps, irreducible]
+def backend.serial.u64.constants.INVSQRT_A_MINUS_D
+  : Result backend.serial.u64.field.FieldElement51 :=
+  backend.serial.u64.field.FieldElement51.from_limbs
+    (Array.make 5#usize [
+      278908739862762#u64, 821645201101625#u64, 8113234426968#u64,
+      1777959178193151#u64, 2118520810568447#u64
+      ])
+
+/-- [curve25519_dalek::backend::serial::u64::constants::SQRT_M1]
+    Source: 'curve25519-dalek/src/backend/serial/u64/constants.rs', lines 99:0-105:3 -/
+@[global_simps, irreducible]
+def backend.serial.u64.constants.SQRT_M1
+  : Result backend.serial.u64.field.FieldElement51 :=
+  backend.serial.u64.field.FieldElement51.from_limbs
+    (Array.make 5#usize [
+      1718705420411056#u64, 234908883556509#u64, 2233514472574048#u64,
+      2117202627021982#u64, 765476049583133#u64
+      ])
+
+/-- [curve25519_dalek::backend::serial::u64::constants::APLUS2_OVER_FOUR]
+    Source: 'curve25519-dalek/src/backend/serial/u64/constants.rs', lines 108:0-109:53 -/
+@[global_simps, irreducible]
+def backend.serial.u64.constants.APLUS2_OVER_FOUR
+  : Result backend.serial.u64.field.FieldElement51 :=
+  backend.serial.u64.field.FieldElement51.from_limbs
+    (Array.make 5#usize [ 121666#u64, 0#u64, 0#u64, 0#u64, 0#u64 ])
+
+/-- [curve25519_dalek::backend::serial::u64::constants::ED25519_BASEPOINT_TABLE_INNER_DOC_HIDDEN]
+    Source: 'curve25519-dalek/src/backend/serial/u64/constants.rs', lines 347:0-6300:3 -/
+@[global_simps, irreducible]
+def backend.serial.u64.constants.ED25519_BASEPOINT_TABLE_INNER_DOC_HIDDEN
+  : Result edwards.EdwardsBasepointTable := do
+  let fe ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3540182452943730#u64, 2497478415033846#u64, 2521227595762870#u64,
+        1462984067271729#u64, 2389212253076811#u64
+        ])
+  let fe1 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        62697248952638#u64, 204681361388450#u64, 631292143396476#u64,
+        338455783676468#u64, 1213667448819585#u64
+        ])
+  let fe2 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        301289933810280#u64, 1259582250014073#u64, 1422107436869536#u64,
+        796239922652654#u64, 1953934009299142#u64
+        ])
+  let fe3 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3632771708514775#u64, 790832306631235#u64, 2067202295274102#u64,
+        1995808275510000#u64, 1566530869037010#u64
+        ])
+  let fe4 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        463307831301544#u64, 432984605774163#u64, 1610641361907204#u64,
+        750899048855000#u64, 1894842303421586#u64
+        ])
+  let fe5 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        748439484463711#u64, 1033211726465151#u64, 1396005112841647#u64,
+        1611506220286469#u64, 1972177495910992#u64
+        ])
+  let fe6 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1601611775252272#u64, 1720807796594148#u64, 1132070835939856#u64,
+        3512254832574799#u64, 2147779492816910#u64
+        ])
+  let fe7 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        316559037616741#u64, 2177824224946892#u64, 1459442586438991#u64,
+        1461528397712656#u64, 751590696113597#u64
+        ])
+  let fe8 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1850748884277385#u64, 1200145853858453#u64, 1068094770532492#u64,
+        672251375690438#u64, 1586055907191707#u64
+        ])
+  let fe9 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        934282339813791#u64, 1846903124198670#u64, 1172395437954843#u64,
+        1007037127761661#u64, 1830588347719256#u64
+        ])
+  let fe10 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1694390458783935#u64, 1735906047636159#u64, 705069562067493#u64,
+        648033061693059#u64, 696214010414170#u64
+        ])
+  let fe11 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1121406372216585#u64, 192876649532226#u64, 190294192191717#u64,
+        1994165897297032#u64, 2245000007398739#u64
+        ])
+  let fe12 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        769950342298400#u64, 2384754244604994#u64, 3095885746880802#u64,
+        3225892188161580#u64, 2977876099231263#u64
+        ])
+  let fe13 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        425251763115706#u64, 608463272472562#u64, 442562545713235#u64,
+        837766094556764#u64, 374555092627893#u64
+        ])
+  let fe14 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1086255230780037#u64, 274979815921559#u64, 1960002765731872#u64,
+        929474102396301#u64, 1190409889297339#u64
+        ])
+  let fe15 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1388594989461809#u64, 316767091099457#u64, 2646098655878230#u64,
+        1230079486801004#u64, 1440737038838979#u64
+        ])
+  let fe16 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        7380825640100#u64, 146210432690483#u64, 304903576448906#u64,
+        1198869323871120#u64, 997689833219095#u64
+        ])
+  let fe17 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1181317918772081#u64, 114573476638901#u64, 262805072233344#u64,
+        265712217171332#u64, 294181933805782#u64
+        ])
+  let fe18 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2916800678241215#u64, 2065379846933858#u64, 2622030924071124#u64,
+        2602788184473875#u64, 1233371373142984#u64
+        ])
+  let fe19 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2019367628972465#u64, 676711900706637#u64, 110710997811333#u64,
+        1108646842542025#u64, 517791959672113#u64
+        ])
+  let fe20 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        965130719900578#u64, 247011430587952#u64, 526356006571389#u64,
+        91986625355052#u64, 2157223321444601#u64
+        ])
+  let fe21 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        4320419353804412#u64, 4218074731744053#u64, 957728544705548#u64,
+        729906502578991#u64, 2411634706750414#u64
+        ])
+  let fe22 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2073601412052185#u64, 31021124762708#u64, 264500969797082#u64,
+        248034690651703#u64, 1030252227928288#u64
+        ])
+  let fe23 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        551790716293402#u64, 1989538725166328#u64, 801169423371717#u64,
+        2052451893578887#u64, 678432056995012#u64
+        ])
+  let fe24 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1368953770187805#u64, 3042147450398169#u64, 2689308289352409#u64,
+        2142576377050579#u64, 1932081720066286#u64
+        ])
+  let fe25 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        953638594433374#u64, 1092333936795051#u64, 1419774766716690#u64,
+        805677984380077#u64, 859228993502513#u64
+        ])
+  let fe26 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1200766035879111#u64, 20142053207432#u64, 1465634435977050#u64,
+        1645256912097844#u64, 295121984874596#u64
+        ])
+  let fe27 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1735718747031538#u64, 1248237894295956#u64, 1204753118328107#u64,
+        976066523550493#u64, 2317743583219840#u64
+        ])
+  let fe28 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1060098822528990#u64, 1586825862073490#u64, 212301317240126#u64,
+        1975302711403555#u64, 666724059764335#u64
+        ])
+  let fe29 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1091990273418756#u64, 1572899409348578#u64, 80968014455247#u64,
+        306009358661350#u64, 1520450739132526#u64
+        ])
+  let fe30 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3732317023121341#u64, 1511153322193951#u64, 3496143672676420#u64,
+        2556587964178488#u64, 2620936670181690#u64
+        ])
+  let fe31 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2151330273626164#u64, 762045184746182#u64, 1688074332551515#u64,
+        823046109005759#u64, 907602769079491#u64
+        ])
+  let fe32 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2047386910586836#u64, 168470092900250#u64, 1552838872594810#u64,
+        340951180073789#u64, 360819374702533#u64
+        ])
+  let fe33 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1982622644432037#u64, 2014393600336956#u64, 2380709022489462#u64,
+        3869592437614438#u64, 2357094095599062#u64
+        ])
+  let fe34 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        980234343912898#u64, 1712256739246056#u64, 588935272190264#u64,
+        204298813091998#u64, 841798321043288#u64
+        ])
+  let fe35 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        197561292938973#u64, 454817274782871#u64, 1963754960082318#u64,
+        2113372252160468#u64, 971377527342673#u64
+        ])
+  let fe36 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2416499262514576#u64, 2254927265442919#u64, 3451304785234000#u64,
+        1766155447043651#u64, 1899238924683527#u64
+        ])
+  let fe37 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        732262946680281#u64, 1674412764227063#u64, 2182456405662809#u64,
+        1350894754474250#u64, 558458873295247#u64
+        ])
+  let fe38 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2103305098582922#u64, 1960809151316468#u64, 715134605001343#u64,
+        1454892949167181#u64, 40827143824949#u64
+        ])
+  let fe39 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1239289043050193#u64, 1744654158124578#u64, 758702410031698#u64,
+        4048562808759936#u64, 2253402870349013#u64
+        ])
+  let fe40 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2232056027107988#u64, 987343914584615#u64, 2115594492994461#u64,
+        1819598072792159#u64, 1119305654014850#u64
+        ])
+  let fe41 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        320153677847348#u64, 939613871605645#u64, 641883205761567#u64,
+        1930009789398224#u64, 329165806634126#u64
+        ])
+  let fe42 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3232730304159378#u64, 1242488692177892#u64, 1251446316964684#u64,
+        1086618677993530#u64, 1961430968465772#u64
+        ])
+  let fe43 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        276821765317453#u64, 1536835591188030#u64, 1305212741412361#u64,
+        61473904210175#u64, 2051377036983058#u64
+        ])
+  let fe44 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        833449923882501#u64, 1750270368490475#u64, 1123347002068295#u64,
+        185477424765687#u64, 278090826653186#u64
+        ])
+  let fe45 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        794524995833413#u64, 1849907304548286#u64, 2305148486158393#u64,
+        1272368559505216#u64, 1147304168324779#u64
+        ])
+  let fe46 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1504846112759364#u64, 1203096289004681#u64, 562139421471418#u64,
+        274333017451844#u64, 1284344053775441#u64
+        ])
+  let fe47 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        483048732424432#u64, 2116063063343382#u64, 30120189902313#u64,
+        292451576741007#u64, 1156379271702225#u64
+        ])
+  let fe48 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3180171966714267#u64, 2147692869914563#u64, 1455665844462196#u64,
+        1986737809425946#u64, 2437006863943337#u64
+        ])
+  let fe49 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        137732961814206#u64, 706670923917341#u64, 1387038086865771#u64,
+        1965643813686352#u64, 1384777115696347#u64
+        ])
+  let fe50 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        481144981981577#u64, 2053319313589856#u64, 2065402289827512#u64,
+        617954271490316#u64, 1106602634668125#u64
+        ])
+  let fe51 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2948097833334040#u64, 3145099472726142#u64, 1148636718636008#u64,
+        2278533891034865#u64, 2203955659340680#u64
+        ])
+  let fe52 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        657390353372855#u64, 998499966885562#u64, 991893336905797#u64,
+        810470207106761#u64, 343139804608786#u64
+        ])
+  let fe53 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        791736669492960#u64, 934767652997115#u64, 824656780392914#u64,
+        1759463253018643#u64, 361530362383518#u64
+        ])
+  let fe54 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2022541353055578#u64, 4346500076272714#u64, 3802807888710933#u64,
+        2494585331103411#u64, 2947785218648809#u64
+        ])
+  let fe55 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1287487199965223#u64, 2215311941380308#u64, 1552928390931986#u64,
+        1664859529680196#u64, 1125004975265243#u64
+        ])
+  let fe56 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        677434665154918#u64, 989582503122485#u64, 1817429540898386#u64,
+        1052904935475344#u64, 1143826298169798#u64
+        ])
+  let fe57 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2619066141993637#u64, 2570231002607651#u64, 2947429167440602#u64,
+        2885885471266079#u64, 2276381426249673#u64
+        ])
+  let fe58 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        773360688841258#u64, 1815381330538070#u64, 363773437667376#u64,
+        539629987070205#u64, 783280434248437#u64
+        ])
+  let fe59 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        180820816194166#u64, 168937968377394#u64, 748416242794470#u64,
+        1227281252254508#u64, 1567587861004268#u64
+        ])
+  let fe60 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2730575372268893#u64, 2062896624554806#u64, 2951191072970647#u64,
+        2609899222113120#u64, 1277310261461760#u64
+        ])
+  let fe61 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1984740906540026#u64, 1079164179400229#u64, 1056021349262661#u64,
+        1659958556483663#u64, 1088529069025527#u64
+        ])
+  let fe62 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        580736401511151#u64, 1842931091388998#u64, 1177201471228238#u64,
+        2075460256527244#u64, 1301133425678027#u64
+        ])
+  let fe63 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1515728832059163#u64, 1575261009617579#u64, 1510246567196186#u64,
+        2442877836294952#u64, 2368461529974388#u64
+        ])
+  let fe64 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1295295738269652#u64, 1714742313707026#u64, 545583042462581#u64,
+        2034411676262552#u64, 1513248090013606#u64
+        ])
+  let fe65 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        230710545179830#u64, 30821514358353#u64, 760704303452229#u64,
+        390668103790604#u64, 573437871383156#u64
+        ])
+  let fe66 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3421179921230875#u64, 2514967047430861#u64, 4274701112739695#u64,
+        3071700566936367#u64, 4275698278559832#u64
+        ])
+  let fe67 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2102254323485823#u64, 1570832666216754#u64, 34696906544624#u64,
+        1993213739807337#u64, 70638552271463#u64
+        ])
+  let fe68 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        894132856735058#u64, 548675863558441#u64, 845349339503395#u64,
+        1942269668326667#u64, 1615682209874691#u64
+        ])
+  let fe69 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3539470031223082#u64, 1222355136884919#u64, 1846481788678694#u64,
+        1150426571265110#u64, 1613523400722047#u64
+        ])
+  let fe70 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        793388516527298#u64, 1315457083650035#u64, 1972286999342417#u64,
+        1901825953052455#u64, 338269477222410#u64
+        ])
+  let fe71 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        550201530671806#u64, 778605267108140#u64, 2063911101902983#u64,
+        115500557286349#u64, 2041641272971022#u64
+        ])
+  let fe72 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        717255318455100#u64, 519313764361315#u64, 2080406977303708#u64,
+        541981206705521#u64, 774328150311600#u64
+        ])
+  let fe73 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        261715221532238#u64, 1795354330069993#u64, 1496878026850283#u64,
+        499739720521052#u64, 389031152673770#u64
+        ])
+  let fe74 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1997217696294013#u64, 1717306351628065#u64, 1684313917746180#u64,
+        1644426076011410#u64, 1857378133465451#u64
+        ])
+  let fe75 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3727234538477877#u64, 2328731709971226#u64, 3368528843456914#u64,
+        2002544139318041#u64, 2977347647489186#u64
+        ])
+  let fe76 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2022306639183567#u64, 726296063571875#u64, 315345054448644#u64,
+        1058733329149221#u64, 1448201136060677#u64
+        ])
+  let fe77 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1710065158525665#u64, 1895094923036397#u64, 123988286168546#u64,
+        1145519900776355#u64, 1607510767693874#u64
+        ])
+  let fe78 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2813405189107769#u64, 1071733543815036#u64, 2383296312486238#u64,
+        1946868434569998#u64, 3079937947649451#u64
+        ])
+  let fe79 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1548495173745801#u64, 442310529226540#u64, 998072547000384#u64,
+        553054358385281#u64, 644824326376171#u64
+        ])
+  let fe80 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1445526537029440#u64, 2225519789662536#u64, 914628859347385#u64,
+        1064754194555068#u64, 1660295614401091#u64
+        ])
+  let fe81 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3451490036797185#u64, 2275827949507588#u64, 2318438102929588#u64,
+        2309425969971222#u64, 2816893781664854#u64
+        ])
+  let fe82 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        876926774220824#u64, 554618976488214#u64, 1012056309841565#u64,
+        839961821554611#u64, 1414499340307677#u64
+        ])
+  let fe83 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        703047626104145#u64, 1266841406201770#u64, 165556500219173#u64,
+        486991595001879#u64, 1011325891650656#u64
+        ])
+  let fe84 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1622861044480487#u64, 1156394801573634#u64, 4120932379100752#u64,
+        2578903799462977#u64, 2095342781472283#u64
+        ])
+  let fe85 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        334886927423922#u64, 489511099221528#u64, 129160865966726#u64,
+        1720809113143481#u64, 619700195649254#u64
+        ])
+  let fe86 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1646545795166119#u64, 1758370782583567#u64, 714746174550637#u64,
+        1472693650165135#u64, 898994790308209#u64
+        ])
+  let fe87 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2585203586724508#u64, 2547572356138185#u64, 1693106465353609#u64,
+        912330357530760#u64, 2723035471635610#u64
+        ])
+  let fe88 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1811196219982022#u64, 1068969825533602#u64, 289602974833439#u64,
+        1988956043611592#u64, 863562343398367#u64
+        ])
+  let fe89 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        906282429780072#u64, 2108672665779781#u64, 432396390473936#u64,
+        150625823801893#u64, 1708930497638539#u64
+        ])
+  let fe90 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        925664675702309#u64, 2273216662253932#u64, 4083236455546587#u64,
+        601157008940112#u64, 2623617868729744#u64
+        ])
+  let fe91 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1479786007267725#u64, 1738881859066675#u64, 68646196476567#u64,
+        2146507056100328#u64, 1247662817535471#u64
+        ])
+  let fe92 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        52035296774456#u64, 939969390708103#u64, 312023458773250#u64,
+        59873523517659#u64, 1231345905848899#u64
+        ])
+  let fe93 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2895154920100990#u64, 2541986621181021#u64, 2013561737429022#u64,
+        2571447883196794#u64, 2645536492181409#u64
+        ])
+  let fe94 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        129358342392716#u64, 1932811617704777#u64, 1176749390799681#u64,
+        398040349861790#u64, 1170779668090425#u64
+        ])
+  let fe95 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2051980782668029#u64, 121859921510665#u64, 2048329875753063#u64,
+        1235229850149665#u64, 519062146124755#u64
+        ])
+  let fe96 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3859970785658325#u64, 2667608874045675#u64, 1350468408164765#u64,
+        2038620059057678#u64, 3278704299674360#u64
+        ])
+  let fe97 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1837656083115103#u64, 1510134048812070#u64, 906263674192061#u64,
+        1821064197805734#u64, 565375124676301#u64
+        ])
+  let fe98 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        578027192365650#u64, 2034800251375322#u64, 2128954087207123#u64,
+        478816193810521#u64, 2196171989962750#u64
+        ])
+  let fe99 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1633188840273120#u64, 3104586986058956#u64, 1548762607215795#u64,
+        1266275218902681#u64, 3359018017010381#u64
+        ])
+  let fe100 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        462189358480054#u64, 1784816734159228#u64, 1611334301651368#u64,
+        1303938263943540#u64, 707589560319424#u64
+        ])
+  let fe101 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1038829280972848#u64, 38176604650029#u64, 753193246598573#u64,
+        1136076426528122#u64, 595709990562434#u64
+        ])
+  let fe102 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3660251634545082#u64, 2194984964010832#u64, 2198361797561729#u64,
+        1061962440055713#u64, 1645147963442934#u64
+        ])
+  let fe103 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        4701053362120#u64, 1647641066302348#u64, 1047553002242085#u64,
+        1923635013395977#u64, 206970314902065#u64
+        ])
+  let fe104 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1750479161778571#u64, 1362553355169293#u64, 1891721260220598#u64,
+        966109370862782#u64, 1024913988299801#u64
+        ])
+  let fe105 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2464498862816952#u64, 1117950018299774#u64, 1873945661751056#u64,
+        3655602735669306#u64, 2382695896337945#u64
+        ])
+  let fe106 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        636808533673210#u64, 1262201711667560#u64, 390951380330599#u64,
+        1663420692697294#u64, 561951321757406#u64
+        ])
+  let fe107 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        520731594438141#u64, 1446301499955692#u64, 273753264629267#u64,
+        1565101517999256#u64, 1019411827004672#u64
+        ])
+  let fe108 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3178327305714638#u64, 3443653291096626#u64, 734233225181170#u64,
+        2435838701226518#u64, 4042225960010590#u64
+        ])
+  let fe109 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1464651961852572#u64, 1483737295721717#u64, 1519450561335517#u64,
+        1161429831763785#u64, 405914998179977#u64
+        ])
+  let fe110 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        996126634382301#u64, 796204125879525#u64, 127517800546509#u64,
+        344155944689303#u64, 615279846169038#u64
+        ])
+  let fe111 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2990523894660505#u64, 2188666632415295#u64, 1961313708559162#u64,
+        1506545807547587#u64, 3403101452654988#u64
+        ])
+  let fe112 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        622917337413835#u64, 1218989177089035#u64, 1284857712846592#u64,
+        970502061709359#u64, 351025208117090#u64
+        ])
+  let fe113 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2067814584765580#u64, 1677855129927492#u64, 2086109782475197#u64,
+        235286517313238#u64, 1416314046739645#u64
+        ])
+  let fe114 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2838644076315587#u64, 2559244195637442#u64, 458399356043425#u64,
+        2853867838192310#u64, 3280348017100490#u64
+        ])
+  let fe115 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        678489922928203#u64, 2016657584724032#u64, 90977383049628#u64,
+        1026831907234582#u64, 615271492942522#u64
+        ])
+  let fe116 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        301225714012278#u64, 1094837270268560#u64, 1202288391010439#u64,
+        644352775178361#u64, 1647055902137983#u64
+        ])
+  let fe117 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1210746697896459#u64, 1416608304244708#u64, 2938287290903104#u64,
+        3496931005119382#u64, 3303038150540984#u64
+        ])
+  let fe118 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1135604073198207#u64, 1683322080485474#u64, 769147804376683#u64,
+        2086688130589414#u64, 900445683120379#u64
+        ])
+  let fe119 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1971518477615628#u64, 401909519527336#u64, 448627091057375#u64,
+        1409486868273821#u64, 1214789035034363#u64
+        ])
+  let fe120 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1364039144731711#u64, 1897497433586190#u64, 2203097701135459#u64,
+        2397261210496499#u64, 1349844460790698#u64
+        ])
+  let fe121 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1045230323257973#u64, 818206601145807#u64, 630513189076103#u64,
+        1672046528998132#u64, 807204017562437#u64
+        ])
+  let fe122 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        439961968385997#u64, 386362664488986#u64, 1382706320807688#u64,
+        309894000125359#u64, 2207801346498567#u64
+        ])
+  let fe123 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3480804500082836#u64, 3172443782216110#u64, 2375775707596425#u64,
+        2933223806901024#u64, 1400559197080972#u64
+        ])
+  let fe124 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2003766096898049#u64, 170074059235165#u64, 1141124258967971#u64,
+        1485419893480973#u64, 1573762821028725#u64
+        ])
+  let fe125 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        729905708611432#u64, 1270323270673202#u64, 123353058984288#u64,
+        426460209632942#u64, 2195574535456672#u64
+        ])
+  let fe126 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1271140255321216#u64, 2044363183174497#u64, 2303925201319937#u64,
+        3696920060379952#u64, 3194341800024331#u64
+        ])
+  let fe127 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1761608437466135#u64, 583360847526804#u64, 1586706389685493#u64,
+        2157056599579261#u64, 1170692369685772#u64
+        ])
+  let fe128 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        871476219910823#u64, 1878769545097794#u64, 2241832391238412#u64,
+        548957640601001#u64, 690047440233174#u64
+        ])
+  let fe129 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2548994545820755#u64, 1366347803776819#u64, 3552985325930849#u64,
+        561849853336293#u64, 1533554921345731#u64
+        ])
+  let fe130 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        999628998628371#u64, 1132836708493400#u64, 2084741674517453#u64,
+        469343353015612#u64, 678782988708035#u64
+        ])
+  let fe131 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2189427607417022#u64, 699801937082607#u64, 412764402319267#u64,
+        1478091893643349#u64, 2244675696854460#u64
+        ])
+  let fe132 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3964091869651792#u64, 2456213404310121#u64, 3657538451018088#u64,
+        2660781114515010#u64, 3112882032961968#u64
+        ])
+  let fe133 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        508561155940631#u64, 966928475686665#u64, 2236717801150132#u64,
+        424543858577297#u64, 2089272956986143#u64
+        ])
+  let fe134 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        221245220129925#u64, 1156020201681217#u64, 491145634799213#u64,
+        542422431960839#u64, 828100817819207#u64
+        ])
+  let fe135 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2405556784925632#u64, 1299874139923976#u64, 2644898978945750#u64,
+        1058234455773021#u64, 996989038681183#u64
+        ])
+  let fe136 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        559086812798481#u64, 573177704212711#u64, 1629737083816402#u64,
+        1399819713462595#u64, 1646954378266038#u64
+        ])
+  let fe137 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1887963056288059#u64, 228507035730124#u64, 1468368348640282#u64,
+        930557653420194#u64, 613513962454686#u64
+        ])
+  let fe138 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1224529808187534#u64, 1577022856702685#u64, 2206946542980843#u64,
+        625883007765001#u64, 2531730607197406#u64
+        ])
+  let fe139 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1076287717051609#u64, 1114455570543035#u64, 187297059715481#u64,
+        250446884292121#u64, 1885187512550540#u64
+        ])
+  let fe140 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        902497362940219#u64, 76749815795675#u64, 1657927525633846#u64,
+        1420238379745202#u64, 1340321636548352#u64
+        ])
+  let fe141 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1129576631190765#u64, 3533793823712575#u64, 996844254743017#u64,
+        2509676177174497#u64, 3402650555740265#u64
+        ])
+  let fe142 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        628740660038789#u64, 1943038498527841#u64, 467786347793886#u64,
+        1093341428303375#u64, 235413859513003#u64
+        ])
+  let fe143 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        237425418909360#u64, 469614029179605#u64, 1512389769174935#u64,
+        1241726368345357#u64, 441602891065214#u64
+        ])
+  let fe144 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3988217766743784#u64, 726531315520507#u64, 1833335034432527#u64,
+        1629442561574747#u64, 2876218732971333#u64
+        ])
+  let fe145 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1960754663920689#u64, 497040957888962#u64, 1909832851283095#u64,
+        1271432136996826#u64, 2219780368020940#u64
+        ])
+  let fe146 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1537037379417136#u64, 1358865369268262#u64, 2130838645654099#u64,
+        828733687040705#u64, 1999987652890901#u64
+        ])
+  let fe147 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        629042105241795#u64, 1098854999137608#u64, 887281544569320#u64,
+        3674901833560025#u64, 2259711072636808#u64
+        ])
+  let fe148 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1811562332665373#u64, 1501882019007673#u64, 2213763501088999#u64,
+        359573079719636#u64, 36370565049116#u64
+        ])
+  let fe149 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        218907117361280#u64, 1209298913016966#u64, 1944312619096112#u64,
+        1130690631451061#u64, 1342327389191701#u64
+        ])
+  let fe150 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1369976867854685#u64, 1396479602419169#u64, 4017456468084104#u64,
+        2203659200586298#u64, 3250127649802489#u64
+        ])
+  let fe151 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2230701885562825#u64, 1348173180338974#u64, 2172856128624598#u64,
+        1426538746123771#u64, 444193481326151#u64
+        ])
+  let fe152 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        784210426627951#u64, 918204562375674#u64, 1284546780452985#u64,
+        1324534636134684#u64, 1872449409642708#u64
+        ])
+  let fe153 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2571438643225542#u64, 2848082470493653#u64, 2037902696412607#u64,
+        1557219121643918#u64, 341938082688094#u64
+        ])
+  let fe154 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1901860206695915#u64, 2004489122065736#u64, 1625847061568236#u64,
+        973529743399879#u64, 2075287685312905#u64
+        ])
+  let fe155 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1371853944110545#u64, 1042332820512553#u64, 1949855697918254#u64,
+        1791195775521505#u64, 37487364849293#u64
+        ])
+  let fe156 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        687200189577836#u64, 1082536651125675#u64, 2896024754556794#u64,
+        2592723009743198#u64, 2595381160432643#u64
+        ])
+  let fe157 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2082717129583892#u64, 27829425539422#u64, 145655066671970#u64,
+        1690527209845512#u64, 1865260509673478#u64
+        ])
+  let fe158 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1059729620568824#u64, 2163709103470266#u64, 1440302280256872#u64,
+        1769143160546397#u64, 869830310425069#u64
+        ])
+  let fe159 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3861316033464273#u64, 777277757338816#u64, 2101121130363987#u64,
+        550762194946473#u64, 1905542338659364#u64
+        ])
+  let fe160 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2024821921041576#u64, 426948675450149#u64, 595133284085473#u64,
+        471860860885970#u64, 600321679413000#u64
+        ])
+  let fe161 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        598474602406721#u64, 1468128276358244#u64, 1191923149557635#u64,
+        1501376424093216#u64, 1281662691293476#u64
+        ])
+  let fe162 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1721138489890688#u64, 1264336102277790#u64, 2684864359106535#u64,
+        1359988423149465#u64, 3813671107094695#u64
+        ])
+  let fe163 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        719520245587143#u64, 393380711632345#u64, 132350400863381#u64,
+        1543271270810729#u64, 1819543295798660#u64
+        ])
+  let fe164 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        396397949784152#u64, 1811354474471839#u64, 1362679985304303#u64,
+        2117033964846756#u64, 498041172552279#u64
+        ])
+  let fe165 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1812471844975748#u64, 1856491995543149#u64, 126579494584102#u64,
+        3288044672967868#u64, 1975108050082549#u64
+        ])
+  let fe166 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        650623932407995#u64, 1137551288410575#u64, 2125223403615539#u64,
+        1725658013221271#u64, 2134892965117796#u64
+        ])
+  let fe167 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        522584000310195#u64, 1241762481390450#u64, 1743702789495384#u64,
+        2227404127826575#u64, 1686746002148897#u64
+        ])
+  let fe168 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        427904865186293#u64, 1703211129693455#u64, 1585368107547509#u64,
+        3688784302429584#u64, 3012988348299225#u64
+        ])
+  let fe169 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        318101947455002#u64, 248138407995851#u64, 1481904195303927#u64,
+        309278454311197#u64, 1258516760217879#u64
+        ])
+  let fe170 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1275068538599310#u64, 513726919533379#u64, 349926553492294#u64,
+        688428871968420#u64, 1702400196000666#u64
+        ])
+  let fe171 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3313663849950481#u64, 3213411074010628#u64, 2573659446386085#u64,
+        3297400443644764#u64, 1985130202504037#u64
+        ])
+  let fe172 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1558816436882417#u64, 1962896332636523#u64, 1337709822062152#u64,
+        1501413830776938#u64, 294436165831932#u64
+        ])
+  let fe173 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        818359826554971#u64, 1862173000996177#u64, 626821592884859#u64,
+        573655738872376#u64, 1749691246745455#u64
+        ])
+  let fe174 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1988022651432119#u64, 3333911312271288#u64, 1834020786104820#u64,
+        3706626690108935#u64, 692929915223121#u64
+        ])
+  let fe175 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2146513703733331#u64, 584788900394667#u64, 464965657279958#u64,
+        2183973639356127#u64, 238371159456790#u64
+        ])
+  let fe176 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1129007025494441#u64, 2197883144413266#u64, 265142755578169#u64,
+        971864464758890#u64, 1983715884903702#u64
+        ])
+  let fe177 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1291366624493056#u64, 2633256531874362#u64, 1711482489312443#u64,
+        1815233647702022#u64, 3144079596677715#u64
+        ])
+  let fe178 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        444548969917454#u64, 1452286453853356#u64, 2113731441506810#u64,
+        645188273895859#u64, 810317625309512#u64
+        ])
+  let fe179 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2242724082797924#u64, 1373354730327868#u64, 1006520110883049#u64,
+        2147330369940688#u64, 1151816104883620#u64
+        ])
+  let fe180 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3997520014069025#u64, 4163522956860564#u64, 2056329390702073#u64,
+        2607026987995097#u64, 3131032608056347#u64
+        ])
+  let fe181 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        163723479936298#u64, 115424889803150#u64, 1156016391581227#u64,
+        1894942220753364#u64, 1970549419986329#u64
+        ])
+  let fe182 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        681981452362484#u64, 267208874112496#u64, 1374683991933094#u64,
+        638600984916117#u64, 646178654558546#u64
+        ])
+  let fe183 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2265178468539480#u64, 2358037120714814#u64, 1944412051589650#u64,
+        4093776581610705#u64, 2482502633520820#u64
+        ])
+  let fe184 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        260683893467075#u64, 854060306077237#u64, 913639551980112#u64,
+        4704576840123#u64, 280254810808712#u64
+        ])
+  let fe185 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        715374893080287#u64, 1173334812210491#u64, 1806524662079626#u64,
+        1894596008000979#u64, 398905715033393#u64
+        ])
+  let fe186 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2751826223412909#u64, 3848231101880618#u64, 1420380351989369#u64,
+        3237011375206737#u64, 392444930785632#u64
+        ])
+  let fe187 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2096421546958141#u64, 1922523000950363#u64, 789831022876840#u64,
+        427295144688779#u64, 320923973161730#u64
+        ])
+  let fe188 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1927770723575450#u64, 1485792977512719#u64, 1850996108474547#u64,
+        551696031508956#u64, 2126047405475647#u64
+        ])
+  let fe189 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2112099158080129#u64, 2994370617594963#u64, 2258284371762679#u64,
+        1951119898618915#u64, 2344890196388664#u64
+        ])
+  let fe190 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        383905201636970#u64, 859946997631870#u64, 855623867637644#u64,
+        1017125780577795#u64, 794250831877809#u64
+        ])
+  let fe191 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        77571826285752#u64, 999304298101753#u64, 487841111777762#u64,
+        1038031143212339#u64, 339066367948762#u64
+        ])
+  let fe192 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2926794589205781#u64, 2517835660016036#u64, 826951213393477#u64,
+        1405007746162285#u64, 1781791018620876#u64
+        ])
+  let fe193 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1001412661522686#u64, 348196197067298#u64, 1666614366723946#u64,
+        888424995032760#u64, 580747687801357#u64
+        ])
+  let fe194 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1939560076207777#u64, 1409892634407635#u64, 552574736069277#u64,
+        383854338280405#u64, 190706709864139#u64
+        ])
+  let fe195 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2177087163428741#u64, 1439255351721944#u64, 3459870654068041#u64,
+        2230616362004768#u64, 1396886392021913#u64
+        ])
+  let fe196 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        676962063230039#u64, 1880275537148808#u64, 2046721011602706#u64,
+        888463247083003#u64, 1318301552024067#u64
+        ])
+  let fe197 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1466980508178206#u64, 617045217998949#u64, 652303580573628#u64,
+        757303753529064#u64, 207583137376902#u64
+        ])
+  let fe198 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3762856566592150#u64, 2357202940576524#u64, 2745234706458093#u64,
+        1091943425335975#u64, 1802717338077427#u64
+        ])
+  let fe199 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1853982405405128#u64, 1878664056251147#u64, 1528011020803992#u64,
+        1019626468153565#u64, 1128438412189035#u64
+        ])
+  let fe200 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1963939888391106#u64, 293456433791664#u64, 697897559513649#u64,
+        985882796904380#u64, 796244541237972#u64
+        ])
+  let fe201 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2668570812315008#u64, 2641455366112301#u64, 1314476859406755#u64,
+        1749382513022778#u64, 3413705412424739#u64
+        ])
+  let fe202 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1428358296490651#u64, 1027115282420478#u64, 304840698058337#u64,
+        441410174026628#u64, 1819358356278573#u64
+        ])
+  let fe203 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        204943430200135#u64, 1554861433819175#u64, 216426658514651#u64,
+        264149070665950#u64, 2047097371738319#u64
+        ])
+  let fe204 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1934415182909015#u64, 1393285083565062#u64, 2768209145458208#u64,
+        3409490548679139#u64, 2372839480279515#u64
+        ])
+  let fe205 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        662035583584445#u64, 286736105093098#u64, 1131773000510616#u64,
+        818494214211439#u64, 472943792054479#u64
+        ])
+  let fe206 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        665784778135882#u64, 1893179629898606#u64, 808313193813106#u64,
+        276797254706413#u64, 1563426179676396#u64
+        ])
+  let fe207 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        945205108984213#u64, 2778077376644543#u64, 1324180513733565#u64,
+        1666970227868664#u64, 2405347422974421#u64
+        ])
+  let fe208 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2031433403516252#u64, 203996615228162#u64, 170487168837083#u64,
+        981513604791390#u64, 843573964916831#u64
+        ])
+  let fe209 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1476570093962618#u64, 838514669399805#u64, 1857930577281364#u64,
+        2017007352225784#u64, 317085545220047#u64
+        ])
+  let fe210 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1461557121912823#u64, 1600674043318359#u64, 2157134900399597#u64,
+        1670641601940616#u64, 2379565397488531#u64
+        ])
+  let fe211 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1293543509393474#u64, 2143624609202546#u64, 1058361566797508#u64,
+        214097127393994#u64, 946888515472729#u64
+        ])
+  let fe212 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        357067959932916#u64, 1290876214345711#u64, 521245575443703#u64,
+        1494975468601005#u64, 800942377643885#u64
+        ])
+  let fe213 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2817916472785262#u64, 820247422481739#u64, 994464017954148#u64,
+        2578957425371613#u64, 2344391131796991#u64
+        ])
+  let fe214 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        617256647603209#u64, 1652107761099439#u64, 1857213046645471#u64,
+        1085597175214970#u64, 817432759830522#u64
+        ])
+  let fe215 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        771808161440705#u64, 1323510426395069#u64, 680497615846440#u64,
+        851580615547985#u64, 1320806384849017#u64
+        ])
+  let fe216 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1219260086131896#u64, 2898968820282063#u64, 2331400938444953#u64,
+        2161724213426747#u64, 2656661710745446#u64
+        ])
+  let fe217 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1327968293887866#u64, 1335500852943256#u64, 1401587164534264#u64,
+        558137311952440#u64, 1551360549268902#u64
+        ])
+  let fe218 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        417621685193956#u64, 1429953819744454#u64, 396157358457099#u64,
+        1940470778873255#u64, 214000046234152#u64
+        ])
+  let fe219 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1268047918491954#u64, 2172375426948536#u64, 1533916099229249#u64,
+        1761293575457130#u64, 3842422480712013#u64
+        ])
+  let fe220 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1627072914981959#u64, 2211603081280073#u64, 1912369601616504#u64,
+        1191770436221309#u64, 2187309757525860#u64
+        ])
+  let fe221 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1149147819689533#u64, 378692712667677#u64, 828475842424202#u64,
+        2218619146419342#u64, 70688125792186#u64
+        ])
+  let fe222 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3551539230764990#u64, 3690416477138006#u64, 3788528892189659#u64,
+        2053896748919837#u64, 3260220846276494#u64
+        ])
+  let fe223 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2040723824657366#u64, 399555637875075#u64, 632543375452995#u64,
+        872649937008051#u64, 1235394727030233#u64
+        ])
+  let fe224 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2211311599327900#u64, 2139787259888175#u64, 938706616835350#u64,
+        12609661139114#u64, 2081897930719789#u64
+        ])
+  let fe225 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1324994503390431#u64, 2588782144267879#u64, 1183998925654176#u64,
+        3343454479598522#u64, 2300527487656566#u64
+        ])
+  let fe226 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1845522914617879#u64, 1222198248335542#u64, 150841072760134#u64,
+        1927029069940982#u64, 1189913404498011#u64
+        ])
+  let fe227 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1079559557592645#u64, 2215338383666441#u64, 1903569501302605#u64,
+        49033973033940#u64, 305703433934152#u64
+        ])
+  let fe228 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2346453219102138#u64, 3637921163538246#u64, 3313930291577009#u64,
+        2288353761164521#u64, 3085469462634093#u64
+        ])
+  let fe229 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1432015813136298#u64, 440364795295369#u64, 1395647062821501#u64,
+        1976874522764578#u64, 934452372723352#u64
+        ])
+  let fe230 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1296625309219774#u64, 2068273464883862#u64, 1858621048097805#u64,
+        1492281814208508#u64, 2235868981918946#u64
+        ])
+  let fe231 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1490330266465551#u64, 1858795661361448#u64, 3688040948655011#u64,
+        2546373032584894#u64, 3459939824714180#u64
+        ])
+  let fe232 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1282462923712748#u64, 741885683986255#u64, 2027754642827561#u64,
+        518989529541027#u64, 1826610009555945#u64
+        ])
+  let fe233 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1525827120027511#u64, 723686461809551#u64, 1597702369236987#u64,
+        244802101764964#u64, 1502833890372311#u64
+        ])
+  let fe234 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2365421849929742#u64, 3485539881431101#u64, 2925909765963743#u64,
+        2114345180342964#u64, 2418564326541511#u64
+        ])
+  let fe235 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2041668749310338#u64, 2184405322203901#u64, 1633400637611036#u64,
+        2110682505536899#u64, 2048144390084644#u64
+        ])
+  let fe236 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        503058759232932#u64, 760293024620937#u64, 2027152777219493#u64,
+        666858468148475#u64, 1539184379870952#u64
+        ])
+  let fe237 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1916168475367211#u64, 3167426246226591#u64, 883217071712574#u64,
+        363427871374304#u64, 1976029821251593#u64
+        ])
+  let fe238 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        678039535434506#u64, 570587290189340#u64, 1605302676614120#u64,
+        2147762562875701#u64, 1706063797091704#u64
+        ])
+  let fe239 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1439489648586438#u64, 2194580753290951#u64, 832380563557396#u64,
+        561521973970522#u64, 584497280718389#u64
+        ])
+  let fe240 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2439789269177838#u64, 681223515948274#u64, 1933493571072456#u64,
+        1872921007304880#u64, 2739962177820919#u64
+        ])
+  let fe241 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1413466089534451#u64, 410844090765630#u64, 1397263346404072#u64,
+        408227143123410#u64, 1594561803147811#u64
+        ])
+  let fe242 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2102170800973153#u64, 719462588665004#u64, 1479649438510153#u64,
+        1097529543970028#u64, 1302363283777685#u64
+        ])
+  let fe243 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3193865531532443#u64, 3321113493038208#u64, 2007341951411050#u64,
+        2322773230131539#u64, 1419433790163705#u64
+        ])
+  let fe244 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1146565545556377#u64, 1661971299445212#u64, 406681704748893#u64,
+        564452436406089#u64, 1109109865829139#u64
+        ])
+  let fe245 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2214421081775077#u64, 1165671861210569#u64, 1890453018796184#u64,
+        3556249878661#u64, 442116172656317#u64
+        ])
+  let fe246 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3005630360306059#u64, 1666955059895018#u64, 1530775289309243#u64,
+        3371786842789394#u64, 2164156153857579#u64
+        ])
+  let fe247 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        615171919212796#u64, 1523849404854568#u64, 854560460547503#u64,
+        2067097370290715#u64, 1765325848586042#u64
+        ])
+  let fe248 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1094538949313667#u64, 1796592198908825#u64, 870221004284388#u64,
+        2025558921863561#u64, 1699010892802384#u64
+        ])
+  let fe249 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1951351290725195#u64, 1916457206844795#u64, 2449824998123274#u64,
+        1909076887557594#u64, 1938542290318919#u64
+        ])
+  let fe250 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1014323197538413#u64, 869150639940606#u64, 1756009942696599#u64,
+        1334952557375672#u64, 1544945379082874#u64
+        ])
+  let fe251 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        764055910920305#u64, 1603590757375439#u64, 146805246592357#u64,
+        1843313433854297#u64, 954279890114939#u64
+        ])
+  let fe252 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        80113526615731#u64, 764536758732259#u64, 3306939158785481#u64,
+        2721052465444637#u64, 2869697326116762#u64
+        ])
+  let fe253 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        74497112547268#u64, 740094153192149#u64, 1745254631717581#u64,
+        727713886503130#u64, 1283034364416928#u64
+        ])
+  let fe254 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        525892105991110#u64, 1723776830270342#u64, 1476444848991936#u64,
+        573789489857760#u64, 133864092632978#u64
+        ])
+  let fe255 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2794411533877810#u64, 1986812262899320#u64, 1162535242465837#u64,
+        2733298779828712#u64, 2796400347268869#u64
+        ])
+  let fe256 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        64123227344372#u64, 1239927720647794#u64, 1360722983445904#u64,
+        222610813654661#u64, 62429487187991#u64
+        ])
+  let fe257 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1793193323953132#u64, 91096687857833#u64, 70945970938921#u64,
+        2158587638946380#u64, 1537042406482111#u64
+        ])
+  let fe258 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1895854577604590#u64, 3646695522634664#u64, 1728548428495943#u64,
+        3392664713925397#u64, 2815445147288308#u64
+        ])
+  let fe259 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        141358280486863#u64, 91435889572504#u64, 1087208572552643#u64,
+        1829599652522921#u64, 1193307020643647#u64
+        ])
+  let fe260 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1611230858525381#u64, 950720175540785#u64, 499589887488610#u64,
+        2001656988495019#u64, 88977313255908#u64
+        ])
+  let fe261 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3440880315164906#u64, 2184348804772596#u64, 3292618539427567#u64,
+        2018318290311833#u64, 1712060030915354#u64
+        ])
+  let fe262 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        873966876953756#u64, 1090638350350440#u64, 1708559325189137#u64,
+        672344594801910#u64, 1320437969700239#u64
+        ])
+  let fe263 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1508590048271766#u64, 1131769479776094#u64, 101550868699323#u64,
+        428297785557897#u64, 561791648661744#u64
+        ])
+  let fe264 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3008217384184691#u64, 2489682092917849#u64, 2136263418594015#u64,
+        1701968045454886#u64, 2955512998822720#u64
+        ])
+  let fe265 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1781187809325462#u64, 1697624151492346#u64, 1381393690939988#u64,
+        175194132284669#u64, 1483054666415238#u64
+        ])
+  let fe266 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2175517777364616#u64, 708781536456029#u64, 955668231122942#u64,
+        1967557500069555#u64, 2021208005604118#u64
+        ])
+  let fe267 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3366935780292116#u64, 2476017186636029#u64, 915967306279221#u64,
+        593866251291540#u64, 2813546907893254#u64
+        ])
+  let fe268 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1443163092879439#u64, 391875531646162#u64, 2180847134654632#u64,
+        464538543018753#u64, 1594098196837178#u64
+        ])
+  let fe269 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        850858855888869#u64, 319436476624586#u64, 327807784938441#u64,
+        740785849558761#u64, 17128415486016#u64
+        ])
+  let fe270 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2132756334090048#u64, 2788047633840893#u64, 2300706964962114#u64,
+        2860273011285942#u64, 3513489358708031#u64
+        ])
+  let fe271 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1525176236978354#u64, 974205476721062#u64, 293436255662638#u64,
+        148269621098039#u64, 137961998433963#u64
+        ])
+  let fe272 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1121075518299410#u64, 2071745529082111#u64, 1265567917414828#u64,
+        1648196578317805#u64, 496232102750820#u64
+        ])
+  let fe273 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2374121042985030#u64, 3274721891178932#u64, 2001275453369483#u64,
+        2017441881607947#u64, 3245005694463250#u64
+        ])
+  let fe274 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        654925550560074#u64, 1168810995576858#u64, 575655959430926#u64,
+        905758704861388#u64, 496774564663534#u64
+        ])
+  let fe275 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1954109525779738#u64, 2117022646152485#u64, 338102630417180#u64,
+        1194140505732026#u64, 107881734943492#u64
+        ])
+  let fe276 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1714785840001267#u64, 4288299832366837#u64, 1876380234251965#u64,
+        2056717182974196#u64, 1645855254384642#u64
+        ])
+  let fe277 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        106431476499341#u64, 62482972120563#u64, 1513446655109411#u64,
+        807258751769522#u64, 538491469114#u64
+        ])
+  let fe278 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2002850762893643#u64, 1243624520538135#u64, 1486040410574605#u64,
+        2184752338181213#u64, 378495998083531#u64
+        ])
+  let fe279 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        922510868424903#u64, 1089502620807680#u64, 402544072617374#u64,
+        1131446598479839#u64, 1290278588136533#u64
+        ])
+  let fe280 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1867998812076769#u64, 715425053580701#u64, 39968586461416#u64,
+        2173068014586163#u64, 653822651801304#u64
+        ])
+  let fe281 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        162892278589453#u64, 182585796682149#u64, 75093073137630#u64,
+        497037941226502#u64, 133871727117371#u64
+        ])
+  let fe282 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        4166396390264918#u64, 1608999621851577#u64, 1987629837704609#u64,
+        1519655314857977#u64, 1819193753409464#u64
+        ])
+  let fe283 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1949315551096831#u64, 1069003344994464#u64, 1939165033499916#u64,
+        1548227205730856#u64, 1933767655861407#u64
+        ])
+  let fe284 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1730519386931635#u64, 1393284965610134#u64, 1597143735726030#u64,
+        416032382447158#u64, 1429665248828629#u64
+        ])
+  let fe285 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        360275475604546#u64, 2799635544748326#u64, 2467160717872776#u64,
+        2848446553564254#u64, 2584509464110332#u64
+        ])
+  let fe286 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        47602113726801#u64, 1522314509708010#u64, 437706261372925#u64,
+        814035330438027#u64, 335930650933545#u64
+        ])
+  let fe287 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1291597595523886#u64, 1058020588994081#u64, 402837842324045#u64,
+        1363323695882781#u64, 2105763393033193#u64
+        ])
+  let fe288 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2361321796251793#u64, 3967057562270386#u64, 1112231216891515#u64,
+        2046641005101484#u64, 2386048970842261#u64
+        ])
+  let fe289 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2156991030936798#u64, 2227544497153325#u64, 1869050094431622#u64,
+        754875860479115#u64, 1754242344267058#u64
+        ])
+  let fe290 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1846089562873800#u64, 98894784984326#u64, 1412430299204844#u64,
+        171351226625762#u64, 1100604760929008#u64
+        ])
+  let fe291 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2335972195815721#u64, 2751510784385293#u64, 425749630620777#u64,
+        1762872794206857#u64, 2864642415813208#u64
+        ])
+  let fe292 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        868309334532756#u64, 1703010512741873#u64, 1952690008738057#u64,
+        4325269926064#u64, 2071083554962116#u64
+        ])
+  let fe293 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        523094549451158#u64, 401938899487815#u64, 1407690589076010#u64,
+        2022387426254453#u64, 158660516411257#u64
+        ])
+  let fe294 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        612867287630009#u64, 2700012425789062#u64, 2823428891104443#u64,
+        1466796750919375#u64, 1728478129663858#u64
+        ])
+  let fe295 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1723848973783452#u64, 2208822520534681#u64, 1718748322776940#u64,
+        1974268454121942#u64, 1194212502258141#u64
+        ])
+  let fe296 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1254114807944608#u64, 977770684047110#u64, 2010756238954993#u64,
+        1783628927194099#u64, 1525962994408256#u64
+        ])
+  let fe297 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2484263871921055#u64, 1948628555342433#u64, 1835348780427694#u64,
+        1031609499437291#u64, 2316271920603621#u64
+        ])
+  let fe298 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        767338676040683#u64, 754089548318405#u64, 1523192045639075#u64,
+        435746025122062#u64, 512692508440385#u64
+        ])
+  let fe299 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1255955808701983#u64, 1700487367990941#u64, 1166401238800299#u64,
+        1175121994891534#u64, 1190934801395380#u64
+        ])
+  let fe300 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2600943821853521#u64, 1337012557669161#u64, 1475912332999108#u64,
+        3573418268585706#u64, 2299411105589567#u64
+        ])
+  let fe301 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        877519947135419#u64, 2172838026132651#u64, 272304391224129#u64,
+        1655143327559984#u64, 886229406429814#u64
+        ])
+  let fe302 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        375806028254706#u64, 214463229793940#u64, 572906353144089#u64,
+        572168269875638#u64, 697556386112979#u64
+        ])
+  let fe303 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1168827102357825#u64, 823864273033637#u64, 4323338565789945#u64,
+        788062026895923#u64, 2851378154428610#u64
+        ])
+  let fe304 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1948116082078088#u64, 2054898304487796#u64, 2204939184983900#u64,
+        210526805152138#u64, 786593586607626#u64
+        ])
+  let fe305 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1915320147894736#u64, 156481169009469#u64, 655050471180417#u64,
+        592917090415421#u64, 2165897438660879#u64
+        ])
+  let fe306 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1726336468579724#u64, 1119932070398949#u64, 1929199510967666#u64,
+        2285718602008207#u64, 1836837863503149#u64
+        ])
+  let fe307 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        829996854845988#u64, 217061778005138#u64, 1686565909803640#u64,
+        1346948817219846#u64, 1723823550730181#u64
+        ])
+  let fe308 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        384301494966394#u64, 687038900403062#u64, 2211195391021739#u64,
+        254684538421383#u64, 1245698430589680#u64
+        ])
+  let fe309 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1247567493562669#u64, 4229981908141095#u64, 2435671288478202#u64,
+        806570235643434#u64, 2540261331753164#u64
+        ])
+  let fe310 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1449077384734201#u64, 38285445457996#u64, 2136537659177832#u64,
+        2146493000841573#u64, 725161151123125#u64
+        ])
+  let fe311 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1201928866368855#u64, 800415690605445#u64, 1703146756828343#u64,
+        997278587541744#u64, 1858284414104014#u64
+        ])
+  let fe312 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2608268623334125#u64, 3034173730618399#u64, 1718002439402869#u64,
+        3644022065904502#u64, 663171266061950#u64
+        ])
+  let fe313 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        759628738230460#u64, 1012693474275852#u64, 353780233086498#u64,
+        246080061387552#u64, 2030378857679162#u64
+        ])
+  let fe314 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2040672435071076#u64, 888593182036908#u64, 1298443657189359#u64,
+        1804780278521327#u64, 354070726137060#u64
+        ])
+  let fe315 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1894938527423184#u64, 3715012855162525#u64, 2726210319182898#u64,
+        2499094776718546#u64, 877975941029127#u64
+        ])
+  let fe316 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        207937160991127#u64, 12966911039119#u64, 820997788283092#u64,
+        1010440472205286#u64, 1701372890140810#u64
+        ])
+  let fe317 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        218882774543183#u64, 533427444716285#u64, 1233243976733245#u64,
+        435054256891319#u64, 1509568989549904#u64
+        ])
+  let fe318 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        4140638349397055#u64, 3303977572025869#u64, 3465353617009382#u64,
+        2420981822812579#u64, 2715174081801119#u64
+        ])
+  let fe319 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        299137589460312#u64, 1594371588983567#u64, 868058494039073#u64,
+        257771590636681#u64, 1805012993142921#u64
+        ])
+  let fe320 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1806842755664364#u64, 2098896946025095#u64, 1356630998422878#u64,
+        1458279806348064#u64, 347755825962072#u64
+        ])
+  let fe321 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1402334161391744#u64, 3811883484731547#u64, 1008585416617746#u64,
+        1147797150908892#u64, 1420416683642459#u64
+        ])
+  let fe322 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        665506704253369#u64, 273770475169863#u64, 799236974202630#u64,
+        848328990077558#u64, 1811448782807931#u64
+        ])
+  let fe323 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1468412523962641#u64, 771866649897997#u64, 1931766110147832#u64,
+        799561180078482#u64, 524837559150077#u64
+        ])
+  let fe324 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2223212657821831#u64, 2882216061048914#u64, 2144451165500327#u64,
+        3068710944633039#u64, 3276150872095279#u64
+        ])
+  let fe325 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1266603897524861#u64, 156378408858100#u64, 1275649024228779#u64,
+        447738405888420#u64, 253186462063095#u64
+        ])
+  let fe326 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2022215964509735#u64, 136144366993649#u64, 1800716593296582#u64,
+        1193970603800203#u64, 871675847064218#u64
+        ])
+  let fe327 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1862751661970309#u64, 851596246739884#u64, 1519315554814041#u64,
+        3794598280232697#u64, 3669775149586767#u64
+        ])
+  let fe328 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1228168094547481#u64, 334133883362894#u64, 587567568420081#u64,
+        433612590281181#u64, 603390400373205#u64
+        ])
+  let fe329 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        121893973206505#u64, 1843345804916664#u64, 1703118377384911#u64,
+        497810164760654#u64, 101150811654673#u64
+        ])
+  let fe330 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2710146069631716#u64, 2542709749304591#u64, 1452768413850678#u64,
+        2802722688939463#u64, 1537286854336537#u64
+        ])
+  let fe331 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        584322311184395#u64, 380661238802118#u64, 114839394528060#u64,
+        655082270500073#u64, 2111856026034852#u64
+        ])
+  let fe332 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        996965581008991#u64, 2148998626477022#u64, 1012273164934654#u64,
+        1073876063914522#u64, 1688031788934939#u64
+        ])
+  let fe333 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3175286832534829#u64, 2085106799623354#u64, 2779882615305384#u64,
+        1606206360876187#u64, 2987706905397772#u64
+        ])
+  let fe334 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1697697887804317#u64, 1335343703828273#u64, 831288615207040#u64,
+        949416685250051#u64, 288760277392022#u64
+        ])
+  let fe335 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1419122478109648#u64, 1325574567803701#u64, 602393874111094#u64,
+        2107893372601700#u64, 1314159682671307#u64
+        ])
+  let fe336 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2201150872731785#u64, 2180241023425241#u64, 2349463270108411#u64,
+        1633405770247823#u64, 3100744856129234#u64
+        ])
+  let fe337 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1173339555550611#u64, 818605084277583#u64, 47521504364289#u64,
+        924108720564965#u64, 735423405754506#u64
+        ])
+  let fe338 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        830104860549448#u64, 1886653193241086#u64, 1600929509383773#u64,
+        1475051275443631#u64, 286679780900937#u64
+        ])
+  let fe339 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3828911108518224#u64, 3282698983453994#u64, 2396700729978777#u64,
+        4216472406664814#u64, 2820189914640497#u64
+        ])
+  let fe340 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        278388655910247#u64, 487143369099838#u64, 927762205508727#u64,
+        181017540174210#u64, 1616886700741287#u64
+        ])
+  let fe341 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1191033906638969#u64, 940823957346562#u64, 1606870843663445#u64,
+        861684761499847#u64, 658674867251089#u64
+        ])
+  let fe342 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1875032594195527#u64, 1427106132796197#u64, 2976536204647406#u64,
+        3153660325729987#u64, 2887068310954007#u64
+        ])
+  let fe343 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        622869792298357#u64, 1903919278950367#u64, 1922588621661629#u64,
+        1520574711600434#u64, 1087100760174640#u64
+        ])
+  let fe344 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        25465949416618#u64, 1693639527318811#u64, 1526153382657203#u64,
+        125943137857169#u64, 145276964043999#u64
+        ])
+  let fe345 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2466539671654587#u64, 920212862967914#u64, 4191701364657517#u64,
+        3463662605460468#u64, 2336897329405367#u64
+        ])
+  let fe346 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2006245852772938#u64, 734762734836159#u64, 254642929763427#u64,
+        1406213292755966#u64, 239303749517686#u64
+        ])
+  let fe347 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1619678837192149#u64, 1919424032779215#u64, 1357391272956794#u64,
+        1525634040073113#u64, 1310226789796241#u64
+        ])
+  let fe348 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3292563523447371#u64, 1704449869235351#u64, 2857062884141577#u64,
+        1998838089036354#u64, 1312142911487502#u64
+        ])
+  let fe349 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1996723311435669#u64, 1844342766567060#u64, 985455700466044#u64,
+        1165924681400960#u64, 311508689870129#u64
+        ])
+  let fe350 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        43173156290518#u64, 2202883069785309#u64, 1137787467085917#u64,
+        1733636061944606#u64, 1394992037553852#u64
+        ])
+  let fe351 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        670078326344559#u64, 2807454838744604#u64, 2723759199967685#u64,
+        2141455487356408#u64, 849015953823125#u64
+        ])
+  let fe352 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2197214573372804#u64, 794254097241315#u64, 1030190060513737#u64,
+        267632515541902#u64, 2040478049202624#u64
+        ])
+  let fe353 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1812516004670529#u64, 1609256702920783#u64, 1706897079364493#u64,
+        258549904773295#u64, 996051247540686#u64
+        ])
+  let fe354 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1540374301420565#u64, 1764656898914615#u64, 1810104162020396#u64,
+        3175608592848336#u64, 2916189887881826#u64
+        ])
+  let fe355 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1323460699404750#u64, 1262690757880991#u64, 871777133477900#u64,
+        1060078894988977#u64, 1712236889662886#u64
+        ])
+  let fe356 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1696163952057966#u64, 1391710137550823#u64, 608793846867416#u64,
+        1034391509472039#u64, 1780770894075012#u64
+        ])
+  let fe357 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1367603834210822#u64, 4383788460268472#u64, 890353773628143#u64,
+        1908908219165595#u64, 2522636708938139#u64
+        ])
+  let fe358 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        597536315471731#u64, 40375058742586#u64, 1942256403956049#u64,
+        1185484645495932#u64, 312666282024145#u64
+        ])
+  let fe359 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1919411405316294#u64, 1234508526402192#u64, 1066863051997083#u64,
+        1008444703737597#u64, 1348810787701552#u64
+        ])
+  let fe360 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2102881477513865#u64, 3822074379630609#u64, 1573617900503707#u64,
+        2270462449417831#u64, 2232324307922097#u64
+        ])
+  let fe361 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1853931367696942#u64, 8107973870707#u64, 350214504129299#u64,
+        775206934582587#u64, 1752317649166792#u64
+        ])
+  let fe362 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1417148368003523#u64, 721357181628282#u64, 505725498207811#u64,
+        373232277872983#u64, 261634707184480#u64
+        ])
+  let fe363 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2186733281493248#u64, 2250694917008620#u64, 1014829812957440#u64,
+        2731797975137637#u64, 2335366007561721#u64
+        ])
+  let fe364 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1268116367301224#u64, 560157088142809#u64, 802626839600444#u64,
+        2210189936605713#u64, 1129993785579988#u64
+        ])
+  let fe365 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        615183387352312#u64, 917611676109240#u64, 878893615973325#u64,
+        978940963313282#u64, 938686890583575#u64
+        ])
+  let fe366 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        522024729211672#u64, 3296859129001056#u64, 1892245413707789#u64,
+        1907891107684253#u64, 2059998109500714#u64
+        ])
+  let fe367 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1799679152208884#u64, 912132775900387#u64, 25967768040979#u64,
+        432130448590461#u64, 274568990261996#u64
+        ])
+  let fe368 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        98698809797682#u64, 2144627600856209#u64, 1907959298569602#u64,
+        811491302610148#u64, 1262481774981493#u64
+        ])
+  let fe369 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1791451399743152#u64, 1713538728337276#u64, 2370149810942738#u64,
+        1882306388849953#u64, 158235232210248#u64
+        ])
+  let fe370 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1217809823321928#u64, 2173947284933160#u64, 1986927836272325#u64,
+        1388114931125539#u64, 12686131160169#u64
+        ])
+  let fe371 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1650875518872272#u64, 1136263858253897#u64, 1732115601395988#u64,
+        734312880662190#u64, 1252904681142109#u64
+        ])
+  let fe372 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2624786269799113#u64, 2777230729143418#u64, 2116279931702134#u64,
+        2753222527273063#u64, 1907002872974924#u64
+        ])
+  let fe373 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        803147181835288#u64, 868941437997146#u64, 316299302989663#u64,
+        943495589630550#u64, 571224287904572#u64
+        ])
+  let fe374 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        227742695588364#u64, 1776969298667369#u64, 628602552821802#u64,
+        457210915378118#u64, 2041906378111140#u64
+        ])
+  let fe375 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        815000523470260#u64, 3164885502413555#u64, 3303859931956420#u64,
+        1345536665214222#u64, 541623413135555#u64
+        ])
+  let fe376 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1580216071604333#u64, 1877997504342444#u64, 857147161260913#u64,
+        703522726778478#u64, 2182763974211603#u64
+        ])
+  let fe377 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1870080310923419#u64, 71988220958492#u64, 1783225432016732#u64,
+        615915287105016#u64, 1035570475990230#u64
+        ])
+  let fe378 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2982787564515398#u64, 857613889540279#u64, 1083813157271766#u64,
+        1002817255970169#u64, 1719228484436074#u64
+        ])
+  let fe379 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        377616581647602#u64, 1581980403078513#u64, 804044118130621#u64,
+        2034382823044191#u64, 643844048472185#u64
+        ])
+  let fe380 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        176957326463017#u64, 1573744060478586#u64, 528642225008045#u64,
+        1816109618372371#u64, 1515140189765006#u64
+        ])
+  let fe381 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1888911448245718#u64, 3638910709296328#u64, 4176303607751676#u64,
+        1731539523700948#u64, 2230378382645454#u64
+        ])
+  let fe382 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        443392177002051#u64, 233793396845137#u64, 2199506622312416#u64,
+        1011858706515937#u64, 974676837063129#u64
+        ])
+  let fe383 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1846351103143623#u64, 1949984838808427#u64, 671247021915253#u64,
+        1946756846184401#u64, 1929296930380217#u64
+        ])
+  let fe384 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        849646212451983#u64, 1410198775302919#u64, 2325567699868943#u64,
+        1641663456615811#u64, 3014056086137659#u64
+        ])
+  let fe385 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        692017667358279#u64, 723305578826727#u64, 1638042139863265#u64,
+        748219305990306#u64, 334589200523901#u64
+        ])
+  let fe386 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        22893968530686#u64, 2235758574399251#u64, 1661465835630252#u64,
+        925707319443452#u64, 1203475116966621#u64
+        ])
+  let fe387 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3053098849470395#u64, 3985092410411378#u64, 1664508947088595#u64,
+        2719548934677170#u64, 3899298398220870#u64
+        ])
+  let fe388 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        903105258014366#u64, 427141894933047#u64, 561187017169777#u64,
+        1884330244401954#u64, 1914145708422219#u64
+        ])
+  let fe389 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1344191060517578#u64, 1960935031767890#u64, 1518838929955259#u64,
+        1781502350597190#u64, 1564784025565682#u64
+        ])
+  let fe390 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2925523165433334#u64, 1979969272514922#u64, 3427087126180756#u64,
+        1187589090978665#u64, 1881897672213940#u64
+        ])
+  let fe391 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1917185587363432#u64, 1098342571752737#u64, 5935801044414#u64,
+        2000527662351839#u64, 1538640296181569#u64
+        ])
+  let fe392 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2495540013192#u64, 678856913479236#u64, 224998292422872#u64,
+        219635787698590#u64, 1972465269000940#u64
+        ])
+  let fe393 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        271413961212179#u64, 3604851875156899#u64, 2596511104968730#u64,
+        2014925838520661#u64, 2006221033113941#u64
+        ])
+  let fe394 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        194583029968109#u64, 514316781467765#u64, 829677956235672#u64,
+        1676415686873082#u64, 810104584395840#u64
+        ])
+  let fe395 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1980510813313589#u64, 1948645276483975#u64, 152063780665900#u64,
+        129968026417582#u64, 256984195613935#u64
+        ])
+  let fe396 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1860190562533083#u64, 1936576191345085#u64, 2712900106391212#u64,
+        1811043097042829#u64, 3209286562992083#u64
+        ])
+  let fe397 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        796664815624365#u64, 1543160838872951#u64, 1500897791837765#u64,
+        1667315977988401#u64, 599303877030711#u64
+        ])
+  let fe398 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1151480509533204#u64, 2136010406720455#u64, 738796060240027#u64,
+        319298003765044#u64, 1150614464349587#u64
+        ])
+  let fe399 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1731069268103131#u64, 2987442261301335#u64, 1364750481334267#u64,
+        2669032653668119#u64, 3178908082812908#u64
+        ])
+  let fe400 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1017222050227968#u64, 1987716148359#u64, 2234319589635701#u64,
+        621282683093392#u64, 2132553131763026#u64
+        ])
+  let fe401 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1567828528453324#u64, 1017807205202360#u64, 565295260895298#u64,
+        829541698429100#u64, 307243822276582#u64
+        ])
+  let fe402 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        249079270936229#u64, 1501514259790706#u64, 3199709537890096#u64,
+        944551802437486#u64, 2804458577667728#u64
+        ])
+  let fe403 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2089966982947227#u64, 1854140343916181#u64, 2151980759220007#u64,
+        2139781292261749#u64, 158070445864917#u64
+        ])
+  let fe404 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1338766321464554#u64, 1906702607371284#u64, 1519569445519894#u64,
+        115384726262267#u64, 1393058953390992#u64
+        ])
+  let fe405 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3616421371950629#u64, 3764188048593604#u64, 1926731583198685#u64,
+        2041482526432505#u64, 3172200936019022#u64
+        ])
+  let fe406 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1884844597333588#u64, 601480070269079#u64, 620203503079537#u64,
+        1079527400117915#u64, 1202076693132015#u64
+        ])
+  let fe407 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        840922919763324#u64, 727955812569642#u64, 1303406629750194#u64,
+        522898432152867#u64, 294161410441865#u64
+        ])
+  let fe408 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2605560604520539#u64, 1598361541848742#u64, 3374705511887547#u64,
+        4174333403844152#u64, 2670907514351827#u64
+        ])
+  let fe409 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        359856369838236#u64, 180914355488683#u64, 861726472646627#u64,
+        218807937262986#u64, 575626773232501#u64
+        ])
+  let fe410 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        755467689082474#u64, 909202735047934#u64, 730078068932500#u64,
+        936309075711518#u64, 2007798262842972#u64
+        ])
+  let fe411 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1609384177904054#u64, 2614544999293875#u64, 1335318541768200#u64,
+        3052765584121496#u64, 2799677792952659#u64
+        ])
+  let fe412 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        984339177776787#u64, 815727786505884#u64, 1645154585713747#u64,
+        1659074964378553#u64, 1686601651984156#u64
+        ])
+  let fe413 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1697863093781930#u64, 599794399429786#u64, 1104556219769607#u64,
+        830560774794755#u64, 12812858601017#u64
+        ])
+  let fe414 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1168737550514982#u64, 897832437380552#u64, 463140296333799#u64,
+        2554364413707795#u64, 2008360505135500#u64
+        ])
+  let fe415 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1856930662813910#u64, 678090852002597#u64, 1920179140755167#u64,
+        1259527833759868#u64, 55540971895511#u64
+        ])
+  let fe416 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1158643631044921#u64, 476554103621892#u64, 178447851439725#u64,
+        1305025542653569#u64, 103433927680625#u64
+        ])
+  let fe417 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2176793111709008#u64, 3828525530035639#u64, 2009350167273522#u64,
+        2012390194631546#u64, 2125297410909580#u64
+        ])
+  let fe418 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        825403285195098#u64, 2144208587560784#u64, 1925552004644643#u64,
+        1915177840006985#u64, 1015952128947864#u64
+        ])
+  let fe419 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1807108316634472#u64, 1534392066433717#u64, 347342975407218#u64,
+        1153820745616376#u64, 7375003497471#u64
+        ])
+  let fe420 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3234860815484973#u64, 2683011703586488#u64, 2201903782961092#u64,
+        3069193724749589#u64, 2214616493042166#u64
+        ])
+  let fe421 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        228567918409756#u64, 865093958780220#u64, 358083886450556#u64,
+        159617889659320#u64, 1360637926292598#u64
+        ])
+  let fe422 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        234147501399755#u64, 2229469128637390#u64, 2175289352258889#u64,
+        1397401514549353#u64, 1885288963089922#u64
+        ])
+  let fe423 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3363562226636810#u64, 2504649386192636#u64, 3300514047508588#u64,
+        2397910909286693#u64, 1237505378776769#u64
+        ])
+  let fe424 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1113790697840279#u64, 1051167139966244#u64, 1045930658550944#u64,
+        2011366241542643#u64, 1686166824620755#u64
+        ])
+  let fe425 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1054097349305049#u64, 1872495070333352#u64, 182121071220717#u64,
+        1064378906787311#u64, 100273572924182#u64
+        ])
+  let fe426 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3558210666856834#u64, 1627717417672446#u64, 2302783034773665#u64,
+        1109249951172249#u64, 3122001602766640#u64
+        ])
+  let fe427 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        104233794644221#u64, 1548919791188248#u64, 2224541913267306#u64,
+        2054909377116478#u64, 1043803389015153#u64
+        ])
+  let fe428 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        216762189468802#u64, 707284285441622#u64, 190678557969733#u64,
+        973969342604308#u64, 1403009538434867#u64
+        ])
+  let fe429 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3530824104723725#u64, 2596576648903557#u64, 2525521909702446#u64,
+        4086000250496689#u64, 634517197663803#u64
+        ])
+  let fe430 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        343805853118335#u64, 1302216857414201#u64, 566872543223541#u64,
+        2051138939539004#u64, 321428858384280#u64
+        ])
+  let fe431 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        470067171324852#u64, 1618629234173951#u64, 2000092177515639#u64,
+        7307679772789#u64, 1117521120249968#u64
+        ])
+  let fe432 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2529951391976704#u64, 1810282338562946#u64, 1771599529530998#u64,
+        3635459223356879#u64, 2937173228157088#u64
+        ])
+  let fe433 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        577009397403102#u64, 1791440261786291#u64, 2177643735971638#u64,
+        174546149911960#u64, 1412505077782326#u64
+        ])
+  let fe434 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        893719721537457#u64, 1201282458018197#u64, 1522349501711173#u64,
+        58011597740583#u64, 1130406465887139#u64
+        ])
+  let fe435 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        412607348255434#u64, 1280455764199780#u64, 2233277987330768#u64,
+        2265979894086913#u64, 2583384512102412#u64
+        ])
+  let fe436 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        262483770854550#u64, 990511055108216#u64, 526885552771698#u64,
+        571664396646158#u64, 354086190278723#u64
+        ])
+  let fe437 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1820352417585487#u64, 24495617171480#u64, 1547899057533253#u64,
+        10041836186225#u64, 480457105094042#u64
+        ])
+  let fe438 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2023310314989233#u64, 2889705151211129#u64, 2106474638900686#u64,
+        2809620524769320#u64, 1687858215057825#u64
+        ])
+  let fe439 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1144168702609745#u64, 604444390410187#u64, 1544541121756138#u64,
+        1925315550126027#u64, 626401428894002#u64
+        ])
+  let fe440 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1922168257351784#u64, 2018674099908659#u64, 1776454117494445#u64,
+        956539191509034#u64, 36031129147635#u64
+        ])
+  let fe441 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2796444352433270#u64, 1039872944430373#u64, 3128550222815858#u64,
+        2962457525011798#u64, 3468752501170219#u64
+        ])
+  let fe442 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        58242421545916#u64, 2035812695641843#u64, 2118491866122923#u64,
+        1191684463816273#u64, 46921517454099#u64
+        ])
+  let fe443 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        272268252444639#u64, 1374166457774292#u64, 2230115177009552#u64,
+        1053149803909880#u64, 1354288411641016#u64
+        ])
+  let fe444 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1857910905368338#u64, 1754729879288912#u64, 3137745277795125#u64,
+        1516096106802165#u64, 1602902393369811#u64
+        ])
+  let fe445 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1193437069800958#u64, 901107149704790#u64, 999672920611411#u64,
+        477584824802207#u64, 364239578697845#u64
+        ])
+  let fe446 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        886299989548838#u64, 1538292895758047#u64, 1590564179491896#u64,
+        1944527126709657#u64, 837344427345298#u64
+        ])
+  let fe447 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3006358179063534#u64, 1712186480903617#u64, 3955456640022779#u64,
+        3002110732175033#u64, 2770795853936147#u64
+        ])
+  let fe448 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1309847803895382#u64, 1462151862813074#u64, 211370866671570#u64,
+        1544595152703681#u64, 1027691798954090#u64
+        ])
+  let fe449 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        803217563745370#u64, 1884799722343599#u64, 1357706345069218#u64,
+        2244955901722095#u64, 730869460037413#u64
+        ])
+  let fe450 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2941099284981214#u64, 1831210565161070#u64, 3626987155270686#u64,
+        3358084791231418#u64, 1893781834054268#u64
+        ])
+  let fe451 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        696351368613042#u64, 1494385251239250#u64, 738037133616932#u64,
+        636385507851544#u64, 927483222611406#u64
+        ])
+  let fe452 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1949114198209333#u64, 1104419699537997#u64, 783495707664463#u64,
+        1747473107602770#u64, 2002634765788641#u64
+        ])
+  let fe453 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1607325776830197#u64, 2782683755100581#u64, 1451089452727894#u64,
+        3833490970768671#u64, 496100432831153#u64
+        ])
+  let fe454 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1068900648804224#u64, 2006891997072550#u64, 1134049269345549#u64,
+        1638760646180091#u64, 2055396084625778#u64
+        ])
+  let fe455 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2222475519314561#u64, 1870703901472013#u64, 1884051508440561#u64,
+        1344072275216753#u64, 1318025677799069#u64
+        ])
+  let fe456 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        155711679280637#u64, 681100400509288#u64, 389811735211209#u64,
+        2135723811340709#u64, 2660533024889373#u64
+        ])
+  let fe457 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        7813206966729#u64, 194444201427550#u64, 2071405409526507#u64,
+        1065605076176312#u64, 1645486789731291#u64
+        ])
+  let fe458 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        16625790644959#u64, 1647648827778410#u64, 1579910185572704#u64,
+        436452271048548#u64, 121070048451050#u64
+        ])
+  let fe459 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3289062842237779#u64, 2820185594063076#u64, 2549752917829677#u64,
+        3810384325616458#u64, 2238221839292470#u64
+        ])
+  let fe460 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        190565267697443#u64, 672855706028058#u64, 338796554369226#u64,
+        337687268493904#u64, 853246848691734#u64
+        ])
+  let fe461 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1763863028400139#u64, 766498079432444#u64, 1321118624818005#u64,
+        69494294452268#u64, 858786744165651#u64
+        ])
+  let fe462 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3543856582248253#u64, 1456632109855637#u64, 3352431060735432#u64,
+        1386133165675320#u64, 3484698163879000#u64
+        ])
+  let fe463 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        366253102478259#u64, 525676242508811#u64, 1449610995265438#u64,
+        1183300845322183#u64, 185960306491545#u64
+        ])
+  let fe464 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        28315355815982#u64, 460422265558930#u64, 1799675876678724#u64,
+        1969256312504498#u64, 1051823843138725#u64
+        ])
+  let fe465 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2408714813047231#u64, 3857948219405196#u64, 1665208410108429#u64,
+        2569443092377519#u64, 1383783705665319#u64
+        ])
+  let fe466 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        54684536365732#u64, 2210010038536222#u64, 1194984798155308#u64,
+        535239027773705#u64, 1516355079301361#u64
+        ])
+  let fe467 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1484387703771650#u64, 198537510937949#u64, 2186282186359116#u64,
+        617687444857508#u64, 647477376402122#u64
+        ])
+  let fe468 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2147715541830533#u64, 2751832352131065#u64, 2898179830570073#u64,
+        2604027669016369#u64, 1488268620408051#u64
+        ])
+  let fe469 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        159386186465542#u64, 1877626593362941#u64, 618737197060512#u64,
+        1026674284330807#u64, 1158121760792685#u64
+        ])
+  let fe470 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1744544377739822#u64, 1964054180355661#u64, 1685781755873170#u64,
+        2169740670377448#u64, 1286112621104591#u64
+        ])
+  let fe471 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2333777063470241#u64, 3919742931398333#u64, 3920783633320113#u64,
+        1605016835177614#u64, 1353960708075544#u64
+        ])
+  let fe472 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1602253788689063#u64, 439542044889886#u64, 2220348297664483#u64,
+        657877410752869#u64, 157451572512238#u64
+        ])
+  let fe473 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1029287186166717#u64, 65860128430192#u64, 525298368814832#u64,
+        1491902500801986#u64, 1461064796385400#u64
+        ])
+  let fe474 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2660016802414475#u64, 2121095722306988#u64, 913562102267595#u64,
+        1879708920318308#u64, 2492861262121979#u64
+        ])
+  let fe475 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1185483484383269#u64, 1356339572588553#u64, 584932367316448#u64,
+        102132779946470#u64, 1792922621116791#u64
+        ])
+  let fe476 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1966196870701923#u64, 2230044620318636#u64, 1425982460745905#u64,
+        261167817826569#u64, 46517743394330#u64
+        ])
+  let fe477 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2358877405280588#u64, 3136759755857592#u64, 2279106683482647#u64,
+        2224911448949389#u64, 3216151871930471#u64
+        ])
+  let fe478 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1730194207717538#u64, 431790042319772#u64, 1831515233279467#u64,
+        1372080552768581#u64, 1074513929381760#u64
+        ])
+  let fe479 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1450880638731607#u64, 1019861580989005#u64, 1229729455116861#u64,
+        1174945729836143#u64, 826083146840706#u64
+        ])
+  let fe480 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1899935429242705#u64, 1602068751520477#u64, 940583196550370#u64,
+        2334230882739107#u64, 1540863155745695#u64
+        ])
+  let fe481 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2136688454840028#u64, 2099509000964294#u64, 1690800495246475#u64,
+        1217643678575476#u64, 828720645084218#u64
+        ])
+  let fe482 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        765548025667841#u64, 462473984016099#u64, 998061409979798#u64,
+        546353034089527#u64, 2212508972466858#u64
+        ])
+  let fe483 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2298375097456408#u64, 3144370785258318#u64, 1281983193144089#u64,
+        1491520128287375#u64, 75847005908304#u64
+        ])
+  let fe484 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1801436127943107#u64, 1734436817907890#u64, 1268728090345068#u64,
+        167003097070711#u64, 2233597765834956#u64
+        ])
+  let fe485 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1997562060465113#u64, 1048700225534011#u64, 7615603985628#u64,
+        1855310849546841#u64, 2242557647635213#u64
+        ])
+  let fe486 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1161017320376250#u64, 2744424393854291#u64, 2169815802355236#u64,
+        3228296595417790#u64, 1770879511019628#u64
+        ])
+  let fe487 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1357044908364776#u64, 729130645262438#u64, 1762469072918979#u64,
+        1365633616878458#u64, 181282906404941#u64
+        ])
+  let fe488 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1080413443139865#u64, 1155205815510486#u64, 1848782073549786#u64,
+        622566975152580#u64, 124965574467971#u64
+        ])
+  let fe489 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1184526762066993#u64, 247622751762817#u64, 2943928830891604#u64,
+        3071818503097743#u64, 2188697339828084#u64
+        ])
+  let fe490 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2020536369003019#u64, 202261491735136#u64, 1053169669150884#u64,
+        2056531979272544#u64, 778165514694311#u64
+        ])
+  let fe491 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        237404399610207#u64, 1308324858405118#u64, 1229680749538400#u64,
+        720131409105291#u64, 1958958863624906#u64
+        ])
+  let fe492 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2767383321724075#u64, 2269456792542436#u64, 1717918437373988#u64,
+        1568052070792483#u64, 2298775616809171#u64
+        ])
+  let fe493 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        281527309158085#u64, 36970532401524#u64, 866906920877543#u64,
+        2222282602952734#u64, 1289598729589882#u64
+        ])
+  let fe494 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1278207464902042#u64, 494742455008756#u64, 1262082121427081#u64,
+        1577236621659884#u64, 1888786707293291#u64
+        ])
+  let fe495 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        353042527954210#u64, 1830056151907359#u64, 1111731275799225#u64,
+        2426760769524072#u64, 404312815582674#u64
+        ])
+  let fe496 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2064251142068628#u64, 1666421603389706#u64, 1419271365315441#u64,
+        468767774902855#u64, 191535130366583#u64
+        ])
+  let fe497 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1716987058588002#u64, 1859366439773457#u64, 1767194234188234#u64,
+        64476199777924#u64, 1117233614485261#u64
+        ])
+  let fe498 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3236091949205521#u64, 2386938060636506#u64, 2220652137473166#u64,
+        1722843421165029#u64, 2442282371698157#u64
+        ])
+  let fe499 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        298845952651262#u64, 1166086588952562#u64, 1179896526238434#u64,
+        1347812759398693#u64, 1412945390096208#u64
+        ])
+  let fe500 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1143239552672925#u64, 906436640714209#u64, 2177000572812152#u64,
+        2075299936108548#u64, 325186347798433#u64
+        ])
+  let fe501 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2972824668060020#u64, 2936287674948563#u64, 3625238557779406#u64,
+        2193186935276994#u64, 1387043709851261#u64
+        ])
+  let fe502 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        418098668140962#u64, 715065997721283#u64, 1471916138376055#u64,
+        2168570337288357#u64, 937812682637044#u64
+        ])
+  let fe503 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1043584187226485#u64, 2143395746619356#u64, 2209558562919611#u64,
+        482427979307092#u64, 847556718384018#u64
+        ])
+  let fe504 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1248731221520740#u64, 1465200936117687#u64, 2792603306395388#u64,
+        2304778448366139#u64, 2513234303861356#u64
+        ])
+  let fe505 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1057329623869501#u64, 620334067429122#u64, 461700859268034#u64,
+        2012481616501857#u64, 297268569108938#u64
+        ])
+  let fe506 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1055352180870759#u64, 1553151421852298#u64, 1510903185371259#u64,
+        1470458349428097#u64, 1226259419062731#u64
+        ])
+  let fe507 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3744788603986897#u64, 3042126439258578#u64, 3441906842094992#u64,
+        3641194565844440#u64, 3872208010289441#u64
+        ])
+  let fe508 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        47000654413729#u64, 1004754424173864#u64, 1868044813557703#u64,
+        173236934059409#u64, 588771199737015#u64
+        ])
+  let fe509 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        30498470091663#u64, 1082245510489825#u64, 576771653181956#u64,
+        806509986132686#u64, 1317634017056939#u64
+        ])
+  let fe510 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2672107869436803#u64, 3745154677001249#u64, 2417006535213335#u64,
+        4136645508605033#u64, 2065456951573058#u64
+        ])
+  let fe511 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1115636332012334#u64, 1854340990964155#u64, 83792697369514#u64,
+        1972177451994021#u64, 457455116057587#u64
+        ])
+  let fe512 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1698968457310898#u64, 1435137169051090#u64, 1083661677032510#u64,
+        938363267483709#u64, 340103887207182#u64
+        ])
+  let fe513 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1995325341336555#u64, 911500251774648#u64, 2415810569088940#u64,
+        855378419194761#u64, 3825401211214090#u64
+        ])
+  let fe514 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        241719380661528#u64, 310028521317150#u64, 1215881323380194#u64,
+        1408214976493624#u64, 2141142156467363#u64
+        ])
+  let fe515 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1315157046163473#u64, 727368447885818#u64, 1363466668108618#u64,
+        1668921439990361#u64, 1398483384337907#u64
+        ])
+  let fe516 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2326829491984875#u64, 3267188020145720#u64, 1849729037055211#u64,
+        4191614430138232#u64, 2696204044080201#u64
+        ])
+  let fe517 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2053597130993710#u64, 2024431685856332#u64, 2233550957004860#u64,
+        2012407275509545#u64, 872546993104440#u64
+        ])
+  let fe518 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1217269667678610#u64, 599909351968693#u64, 1390077048548598#u64,
+        1471879360694802#u64, 739586172317596#u64
+        ])
+  let fe519 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3970118453066023#u64, 1560510726633957#u64, 3156262694845170#u64,
+        1418028351780051#u64, 2346204163137185#u64
+        ])
+  let fe520 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2132502667405250#u64, 214379346175414#u64, 1502748313768060#u64,
+        1960071701057800#u64, 1353971822643138#u64
+        ])
+  let fe521 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        319394212043702#u64, 2127459436033571#u64, 717646691535162#u64,
+        663366796076914#u64, 318459064945314#u64
+        ])
+  let fe522 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2657789238608841#u64, 1960452633787082#u64, 2919148848086913#u64,
+        3744474074452359#u64, 1451061489880786#u64
+        ])
+  let fe523 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        947085906234007#u64, 323284730494107#u64, 1485778563977200#u64,
+        728576821512394#u64, 901584347702286#u64
+        ])
+  let fe524 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1575783124125742#u64, 2126210792434375#u64, 1569430791264065#u64,
+        1402582372904727#u64, 1891780248341114#u64
+        ])
+  let fe525 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3090232019245924#u64, 4249503325136911#u64, 3270591693593114#u64,
+        1662001808174330#u64, 2330127946643001#u64
+        ])
+  let fe526 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        739152638255629#u64, 2074935399403557#u64, 505483666745895#u64,
+        1611883356514088#u64, 628654635394878#u64
+        ])
+  let fe527 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1822054032121349#u64, 643057948186973#u64, 7306757352712#u64,
+        577249257962099#u64, 284735863382083#u64
+        ])
+  let fe528 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3618358370049178#u64, 1448606567552085#u64, 3730680834630016#u64,
+        2417602993041145#u64, 1115718458123497#u64
+        ])
+  let fe529 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        204146226972102#u64, 1630511199034723#u64, 2215235214174763#u64,
+        174665910283542#u64, 956127674017216#u64
+        ])
+  let fe530 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1562934578796716#u64, 1070893489712745#u64, 11324610642270#u64,
+        958989751581897#u64, 2172552325473805#u64
+        ])
+  let fe531 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1770564423056008#u64, 2987323445349813#u64, 1326060113795288#u64,
+        1509650369341127#u64, 2317692235267932#u64
+        ])
+  let fe532 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        623682558650637#u64, 1337866509471512#u64, 990313350206649#u64,
+        1314236615762469#u64, 1164772974270275#u64
+        ])
+  let fe533 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        223256821462517#u64, 723690150104139#u64, 1000261663630601#u64,
+        933280913953265#u64, 254872671543046#u64
+        ])
+  let fe534 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1969087237026022#u64, 2876595539132372#u64, 1335555107635968#u64,
+        2069986355593023#u64, 3963899963027150#u64
+        ])
+  let fe535 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1236103475266979#u64, 1837885883267218#u64, 1026072585230455#u64,
+        1025865513954973#u64, 1801964901432134#u64
+        ])
+  let fe536 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1115241013365517#u64, 1712251818829143#u64, 2148864332502771#u64,
+        2096001471438138#u64, 2235017246626125#u64
+        ])
+  let fe537 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3551068012286861#u64, 2047148477845620#u64, 2165648650132450#u64,
+        1612539282026145#u64, 2765997725314138#u64
+        ])
+  let fe538 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        118352772338543#u64, 1067608711804704#u64, 1434796676193498#u64,
+        1683240170548391#u64, 230866769907437#u64
+        ])
+  let fe539 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1850689576796636#u64, 1601590730430274#u64, 1139674615958142#u64,
+        1954384401440257#u64, 76039205311#u64
+        ])
+  let fe540 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1723387471374172#u64, 3249101280723658#u64, 2785727448808904#u64,
+        2272728458379212#u64, 1756575222802512#u64
+        ])
+  let fe541 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2146711623855116#u64, 503278928021499#u64, 625853062251406#u64,
+        1109121378393107#u64, 1033853809911861#u64
+        ])
+  let fe542 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        571005965509422#u64, 2005213373292546#u64, 1016697270349626#u64,
+        56607856974274#u64, 914438579435146#u64
+        ])
+  let fe543 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1346698876211176#u64, 2076651707527589#u64, 3336561384795453#u64,
+        2517134292513653#u64, 1068954492309670#u64
+        ])
+  let fe544 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1769967932677654#u64, 1695893319756416#u64, 1151863389675920#u64,
+        1781042784397689#u64, 400287774418285#u64
+        ])
+  let fe545 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1851867764003121#u64, 403841933237558#u64, 820549523771987#u64,
+        761292590207581#u64, 1743735048551143#u64
+        ])
+  let fe546 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        410915148140008#u64, 2107072311871739#u64, 3256167275561751#u64,
+        2351484709082008#u64, 1180818713503223#u64
+        ])
+  let fe547 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        285945406881439#u64, 648174397347453#u64, 1098403762631981#u64,
+        1366547441102991#u64, 1505876883139217#u64
+        ])
+  let fe548 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        672095903120153#u64, 1675918957959872#u64, 636236529315028#u64,
+        1569297300327696#u64, 2164144194785875#u64
+        ])
+  let fe549 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1902708175321798#u64, 3287143344600686#u64, 1178560808893262#u64,
+        2552895497743394#u64, 1280977479761117#u64
+        ])
+  let fe550 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1615357281742403#u64, 404257611616381#u64, 2160201349780978#u64,
+        1160947379188955#u64, 1578038619549541#u64
+        ])
+  let fe551 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2013087639791217#u64, 822734930507457#u64, 1785668418619014#u64,
+        1668650702946164#u64, 389450875221715#u64
+        ])
+  let fe552 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2705718263383616#u64, 2358206633614248#u64, 2072540975937134#u64,
+        308588860670238#u64, 1304394580755385#u64
+        ])
+  let fe553 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1295082798350326#u64, 2091844511495996#u64, 1851348972587817#u64,
+        3375039684596#u64, 789440738712837#u64
+        ])
+  let fe554 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2083069137186154#u64, 848523102004566#u64, 993982213589257#u64,
+        1405313299916317#u64, 1532824818698468#u64
+        ])
+  let fe555 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3747761112537659#u64, 1397203457344778#u64, 4026750030752190#u64,
+        2391102557240943#u64, 2318403398028034#u64
+        ])
+  let fe556 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1782411379088302#u64, 1096724939964781#u64, 27593390721418#u64,
+        542241850291353#u64, 1540337798439873#u64
+        ])
+  let fe557 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        693543956581437#u64, 171507720360750#u64, 1557908942697227#u64,
+        1074697073443438#u64, 1104093109037196#u64
+        ])
+  let fe558 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        345288228393400#u64, 3351443383432420#u64, 2386681722088990#u64,
+        1740551994106739#u64, 2500011992985018#u64
+        ])
+  let fe559 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        231429562203065#u64, 1526290236421172#u64, 2021375064026423#u64,
+        1520954495658041#u64, 806337791525116#u64
+        ])
+  let fe560 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1079623667189886#u64, 872403650198613#u64, 766894200588288#u64,
+        2163700860774109#u64, 2023464507911816#u64
+        ])
+  let fe561 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        854645372543796#u64, 1936406001954827#u64, 2403260476226501#u64,
+        3077125552956802#u64, 1554306377287555#u64
+        ])
+  let fe562 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1497138821904622#u64, 1044820250515590#u64, 1742593886423484#u64,
+        1237204112746837#u64, 849047450816987#u64
+        ])
+  let fe563 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        667962773375330#u64, 1897271816877105#u64, 1399712621683474#u64,
+        1143302161683099#u64, 2081798441209593#u64
+        ])
+  let fe564 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2378947665252234#u64, 1936114012888109#u64, 1704424366552046#u64,
+        3108474694401560#u64, 2968403435020606#u64
+        ])
+  let fe565 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1072409664800960#u64, 2146937497077528#u64, 1508780108920651#u64,
+        935767602384853#u64, 1112800433544068#u64
+        ])
+  let fe566 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        333549023751292#u64, 280219272863308#u64, 2104176666454852#u64,
+        1036466864875785#u64, 536135186520207#u64
+        ])
+  let fe567 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2625466093568366#u64, 2398257055215356#u64, 2555916080813104#u64,
+        2667888562832962#u64, 3510376944868638#u64
+        ])
+  let fe568 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1186115062588401#u64, 2251609796968486#u64, 1098944457878953#u64,
+        1153112761201374#u64, 1791625503417267#u64
+        ])
+  let fe569 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1870078460219737#u64, 2129630962183380#u64, 852283639691142#u64,
+        292865602592851#u64, 401904317342226#u64
+        ])
+  let fe570 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1361070124828016#u64, 815664541425524#u64, 3278598711049919#u64,
+        1951790935390646#u64, 2807674705520038#u64
+        ])
+  let fe571 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1546301003424277#u64, 459094500062839#u64, 1097668518375311#u64,
+        1780297770129643#u64, 720763293687608#u64
+        ])
+  let fe572 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1212405311403990#u64, 1536693382542438#u64, 61028431067459#u64,
+        1863929423417129#u64, 1223219538638038#u64
+        ])
+  let fe573 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1294303766540260#u64, 3435357279640341#u64, 3134071170918340#u64,
+        2315654383110622#u64, 2213283684565086#u64
+        ])
+  let fe574 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        339050984211414#u64, 601386726509773#u64, 413735232134068#u64,
+        966191255137228#u64, 1839475899458159#u64
+        ])
+  let fe575 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        235605972169408#u64, 2174055643032978#u64, 1538335001838863#u64,
+        1281866796917192#u64, 1815940222628465#u64
+        ])
+  let fe576 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1632352921721536#u64, 1833328609514701#u64, 2092779091951987#u64,
+        4175756015558474#u64, 2210068022482918#u64
+        ])
+  let fe577 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        35271216625062#u64, 1712350667021807#u64, 983664255668860#u64,
+        98571260373038#u64, 1232645608559836#u64
+        ])
+  let fe578 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1998172393429622#u64, 1798947921427073#u64, 784387737563581#u64,
+        1589352214827263#u64, 1589861734168180#u64
+        ])
+  let fe579 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1733739258725305#u64, 2283515530744786#u64, 2453769758904107#u64,
+        3243892858242237#u64, 1194308773174555#u64
+        ])
+  let fe580 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        846415389605137#u64, 746163495539180#u64, 829658752826080#u64,
+        592067705956946#u64, 957242537821393#u64
+        ])
+  let fe581 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1758148849754419#u64, 619249044817679#u64, 168089007997045#u64,
+        1371497636330523#u64, 1867101418880350#u64
+        ])
+  let fe582 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2578433797894864#u64, 2513559319756263#u64, 1700682323676192#u64,
+        1577907266349064#u64, 3469447477068264#u64
+        ])
+  let fe583 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1714182387328607#u64, 1477856482074168#u64, 574895689942184#u64,
+        2159118410227270#u64, 1555532449716575#u64
+        ])
+  let fe584 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        853828206885131#u64, 998498946036955#u64, 1835887550391235#u64,
+        207627336608048#u64, 258363815956050#u64
+        ])
+  let fe585 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2392941288336925#u64, 3488528558590503#u64, 2894901233585134#u64,
+        1646615130509172#u64, 1208239602291765#u64
+        ])
+  let fe586 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1501663228068911#u64, 1354879465566912#u64, 1444432675498247#u64,
+        897812463852601#u64, 855062598754348#u64
+        ])
+  let fe587 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        714380763546606#u64, 1032824444965790#u64, 1774073483745338#u64,
+        1063840874947367#u64, 1738680636537158#u64
+        ])
+  let fe588 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1640635546696233#u64, 2884968766877360#u64, 2212651044092395#u64,
+        2282390772269100#u64, 2620315074574625#u64
+        ])
+  let fe589 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1171650314802029#u64, 1567085444565577#u64, 1453660792008405#u64,
+        757914533009261#u64, 1619511342778196#u64
+        ])
+  let fe590 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        420958967093237#u64, 971103481109486#u64, 2169549185607107#u64,
+        1301191633558497#u64, 1661514101014240#u64
+        ])
+  let fe591 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3158923465503550#u64, 1332556122804145#u64, 4075855067109735#u64,
+        3619414031128206#u64, 1982558335973171#u64
+        ])
+  let fe592 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1121533090144639#u64, 1021251337022187#u64, 110469995947421#u64,
+        1511059774758394#u64, 2110035908131662#u64
+        ])
+  let fe593 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        303213233384524#u64, 2061932261128138#u64, 352862124777736#u64,
+        40828818670255#u64, 249879468482660#u64
+        ])
+  let fe594 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        856559257852200#u64, 2760317478634258#u64, 3629993581580163#u64,
+        3975258940632376#u64, 1962275756614520#u64
+        ])
+  let fe595 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1445691340537320#u64, 40614383122127#u64, 402104303144865#u64,
+        485134269878232#u64, 1659439323587426#u64
+        ])
+  let fe596 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        20057458979482#u64, 1183363722525800#u64, 2140003847237215#u64,
+        2053873950687614#u64, 2112017736174909#u64
+        ])
+  let fe597 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2228654250927986#u64, 3735391177100515#u64, 1368661293910955#u64,
+        3328311098862539#u64, 526650682059607#u64
+        ])
+  let fe598 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        709481497028540#u64, 531682216165724#u64, 316963769431931#u64,
+        1814315888453765#u64, 258560242424104#u64
+        ])
+  let fe599 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1053447823660455#u64, 1955135194248683#u64, 1010900954918985#u64,
+        1182614026976701#u64, 1240051576966610#u64
+        ])
+  let fe600 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1957943897155478#u64, 1788667368028035#u64, 2389492723714354#u64,
+        2252839333292309#u64, 3078204576998275#u64
+        ])
+  let fe601 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1848942433095597#u64, 1582009882530495#u64, 1849292741020143#u64,
+        1068498323302788#u64, 2001402229799484#u64
+        ])
+  let fe602 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1528282417624269#u64, 2142492439828191#u64, 2179662545816034#u64,
+        362568973150328#u64, 1591374675250271#u64
+        ])
+  let fe603 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2411826493119617#u64, 2484141002903963#u64, 2149181472355544#u64,
+        598041771119831#u64, 2435658815595421#u64
+        ])
+  let fe604 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2013278155187349#u64, 662660471354454#u64, 793981225706267#u64,
+        411706605985744#u64, 804490933124791#u64
+        ])
+  let fe605 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2051892037280204#u64, 488391251096321#u64, 2230187337030708#u64,
+        930221970662692#u64, 679002758255210#u64
+        ])
+  let fe606 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1530723630438670#u64, 875873929577927#u64, 2593359947955236#u64,
+        2701702933216000#u64, 1055551308214178#u64
+        ])
+  let fe607 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1461835919309432#u64, 1955256480136428#u64, 180866187813063#u64,
+        1551979252664528#u64, 557743861963950#u64
+        ])
+  let fe608 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        359179641731115#u64, 1324915145732949#u64, 902828372691474#u64,
+        294254275669987#u64, 1887036027752957#u64
+        ])
+  let fe609 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        4295071423139571#u64, 2038225437857463#u64, 1317528426475850#u64,
+        1398989128982787#u64, 2027639881006861#u64
+        ])
+  let fe610 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2072902725256516#u64, 312132452743412#u64, 309930885642209#u64,
+        996244312618453#u64, 1590501300352303#u64
+        ])
+  let fe611 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1397254305160710#u64, 695734355138021#u64, 2233992044438756#u64,
+        1776180593969996#u64, 1085588199351115#u64
+        ])
+  let fe612 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2692366865016258#u64, 2506694600041928#u64, 2745669038615469#u64,
+        1556322069683365#u64, 3819256354004466#u64
+        ])
+  let fe613 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1950722461391320#u64, 1907845598854797#u64, 1822757481635527#u64,
+        2121567704750244#u64, 73811931471221#u64
+        ])
+  let fe614 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        387139307395758#u64, 2058036430315676#u64, 1220915649965325#u64,
+        1794832055328951#u64, 1230009312169328#u64
+        ])
+  let fe615 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1765973779329498#u64, 2911143873132225#u64, 2271621715291913#u64,
+        3553728154996461#u64, 3368065817761132#u64
+        ])
+  let fe616 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1127572801181483#u64, 1224743760571696#u64, 1276219889847274#u64,
+        1529738721702581#u64, 1589819666871853#u64
+        ])
+  let fe617 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2181229378964934#u64, 2190885205260020#u64, 1511536077659137#u64,
+        1246504208580490#u64, 668883326494241#u64
+        ])
+  let fe618 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2689666469258543#u64, 2920826224880015#u64, 2333696811665585#u64,
+        523874406393177#u64, 2496851874620484#u64
+        ])
+  let fe619 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1975438052228868#u64, 1071801519999806#u64, 594652299224319#u64,
+        1877697652668809#u64, 1489635366987285#u64
+        ])
+  let fe620 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        958592545673770#u64, 233048016518599#u64, 851568750216589#u64,
+        567703851596087#u64, 1740300006094761#u64
+        ])
+  let fe621 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2014540178270324#u64, 192672779514432#u64, 2465676996326778#u64,
+        2194819933853410#u64, 1716422829364835#u64
+        ])
+  let fe622 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1540769606609725#u64, 2148289943846077#u64, 1597804156127445#u64,
+        1230603716683868#u64, 815423458809453#u64
+        ])
+  let fe623 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1738560251245018#u64, 1779576754536888#u64, 1783765347671392#u64,
+        1880170990446751#u64, 1088225159617541#u64
+        ])
+  let fe624 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2911103727614740#u64, 1956447718227572#u64, 1830568515922666#u64,
+        3092868863429656#u64, 1669607124206367#u64
+        ])
+  let fe625 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1143465490433355#u64, 1532194726196059#u64, 1093276745494697#u64,
+        481041706116088#u64, 2121405433561163#u64
+        ])
+  let fe626 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1686424298744462#u64, 1451806974487153#u64, 266296068846582#u64,
+        1834686947542675#u64, 1720762336132256#u64
+        ])
+  let fe627 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3141016840074207#u64, 3295090436969907#u64, 3107924901237156#u64,
+        1669272323124635#u64, 1603340330827879#u64
+        ])
+  let fe628 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1206396181488998#u64, 333158148435054#u64, 1402633492821422#u64,
+        1120091191722026#u64, 1945474114550509#u64
+        ])
+  let fe629 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        766720088232571#u64, 1512222781191002#u64, 1189719893490790#u64,
+        2091302129467914#u64, 2141418006894941#u64
+        ])
+  let fe630 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2671463460991841#u64, 1998875112167986#u64, 3678399683938955#u64,
+        3406728169064757#u64, 2738338345823434#u64
+        ])
+  let fe631 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        938160078005954#u64, 1421776319053174#u64, 1941643234741774#u64,
+        180002183320818#u64, 1414380336750546#u64
+        ])
+  let fe632 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        398001940109652#u64, 1577721237663248#u64, 1012748649830402#u64,
+        1540516006905144#u64, 1011684812884559#u64
+        ])
+  let fe633 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1653276489969611#u64, 2257881638852872#u64, 1921777941170835#u64,
+        1604139841794531#u64, 3113010867325889#u64
+        ])
+  let fe634 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        996661541407379#u64, 1455877387952927#u64, 744312806857277#u64,
+        139213896196746#u64, 1000282908547789#u64
+        ])
+  let fe635 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1450817495603008#u64, 1476865707053229#u64, 1030490562252053#u64,
+        620966950353376#u64, 1744760161539058#u64
+        ])
+  let fe636 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2811528223687828#u64, 2288856475326432#u64, 2038622963352005#u64,
+        1637244893271723#u64, 3278365165924196#u64
+        ])
+  let fe637 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        962165956135846#u64, 1116599660248791#u64, 182090178006815#u64,
+        1455605467021751#u64, 196053588803284#u64
+        ])
+  let fe638 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        796863823080135#u64, 1897365583584155#u64, 420466939481601#u64,
+        2165972651724672#u64, 932177357788289#u64
+        ])
+  let fe639 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        877047233620613#u64, 1375632631944375#u64, 2895573425567369#u64,
+        2911822552533124#u64, 2271153746017078#u64
+        ])
+  let fe640 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2216943882299338#u64, 394841323190322#u64, 2222656898319671#u64,
+        558186553950529#u64, 1077236877025190#u64
+        ])
+  let fe641 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        801118384953213#u64, 1914330175515892#u64, 574541023311511#u64,
+        1471123787903705#u64, 1526158900256288#u64
+        ])
+  let fe642 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3201417702772463#u64, 2207116611267330#u64, 3164719852826535#u64,
+        2752958352884036#u64, 2314162374456719#u64
+        ])
+  let fe643 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1474518386765335#u64, 1760793622169197#u64, 1157399790472736#u64,
+        1622864308058898#u64, 165428294422792#u64
+        ])
+  let fe644 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1961673048027128#u64, 102619413083113#u64, 1051982726768458#u64,
+        1603657989805485#u64, 1941613251499678#u64
+        ])
+  let fe645 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1401939116319247#u64, 2587106153588320#u64, 2323846009771033#u64,
+        862423201496005#u64, 3102318568216632#u64
+        ])
+  let fe646 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1234706593321979#u64, 1083343891215917#u64, 898273974314935#u64,
+        1640859118399498#u64, 157578398571149#u64
+        ])
+  let fe647 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1143483057726416#u64, 1992614991758919#u64, 674268662140796#u64,
+        1773370048077526#u64, 674318359920189#u64
+        ])
+  let fe648 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1835401379538542#u64, 173900035308392#u64, 818247630716732#u64,
+        4013900225838034#u64, 1021506399448290#u64
+        ])
+  let fe649 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1506632088156630#u64, 2127481795522179#u64, 513812919490255#u64,
+        140643715928370#u64, 442476620300318#u64
+        ])
+  let fe650 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2056683376856736#u64, 219094741662735#u64, 2193541883188309#u64,
+        1841182310235800#u64, 556477468664293#u64
+        ])
+  let fe651 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3566819241596075#u64, 1049075855992602#u64, 4318372866671791#u64,
+        2518704280870781#u64, 2040482348591519#u64
+        ])
+  let fe652 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        94096246544434#u64, 922482381166992#u64, 24517828745563#u64,
+        2139430508542503#u64, 2097139044231004#u64
+        ])
+  let fe653 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        537697207950515#u64, 1399352016347350#u64, 1563663552106345#u64,
+        2148749520888918#u64, 549922092988516#u64
+        ])
+  let fe654 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1747985413252415#u64, 680511052635695#u64, 1809559829982725#u64,
+        2846074064615302#u64, 2453472984431229#u64
+        ])
+  let fe655 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        323583936109569#u64, 1973572998577657#u64, 1192219029966558#u64,
+        79354804385273#u64, 1374043025560347#u64
+        ])
+  let fe656 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        213277331329947#u64, 416202017849623#u64, 1950535221091783#u64,
+        1313441578103244#u64, 2171386783823658#u64
+        ])
+  let fe657 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2440888617915079#u64, 993969372859109#u64, 3147669935222235#u64,
+        3799101348983503#u64, 1477373024911349#u64
+        ])
+  let fe658 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1620578418245010#u64, 541035331188469#u64, 2235785724453865#u64,
+        2154865809088198#u64, 1974627268751826#u64
+        ])
+  let fe659 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1346805451740245#u64, 1350981335690626#u64, 942744349501813#u64,
+        2155094562545502#u64, 1012483751693409#u64
+        ])
+  let fe660 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2107080134091762#u64, 1132567062788208#u64, 1824935377687210#u64,
+        769194804343737#u64, 1857941799971888#u64
+        ])
+  let fe661 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1074666112436467#u64, 249279386739593#u64, 1174337926625354#u64,
+        1559013532006480#u64, 1472287775519121#u64
+        ])
+  let fe662 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1872620123779532#u64, 1892932666768992#u64, 1921559078394978#u64,
+        1270573311796160#u64, 1438913646755037#u64
+        ])
+  let fe663 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3089190001333428#u64, 3264053113908846#u64, 989780015893986#u64,
+        1351393287739814#u64, 2580427560230798#u64
+        ])
+  let fe664 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1028328827183114#u64, 1711043289969857#u64, 1350832470374933#u64,
+        1923164689604327#u64, 1495656368846911#u64
+        ])
+  let fe665 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1900828492104143#u64, 430212361082163#u64, 687437570852799#u64,
+        832514536673512#u64, 1685641495940794#u64
+        ])
+  let fe666 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3094432661621646#u64, 605670026766215#u64, 290836444839585#u64,
+        2415010588577604#u64, 2213815011799644#u64
+        ])
+  let fe667 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1176336383453996#u64, 1725477294339771#u64, 12700622672454#u64,
+        678015708818208#u64, 162724078519879#u64
+        ])
+  let fe668 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1448049969043497#u64, 1789411762943521#u64, 385587766217753#u64,
+        90201620913498#u64, 832999441066823#u64
+        ])
+  let fe669 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2767886146978542#u64, 2240508292484615#u64, 3603469341851756#u64,
+        3475055379001735#u64, 3002035638112385#u64
+        ])
+  let fe670 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1263624896582495#u64, 1102602401673328#u64, 526302183714372#u64,
+        2152015839128799#u64, 1483839308490010#u64
+        ])
+  let fe671 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        442991718646863#u64, 1599275157036458#u64, 1925389027579192#u64,
+        899514691371390#u64, 350263251085160#u64
+        ])
+  let fe672 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1689713572022124#u64, 2845654372939621#u64, 3229894858477217#u64,
+        1985127338729498#u64, 3927868934032873#u64
+        ])
+  let fe673 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1557207018622683#u64, 340631692799603#u64, 1477725909476187#u64,
+        614735951619419#u64, 2033237123746766#u64
+        ])
+  let fe674 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        968764929340557#u64, 1225534776710944#u64, 662967304013036#u64,
+        1155521416178595#u64, 791142883466590#u64
+        ])
+  let fe675 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1487081286167458#u64, 3244839255500182#u64, 1792378982844639#u64,
+        2950452258685122#u64, 2153908693179753#u64
+        ])
+  let fe676 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1123181311102823#u64, 685575944875442#u64, 507605465509927#u64,
+        1412590462117473#u64, 568017325228626#u64
+        ])
+  let fe677 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        560258797465417#u64, 2193971151466401#u64, 1824086900849026#u64,
+        579056363542056#u64, 1690063960036441#u64
+        ])
+  let fe678 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1918407319222397#u64, 2605567366745211#u64, 1930426334528098#u64,
+        1564816146005724#u64, 4113142195393344#u64
+        ])
+  let fe679 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2131325168777276#u64, 1176636658428908#u64, 1756922641512981#u64,
+        1390243617176012#u64, 1966325177038383#u64
+        ])
+  let fe680 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2063958120364491#u64, 2140267332393533#u64, 699896251574968#u64,
+        273268351312140#u64, 375580724713232#u64
+        ])
+  let fe681 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2024297515263178#u64, 2668759143407935#u64, 3330814048702549#u64,
+        2423412039258430#u64, 1031677520051052#u64
+        ])
+  let fe682 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2033900009388450#u64, 1744902869870788#u64, 2190580087917640#u64,
+        1949474984254121#u64, 231049754293748#u64
+        ])
+  let fe683 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        343868674606581#u64, 550155864008088#u64, 1450580864229630#u64,
+        481603765195050#u64, 896972360018042#u64
+        ])
+  let fe684 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2151139328380127#u64, 2566545695770176#u64, 2311556639460451#u64,
+        1676664391494650#u64, 2048348075599360#u64
+        ])
+  let fe685 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1528930066340597#u64, 1605003907059576#u64, 1055061081337675#u64,
+        1458319101947665#u64, 1234195845213142#u64
+        ])
+  let fe686 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        830430507734812#u64, 1780282976102377#u64, 1425386760709037#u64,
+        362399353095425#u64, 2168861579799910#u64
+        ])
+  let fe687 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3407562046415562#u64, 980662895504005#u64, 2053766700883521#u64,
+        2742766027762854#u64, 2762205690726604#u64
+        ])
+  let fe688 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1683750316716132#u64, 652278688286128#u64, 1221798761193539#u64,
+        1897360681476669#u64, 319658166027343#u64
+        ])
+  let fe689 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        618808732869972#u64, 72755186759744#u64, 2060379135624181#u64,
+        1730731526741822#u64, 48862757828238#u64
+        ])
+  let fe690 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3714971784278753#u64, 3394840525452699#u64, 614590986558882#u64,
+        1409210575145591#u64, 1882816996436803#u64
+        ])
+  let fe691 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2230133264691131#u64, 563950955091024#u64, 2042915975426398#u64,
+        827314356293472#u64, 672028980152815#u64
+        ])
+  let fe692 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        264204366029760#u64, 1654686424479449#u64, 2185050199932931#u64,
+        2207056159091748#u64, 506015669043634#u64
+        ])
+  let fe693 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1784446333136550#u64, 1973746527984364#u64, 334856327359575#u64,
+        3408569589569858#u64, 3275749938360725#u64
+        ])
+  let fe694 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2065270940578383#u64, 31477096270353#u64, 306421879113491#u64,
+        181958643936686#u64, 1907105536686083#u64
+        ])
+  let fe695 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1496516440779464#u64, 1748485652986458#u64, 872778352227340#u64,
+        818358834654919#u64, 97932669284220#u64
+        ])
+  let fe696 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2723435829455580#u64, 2924255216478824#u64, 1804995246884102#u64,
+        1842309243470804#u64, 3753662318666930#u64
+        ])
+  let fe697 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1013216974933691#u64, 538921919682598#u64, 1915776722521558#u64,
+        1742822441583877#u64, 1886550687916656#u64
+        ])
+  let fe698 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2094270000643336#u64, 303971879192276#u64, 40801275554748#u64,
+        649448917027930#u64, 1818544418535447#u64
+        ])
+  let fe699 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2241737709499146#u64, 549397817447461#u64, 838180519319392#u64,
+        1725686958520781#u64, 3957438894582995#u64
+        ])
+  let fe700 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1216074541925116#u64, 50120933933509#u64, 1565829004133810#u64,
+        721728156134580#u64, 349206064666188#u64
+        ])
+  let fe701 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        948617110470858#u64, 346222547451945#u64, 1126511960599975#u64,
+        1759386906004538#u64, 493053284802266#u64
+        ])
+  let fe702 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1454933046815146#u64, 3126495827951610#u64, 1467170975468587#u64,
+        1432316382418897#u64, 2111710746366763#u64
+        ])
+  let fe703 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2105387117364450#u64, 1996463405126433#u64, 1303008614294500#u64,
+        851908115948209#u64, 1353742049788635#u64
+        ])
+  let fe704 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        750300956351719#u64, 1487736556065813#u64, 15158817002104#u64,
+        1511998221598392#u64, 971739901354129#u64
+        ])
+  let fe705 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1874648163531674#u64, 2124487685930551#u64, 1810030029384882#u64,
+        918400043048335#u64, 2838148440985898#u64
+        ])
+  let fe706 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1235084464747900#u64, 1166111146432082#u64, 1745394857881591#u64,
+        1405516473883040#u64, 4463504151617#u64
+        ])
+  let fe707 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1663810156463827#u64, 327797390285791#u64, 1341846161759410#u64,
+        1964121122800605#u64, 1747470312055380#u64
+        ])
+  let fe708 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        660005247548214#u64, 2071860029952887#u64, 3610548013635355#u64,
+        911703252219106#u64, 3266179736709079#u64
+        ])
+  let fe709 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2206641276178231#u64, 1690587809721504#u64, 1600173622825126#u64,
+        2156096097634421#u64, 1106822408548216#u64
+        ])
+  let fe710 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1344788193552206#u64, 1949552134239140#u64, 1735915881729557#u64,
+        675891104100469#u64, 1834220014427292#u64
+        ])
+  let fe711 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1920949492387945#u64, 2410685102072778#u64, 2322108077349280#u64,
+        2877838278583064#u64, 3719881539786256#u64
+        ])
+  let fe712 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        622221042073383#u64, 1210146474039168#u64, 1742246422343683#u64,
+        1403839361379025#u64, 417189490895736#u64
+        ])
+  let fe713 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        22727256592983#u64, 168471543384997#u64, 1324340989803650#u64,
+        1839310709638189#u64, 504999476432775#u64
+        ])
+  let fe714 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3565040332441556#u64, 1721896294296941#u64, 2304063388272514#u64,
+        2065069734239231#u64, 3056710287109878#u64
+        ])
+  let fe715 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1337466662091884#u64, 1287645354669772#u64, 2018019646776184#u64,
+        652181229374245#u64, 898011753211715#u64
+        ])
+  let fe716 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1969792547910734#u64, 779969968247557#u64, 2011350094423418#u64,
+        1823964252907487#u64, 1058949448296945#u64
+        ])
+  let fe717 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2459143550747250#u64, 1118176942430252#u64, 3010694408233412#u64,
+        806764629546265#u64, 1157700123092949#u64
+        ])
+  let fe718 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1273565321399022#u64, 1638509681964574#u64, 759235866488935#u64,
+        666015124346707#u64, 897983460943405#u64
+        ])
+  let fe719 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1717263794012298#u64, 1059601762860786#u64, 1837819172257618#u64,
+        1054130665797229#u64, 680893204263559#u64
+        ])
+  let fe720 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2237039662793603#u64, 2249022333361206#u64, 2058613546633703#u64,
+        2401253908530527#u64, 2215176649164581#u64
+        ])
+  let fe721 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        79472182719605#u64, 1851130257050174#u64, 1825744808933107#u64,
+        821667333481068#u64, 781795293511946#u64
+        ])
+  let fe722 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        755822026485370#u64, 152464789723500#u64, 1178207602290608#u64,
+        410307889503239#u64, 156581253571278#u64
+        ])
+  let fe723 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3669985309815545#u64, 2736319981413860#u64, 3898537095128197#u64,
+        3653287498355512#u64, 1349185550126960#u64
+        ])
+  let fe724 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1495380034400429#u64, 325049476417173#u64, 46346894893933#u64,
+        1553408840354856#u64, 828980101835683#u64
+        ])
+  let fe725 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1280337889310282#u64, 2070832742866672#u64, 1640940617225222#u64,
+        2098284908289951#u64, 450929509534434#u64
+        ])
+  let fe726 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2659503167684029#u64, 2378371955168899#u64, 2537839641198868#u64,
+        1999255076709337#u64, 2030511179441770#u64
+        ])
+  let fe727 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1254958221100483#u64, 1153235960999843#u64, 942907704968834#u64,
+        637105404087392#u64, 1149293270147267#u64
+        ])
+  let fe728 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        894249020470196#u64, 400291701616810#u64, 406878712230981#u64,
+        1599128793487393#u64, 1145868722604026#u64
+        ])
+  let fe729 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3749755063888563#u64, 2361916158338507#u64, 1128535642171975#u64,
+        1900106496009660#u64, 2381592531146157#u64
+        ])
+  let fe730 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        452487513298665#u64, 1352120549024569#u64, 1173495883910956#u64,
+        1999111705922009#u64, 367328130454226#u64
+        ])
+  let fe731 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1717539401269642#u64, 1475188995688487#u64, 891921989653942#u64,
+        836824441505699#u64, 1885988485608364#u64
+        ])
+  let fe732 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3493583935107776#u64, 2439136865632830#u64, 3370281625921440#u64,
+        2680547565621609#u64, 2282158712612572#u64
+        ])
+  let fe733 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2022432361201842#u64, 1088816090685051#u64, 1977843398539868#u64,
+        1854834215890724#u64, 564238862029357#u64
+        ])
+  let fe734 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        938868489100585#u64, 1100285072929025#u64, 1017806255688848#u64,
+        1957262154788833#u64, 152787950560442#u64
+        ])
+  let fe735 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3119119231364171#u64, 2872271776627789#u64, 2477832016990963#u64,
+        2593801257642876#u64, 1761675818237335#u64
+        ])
+  let fe736 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1295072362439987#u64, 931227904689414#u64, 1355731432641687#u64,
+        922235735834035#u64, 892227229410209#u64
+        ])
+  let fe737 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1680989767906154#u64, 535362787031440#u64, 2136691276706570#u64,
+        1942228485381244#u64, 1267350086882274#u64
+        ])
+  let fe738 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2617818047455756#u64, 2684460443440843#u64, 2378209521329782#u64,
+        1973842949591661#u64, 2897427157127624#u64
+        ])
+  let fe739 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        535509430575217#u64, 546885533737322#u64, 1524675609547799#u64,
+        2138095752851703#u64, 1260738089896827#u64
+        ])
+  let fe740 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1159906385590467#u64, 2198530004321610#u64, 714559485023225#u64,
+        81880727882151#u64, 1484020820037082#u64
+        ])
+  let fe741 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1377485731340769#u64, 2046328105512000#u64, 1802058637158797#u64,
+        2313945950453421#u64, 1356993908853900#u64
+        ])
+  let fe742 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2013612215646735#u64, 1830770575920375#u64, 536135310219832#u64,
+        609272325580394#u64, 270684344495013#u64
+        ])
+  let fe743 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1237542585982777#u64, 2228682050256790#u64, 1385281931622824#u64,
+        593183794882890#u64, 493654978552689#u64
+        ])
+  let fe744 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2299141301692989#u64, 1891414891220256#u64, 983894663308928#u64,
+        2427961581972066#u64, 3378060928864955#u64
+        ])
+  let fe745 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1694030170963455#u64, 502038567066200#u64, 1691160065225467#u64,
+        949628319562187#u64, 275110186693066#u64
+        ])
+  let fe746 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1124515748676336#u64, 1661673816593408#u64, 1499640319059718#u64,
+        1584929449166988#u64, 558148594103306#u64
+        ])
+  let fe747 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1784525599998356#u64, 1619698033617383#u64, 2097300287550715#u64,
+        2510065271789004#u64, 1905684794832757#u64
+        ])
+  let fe748 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1288941072872766#u64, 931787902039402#u64, 190731008859042#u64,
+        2006859954667190#u64, 1005931482221702#u64
+        ])
+  let fe749 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1465551264822703#u64, 152905080555927#u64, 680334307368453#u64,
+        173227184634745#u64, 666407097159852#u64
+        ])
+  let fe750 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2111017076203943#u64, 3630560299479595#u64, 1248583954016455#u64,
+        3604089008549670#u64, 1895180776543895#u64
+        ])
+  let fe751 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        171348223915638#u64, 662766099800389#u64, 462338943760497#u64,
+        466917763340314#u64, 656911292869115#u64
+        ])
+  let fe752 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        488623681976577#u64, 866497561541722#u64, 1708105560937768#u64,
+        1673781214218839#u64, 1506146329818807#u64
+        ])
+  let fe753 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2412225278142205#u64, 950394373239688#u64, 2682296937026182#u64,
+        711676555398831#u64, 320964687779005#u64
+        ])
+  let fe754 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        988979367990485#u64, 1359729327576302#u64, 1301834257246029#u64,
+        294141160829308#u64, 29348272277475#u64
+        ])
+  let fe755 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1434382743317910#u64, 100082049942065#u64, 221102347892623#u64,
+        186982837860588#u64, 1305765053501834#u64
+        ])
+  let fe756 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        2205916462268190#u64, 2751663643476068#u64, 961960554686615#u64,
+        2409862576442233#u64, 1841471168298304#u64
+        ])
+  let fe757 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1191737341426592#u64, 1847042034978363#u64, 1382213545049056#u64,
+        1039952395710448#u64, 788812858896859#u64
+        ])
+  let fe758 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1346965964571152#u64, 1291881610839830#u64, 2142916164336056#u64,
+        786821641205979#u64, 1571709146321039#u64
+        ])
+  let fe759 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        787164375951248#u64, 2454669019058437#u64, 3608390234717387#u64,
+        1431233331032509#u64, 786341368775957#u64
+        ])
+  let fe760 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        492448143532951#u64, 304105152670757#u64, 1761767168301056#u64,
+        233782684697790#u64, 1981295323106089#u64
+        ])
+  let fe761 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        665807507761866#u64, 1343384868355425#u64, 895831046139653#u64,
+        439338948736892#u64, 1986828765695105#u64
+        ])
+  let fe762 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3007896024559801#u64, 1721699973539148#u64, 2510565115413133#u64,
+        1390588532210644#u64, 1212530909934781#u64
+        ])
+  let fe763 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        852891097972275#u64, 1816988871354562#u64, 1543772755726524#u64,
+        1174710635522444#u64, 202129090724628#u64
+        ])
+  let fe764 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1205281565824323#u64, 22430498399418#u64, 992947814485516#u64,
+        1392458699738672#u64, 688441466734558#u64
+        ])
+  let fe765 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        3302427242100220#u64, 1955849529137134#u64, 2171162376368357#u64,
+        2343545681983462#u64, 447733118757825#u64
+        ])
+  let fe766 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1287181461435438#u64, 622722465530711#u64, 880952150571872#u64,
+        741035693459198#u64, 311565274989772#u64
+        ])
+  let fe767 ←
+    backend.serial.u64.field.FieldElement51.from_limbs
+      (Array.make 5#usize [
+        1003649078149734#u64, 545233927396469#u64, 1849786171789880#u64,
+        1318943684880434#u64, 280345687170552#u64
+        ])
+  ok
+    (Array.make 32#usize [
+      Array.make 8#usize [
+        { y_plus_x := fe, y_minus_x := fe1, xy2d := fe2 },
+        { y_plus_x := fe3, y_minus_x := fe4, xy2d := fe5 },
+        { y_plus_x := fe6, y_minus_x := fe7, xy2d := fe8 },
+        { y_plus_x := fe9, y_minus_x := fe10, xy2d := fe11 },
+        { y_plus_x := fe12, y_minus_x := fe13, xy2d := fe14 },
+        { y_plus_x := fe15, y_minus_x := fe16, xy2d := fe17 },
+        { y_plus_x := fe18, y_minus_x := fe19, xy2d := fe20 },
+        { y_plus_x := fe21, y_minus_x := fe22, xy2d := fe23 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe24, y_minus_x := fe25, xy2d := fe26 },
+        { y_plus_x := fe27, y_minus_x := fe28, xy2d := fe29 },
+        { y_plus_x := fe30, y_minus_x := fe31, xy2d := fe32 },
+        { y_plus_x := fe33, y_minus_x := fe34, xy2d := fe35 },
+        { y_plus_x := fe36, y_minus_x := fe37, xy2d := fe38 },
+        { y_plus_x := fe39, y_minus_x := fe40, xy2d := fe41 },
+        { y_plus_x := fe42, y_minus_x := fe43, xy2d := fe44 },
+        { y_plus_x := fe45, y_minus_x := fe46, xy2d := fe47 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe48, y_minus_x := fe49, xy2d := fe50 },
+        { y_plus_x := fe51, y_minus_x := fe52, xy2d := fe53 },
+        { y_plus_x := fe54, y_minus_x := fe55, xy2d := fe56 },
+        { y_plus_x := fe57, y_minus_x := fe58, xy2d := fe59 },
+        { y_plus_x := fe60, y_minus_x := fe61, xy2d := fe62 },
+        { y_plus_x := fe63, y_minus_x := fe64, xy2d := fe65 },
+        { y_plus_x := fe66, y_minus_x := fe67, xy2d := fe68 },
+        { y_plus_x := fe69, y_minus_x := fe70, xy2d := fe71 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe72, y_minus_x := fe73, xy2d := fe74 },
+        { y_plus_x := fe75, y_minus_x := fe76, xy2d := fe77 },
+        { y_plus_x := fe78, y_minus_x := fe79, xy2d := fe80 },
+        { y_plus_x := fe81, y_minus_x := fe82, xy2d := fe83 },
+        { y_plus_x := fe84, y_minus_x := fe85, xy2d := fe86 },
+        { y_plus_x := fe87, y_minus_x := fe88, xy2d := fe89 },
+        { y_plus_x := fe90, y_minus_x := fe91, xy2d := fe92 },
+        { y_plus_x := fe93, y_minus_x := fe94, xy2d := fe95 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe96, y_minus_x := fe97, xy2d := fe98 },
+        { y_plus_x := fe99, y_minus_x := fe100, xy2d := fe101 },
+        { y_plus_x := fe102, y_minus_x := fe103, xy2d := fe104 },
+        { y_plus_x := fe105, y_minus_x := fe106, xy2d := fe107 },
+        { y_plus_x := fe108, y_minus_x := fe109, xy2d := fe110 },
+        { y_plus_x := fe111, y_minus_x := fe112, xy2d := fe113 },
+        { y_plus_x := fe114, y_minus_x := fe115, xy2d := fe116 },
+        { y_plus_x := fe117, y_minus_x := fe118, xy2d := fe119 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe120, y_minus_x := fe121, xy2d := fe122 },
+        { y_plus_x := fe123, y_minus_x := fe124, xy2d := fe125 },
+        { y_plus_x := fe126, y_minus_x := fe127, xy2d := fe128 },
+        { y_plus_x := fe129, y_minus_x := fe130, xy2d := fe131 },
+        { y_plus_x := fe132, y_minus_x := fe133, xy2d := fe134 },
+        { y_plus_x := fe135, y_minus_x := fe136, xy2d := fe137 },
+        { y_plus_x := fe138, y_minus_x := fe139, xy2d := fe140 },
+        { y_plus_x := fe141, y_minus_x := fe142, xy2d := fe143 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe144, y_minus_x := fe145, xy2d := fe146 },
+        { y_plus_x := fe147, y_minus_x := fe148, xy2d := fe149 },
+        { y_plus_x := fe150, y_minus_x := fe151, xy2d := fe152 },
+        { y_plus_x := fe153, y_minus_x := fe154, xy2d := fe155 },
+        { y_plus_x := fe156, y_minus_x := fe157, xy2d := fe158 },
+        { y_plus_x := fe159, y_minus_x := fe160, xy2d := fe161 },
+        { y_plus_x := fe162, y_minus_x := fe163, xy2d := fe164 },
+        { y_plus_x := fe165, y_minus_x := fe166, xy2d := fe167 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe168, y_minus_x := fe169, xy2d := fe170 },
+        { y_plus_x := fe171, y_minus_x := fe172, xy2d := fe173 },
+        { y_plus_x := fe174, y_minus_x := fe175, xy2d := fe176 },
+        { y_plus_x := fe177, y_minus_x := fe178, xy2d := fe179 },
+        { y_plus_x := fe180, y_minus_x := fe181, xy2d := fe182 },
+        { y_plus_x := fe183, y_minus_x := fe184, xy2d := fe185 },
+        { y_plus_x := fe186, y_minus_x := fe187, xy2d := fe188 },
+        { y_plus_x := fe189, y_minus_x := fe190, xy2d := fe191 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe192, y_minus_x := fe193, xy2d := fe194 },
+        { y_plus_x := fe195, y_minus_x := fe196, xy2d := fe197 },
+        { y_plus_x := fe198, y_minus_x := fe199, xy2d := fe200 },
+        { y_plus_x := fe201, y_minus_x := fe202, xy2d := fe203 },
+        { y_plus_x := fe204, y_minus_x := fe205, xy2d := fe206 },
+        { y_plus_x := fe207, y_minus_x := fe208, xy2d := fe209 },
+        { y_plus_x := fe210, y_minus_x := fe211, xy2d := fe212 },
+        { y_plus_x := fe213, y_minus_x := fe214, xy2d := fe215 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe216, y_minus_x := fe217, xy2d := fe218 },
+        { y_plus_x := fe219, y_minus_x := fe220, xy2d := fe221 },
+        { y_plus_x := fe222, y_minus_x := fe223, xy2d := fe224 },
+        { y_plus_x := fe225, y_minus_x := fe226, xy2d := fe227 },
+        { y_plus_x := fe228, y_minus_x := fe229, xy2d := fe230 },
+        { y_plus_x := fe231, y_minus_x := fe232, xy2d := fe233 },
+        { y_plus_x := fe234, y_minus_x := fe235, xy2d := fe236 },
+        { y_plus_x := fe237, y_minus_x := fe238, xy2d := fe239 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe240, y_minus_x := fe241, xy2d := fe242 },
+        { y_plus_x := fe243, y_minus_x := fe244, xy2d := fe245 },
+        { y_plus_x := fe246, y_minus_x := fe247, xy2d := fe248 },
+        { y_plus_x := fe249, y_minus_x := fe250, xy2d := fe251 },
+        { y_plus_x := fe252, y_minus_x := fe253, xy2d := fe254 },
+        { y_plus_x := fe255, y_minus_x := fe256, xy2d := fe257 },
+        { y_plus_x := fe258, y_minus_x := fe259, xy2d := fe260 },
+        { y_plus_x := fe261, y_minus_x := fe262, xy2d := fe263 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe264, y_minus_x := fe265, xy2d := fe266 },
+        { y_plus_x := fe267, y_minus_x := fe268, xy2d := fe269 },
+        { y_plus_x := fe270, y_minus_x := fe271, xy2d := fe272 },
+        { y_plus_x := fe273, y_minus_x := fe274, xy2d := fe275 },
+        { y_plus_x := fe276, y_minus_x := fe277, xy2d := fe278 },
+        { y_plus_x := fe279, y_minus_x := fe280, xy2d := fe281 },
+        { y_plus_x := fe282, y_minus_x := fe283, xy2d := fe284 },
+        { y_plus_x := fe285, y_minus_x := fe286, xy2d := fe287 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe288, y_minus_x := fe289, xy2d := fe290 },
+        { y_plus_x := fe291, y_minus_x := fe292, xy2d := fe293 },
+        { y_plus_x := fe294, y_minus_x := fe295, xy2d := fe296 },
+        { y_plus_x := fe297, y_minus_x := fe298, xy2d := fe299 },
+        { y_plus_x := fe300, y_minus_x := fe301, xy2d := fe302 },
+        { y_plus_x := fe303, y_minus_x := fe304, xy2d := fe305 },
+        { y_plus_x := fe306, y_minus_x := fe307, xy2d := fe308 },
+        { y_plus_x := fe309, y_minus_x := fe310, xy2d := fe311 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe312, y_minus_x := fe313, xy2d := fe314 },
+        { y_plus_x := fe315, y_minus_x := fe316, xy2d := fe317 },
+        { y_plus_x := fe318, y_minus_x := fe319, xy2d := fe320 },
+        { y_plus_x := fe321, y_minus_x := fe322, xy2d := fe323 },
+        { y_plus_x := fe324, y_minus_x := fe325, xy2d := fe326 },
+        { y_plus_x := fe327, y_minus_x := fe328, xy2d := fe329 },
+        { y_plus_x := fe330, y_minus_x := fe331, xy2d := fe332 },
+        { y_plus_x := fe333, y_minus_x := fe334, xy2d := fe335 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe336, y_minus_x := fe337, xy2d := fe338 },
+        { y_plus_x := fe339, y_minus_x := fe340, xy2d := fe341 },
+        { y_plus_x := fe342, y_minus_x := fe343, xy2d := fe344 },
+        { y_plus_x := fe345, y_minus_x := fe346, xy2d := fe347 },
+        { y_plus_x := fe348, y_minus_x := fe349, xy2d := fe350 },
+        { y_plus_x := fe351, y_minus_x := fe352, xy2d := fe353 },
+        { y_plus_x := fe354, y_minus_x := fe355, xy2d := fe356 },
+        { y_plus_x := fe357, y_minus_x := fe358, xy2d := fe359 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe360, y_minus_x := fe361, xy2d := fe362 },
+        { y_plus_x := fe363, y_minus_x := fe364, xy2d := fe365 },
+        { y_plus_x := fe366, y_minus_x := fe367, xy2d := fe368 },
+        { y_plus_x := fe369, y_minus_x := fe370, xy2d := fe371 },
+        { y_plus_x := fe372, y_minus_x := fe373, xy2d := fe374 },
+        { y_plus_x := fe375, y_minus_x := fe376, xy2d := fe377 },
+        { y_plus_x := fe378, y_minus_x := fe379, xy2d := fe380 },
+        { y_plus_x := fe381, y_minus_x := fe382, xy2d := fe383 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe384, y_minus_x := fe385, xy2d := fe386 },
+        { y_plus_x := fe387, y_minus_x := fe388, xy2d := fe389 },
+        { y_plus_x := fe390, y_minus_x := fe391, xy2d := fe392 },
+        { y_plus_x := fe393, y_minus_x := fe394, xy2d := fe395 },
+        { y_plus_x := fe396, y_minus_x := fe397, xy2d := fe398 },
+        { y_plus_x := fe399, y_minus_x := fe400, xy2d := fe401 },
+        { y_plus_x := fe402, y_minus_x := fe403, xy2d := fe404 },
+        { y_plus_x := fe405, y_minus_x := fe406, xy2d := fe407 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe408, y_minus_x := fe409, xy2d := fe410 },
+        { y_plus_x := fe411, y_minus_x := fe412, xy2d := fe413 },
+        { y_plus_x := fe414, y_minus_x := fe415, xy2d := fe416 },
+        { y_plus_x := fe417, y_minus_x := fe418, xy2d := fe419 },
+        { y_plus_x := fe420, y_minus_x := fe421, xy2d := fe422 },
+        { y_plus_x := fe423, y_minus_x := fe424, xy2d := fe425 },
+        { y_plus_x := fe426, y_minus_x := fe427, xy2d := fe428 },
+        { y_plus_x := fe429, y_minus_x := fe430, xy2d := fe431 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe432, y_minus_x := fe433, xy2d := fe434 },
+        { y_plus_x := fe435, y_minus_x := fe436, xy2d := fe437 },
+        { y_plus_x := fe438, y_minus_x := fe439, xy2d := fe440 },
+        { y_plus_x := fe441, y_minus_x := fe442, xy2d := fe443 },
+        { y_plus_x := fe444, y_minus_x := fe445, xy2d := fe446 },
+        { y_plus_x := fe447, y_minus_x := fe448, xy2d := fe449 },
+        { y_plus_x := fe450, y_minus_x := fe451, xy2d := fe452 },
+        { y_plus_x := fe453, y_minus_x := fe454, xy2d := fe455 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe456, y_minus_x := fe457, xy2d := fe458 },
+        { y_plus_x := fe459, y_minus_x := fe460, xy2d := fe461 },
+        { y_plus_x := fe462, y_minus_x := fe463, xy2d := fe464 },
+        { y_plus_x := fe465, y_minus_x := fe466, xy2d := fe467 },
+        { y_plus_x := fe468, y_minus_x := fe469, xy2d := fe470 },
+        { y_plus_x := fe471, y_minus_x := fe472, xy2d := fe473 },
+        { y_plus_x := fe474, y_minus_x := fe475, xy2d := fe476 },
+        { y_plus_x := fe477, y_minus_x := fe478, xy2d := fe479 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe480, y_minus_x := fe481, xy2d := fe482 },
+        { y_plus_x := fe483, y_minus_x := fe484, xy2d := fe485 },
+        { y_plus_x := fe486, y_minus_x := fe487, xy2d := fe488 },
+        { y_plus_x := fe489, y_minus_x := fe490, xy2d := fe491 },
+        { y_plus_x := fe492, y_minus_x := fe493, xy2d := fe494 },
+        { y_plus_x := fe495, y_minus_x := fe496, xy2d := fe497 },
+        { y_plus_x := fe498, y_minus_x := fe499, xy2d := fe500 },
+        { y_plus_x := fe501, y_minus_x := fe502, xy2d := fe503 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe504, y_minus_x := fe505, xy2d := fe506 },
+        { y_plus_x := fe507, y_minus_x := fe508, xy2d := fe509 },
+        { y_plus_x := fe510, y_minus_x := fe511, xy2d := fe512 },
+        { y_plus_x := fe513, y_minus_x := fe514, xy2d := fe515 },
+        { y_plus_x := fe516, y_minus_x := fe517, xy2d := fe518 },
+        { y_plus_x := fe519, y_minus_x := fe520, xy2d := fe521 },
+        { y_plus_x := fe522, y_minus_x := fe523, xy2d := fe524 },
+        { y_plus_x := fe525, y_minus_x := fe526, xy2d := fe527 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe528, y_minus_x := fe529, xy2d := fe530 },
+        { y_plus_x := fe531, y_minus_x := fe532, xy2d := fe533 },
+        { y_plus_x := fe534, y_minus_x := fe535, xy2d := fe536 },
+        { y_plus_x := fe537, y_minus_x := fe538, xy2d := fe539 },
+        { y_plus_x := fe540, y_minus_x := fe541, xy2d := fe542 },
+        { y_plus_x := fe543, y_minus_x := fe544, xy2d := fe545 },
+        { y_plus_x := fe546, y_minus_x := fe547, xy2d := fe548 },
+        { y_plus_x := fe549, y_minus_x := fe550, xy2d := fe551 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe552, y_minus_x := fe553, xy2d := fe554 },
+        { y_plus_x := fe555, y_minus_x := fe556, xy2d := fe557 },
+        { y_plus_x := fe558, y_minus_x := fe559, xy2d := fe560 },
+        { y_plus_x := fe561, y_minus_x := fe562, xy2d := fe563 },
+        { y_plus_x := fe564, y_minus_x := fe565, xy2d := fe566 },
+        { y_plus_x := fe567, y_minus_x := fe568, xy2d := fe569 },
+        { y_plus_x := fe570, y_minus_x := fe571, xy2d := fe572 },
+        { y_plus_x := fe573, y_minus_x := fe574, xy2d := fe575 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe576, y_minus_x := fe577, xy2d := fe578 },
+        { y_plus_x := fe579, y_minus_x := fe580, xy2d := fe581 },
+        { y_plus_x := fe582, y_minus_x := fe583, xy2d := fe584 },
+        { y_plus_x := fe585, y_minus_x := fe586, xy2d := fe587 },
+        { y_plus_x := fe588, y_minus_x := fe589, xy2d := fe590 },
+        { y_plus_x := fe591, y_minus_x := fe592, xy2d := fe593 },
+        { y_plus_x := fe594, y_minus_x := fe595, xy2d := fe596 },
+        { y_plus_x := fe597, y_minus_x := fe598, xy2d := fe599 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe600, y_minus_x := fe601, xy2d := fe602 },
+        { y_plus_x := fe603, y_minus_x := fe604, xy2d := fe605 },
+        { y_plus_x := fe606, y_minus_x := fe607, xy2d := fe608 },
+        { y_plus_x := fe609, y_minus_x := fe610, xy2d := fe611 },
+        { y_plus_x := fe612, y_minus_x := fe613, xy2d := fe614 },
+        { y_plus_x := fe615, y_minus_x := fe616, xy2d := fe617 },
+        { y_plus_x := fe618, y_minus_x := fe619, xy2d := fe620 },
+        { y_plus_x := fe621, y_minus_x := fe622, xy2d := fe623 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe624, y_minus_x := fe625, xy2d := fe626 },
+        { y_plus_x := fe627, y_minus_x := fe628, xy2d := fe629 },
+        { y_plus_x := fe630, y_minus_x := fe631, xy2d := fe632 },
+        { y_plus_x := fe633, y_minus_x := fe634, xy2d := fe635 },
+        { y_plus_x := fe636, y_minus_x := fe637, xy2d := fe638 },
+        { y_plus_x := fe639, y_minus_x := fe640, xy2d := fe641 },
+        { y_plus_x := fe642, y_minus_x := fe643, xy2d := fe644 },
+        { y_plus_x := fe645, y_minus_x := fe646, xy2d := fe647 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe648, y_minus_x := fe649, xy2d := fe650 },
+        { y_plus_x := fe651, y_minus_x := fe652, xy2d := fe653 },
+        { y_plus_x := fe654, y_minus_x := fe655, xy2d := fe656 },
+        { y_plus_x := fe657, y_minus_x := fe658, xy2d := fe659 },
+        { y_plus_x := fe660, y_minus_x := fe661, xy2d := fe662 },
+        { y_plus_x := fe663, y_minus_x := fe664, xy2d := fe665 },
+        { y_plus_x := fe666, y_minus_x := fe667, xy2d := fe668 },
+        { y_plus_x := fe669, y_minus_x := fe670, xy2d := fe671 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe672, y_minus_x := fe673, xy2d := fe674 },
+        { y_plus_x := fe675, y_minus_x := fe676, xy2d := fe677 },
+        { y_plus_x := fe678, y_minus_x := fe679, xy2d := fe680 },
+        { y_plus_x := fe681, y_minus_x := fe682, xy2d := fe683 },
+        { y_plus_x := fe684, y_minus_x := fe685, xy2d := fe686 },
+        { y_plus_x := fe687, y_minus_x := fe688, xy2d := fe689 },
+        { y_plus_x := fe690, y_minus_x := fe691, xy2d := fe692 },
+        { y_plus_x := fe693, y_minus_x := fe694, xy2d := fe695 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe696, y_minus_x := fe697, xy2d := fe698 },
+        { y_plus_x := fe699, y_minus_x := fe700, xy2d := fe701 },
+        { y_plus_x := fe702, y_minus_x := fe703, xy2d := fe704 },
+        { y_plus_x := fe705, y_minus_x := fe706, xy2d := fe707 },
+        { y_plus_x := fe708, y_minus_x := fe709, xy2d := fe710 },
+        { y_plus_x := fe711, y_minus_x := fe712, xy2d := fe713 },
+        { y_plus_x := fe714, y_minus_x := fe715, xy2d := fe716 },
+        { y_plus_x := fe717, y_minus_x := fe718, xy2d := fe719 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe720, y_minus_x := fe721, xy2d := fe722 },
+        { y_plus_x := fe723, y_minus_x := fe724, xy2d := fe725 },
+        { y_plus_x := fe726, y_minus_x := fe727, xy2d := fe728 },
+        { y_plus_x := fe729, y_minus_x := fe730, xy2d := fe731 },
+        { y_plus_x := fe732, y_minus_x := fe733, xy2d := fe734 },
+        { y_plus_x := fe735, y_minus_x := fe736, xy2d := fe737 },
+        { y_plus_x := fe738, y_minus_x := fe739, xy2d := fe740 },
+        { y_plus_x := fe741, y_minus_x := fe742, xy2d := fe743 }
+        ],
+      Array.make 8#usize [
+        { y_plus_x := fe744, y_minus_x := fe745, xy2d := fe746 },
+        { y_plus_x := fe747, y_minus_x := fe748, xy2d := fe749 },
+        { y_plus_x := fe750, y_minus_x := fe751, xy2d := fe752 },
+        { y_plus_x := fe753, y_minus_x := fe754, xy2d := fe755 },
+        { y_plus_x := fe756, y_minus_x := fe757, xy2d := fe758 },
+        { y_plus_x := fe759, y_minus_x := fe760, xy2d := fe761 },
+        { y_plus_x := fe762, y_minus_x := fe763, xy2d := fe764 },
+        { y_plus_x := fe765, y_minus_x := fe766, xy2d := fe767 }
+        ]
+      ])
+
+/-- [curve25519_dalek::backend::serial::u64::constants::ED25519_BASEPOINT_TABLE]
+    Source: 'curve25519-dalek/src/backend/serial/u64/constants.rs', lines 341:0-342:46
+    Visibility: public -/
+@[global_simps, irreducible]
+def backend.serial.u64.constants.ED25519_BASEPOINT_TABLE
+  : Result edwards.EdwardsBasepointTable :=
+  backend.serial.u64.constants.ED25519_BASEPOINT_TABLE_INNER_DOC_HIDDEN
 
 /-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::from_bytes::load8_at]:
     Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 341:8-350:9 -/
@@ -819,172 +6171,22 @@ def backend.serial.u64.field.FieldElement51.to_bytes
   massert (i116 = 0#u8)
   ok s32
 
-/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::pow2k::LOW_51_BIT_MASK]
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 519:12-519:58 -/
-@[global_simps, irreducible]
-def backend.serial.u64.field.FieldElement51.pow2k.LOW_51_BIT_MASK
-  : Result Std.U64 := do
-  let i ← 1#u64 <<< 51#i32
-  i - 1#u64
-
-/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::pow2k::m]:
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 468:8-470:9 -/
-def backend.serial.u64.field.FieldElement51.pow2k.m
-  (x : Std.U64) (y : Std.U64) : Result Std.U128 := do
-  let i ← lift (UScalar.cast .U128 x)
-  let i1 ← lift (UScalar.cast .U128 y)
-  i * i1
-
-/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::pow2k]: loop 0:
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 474:8-561:9
+/-- [curve25519_dalek::edwards::{impl curve25519_dalek::traits::Identity for curve25519_dalek::edwards::EdwardsPoint}::identity]:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 421:4-428:5
     Visibility: public -/
-@[rust_loop]
-def backend.serial.u64.field.FieldElement51.pow2k_loop
-  (k : Std.U32) (a : Array Std.U64 5#usize) :
-  Result (Array Std.U64 5#usize)
+def edwards.EdwardsPoint.Insts.Curve25519_dalekTraitsIdentity.identity
+  : Result edwards.EdwardsPoint := do
+  let fe ← backend.serial.u64.field.FieldElement51.ZERO
+  let fe1 ← backend.serial.u64.field.FieldElement51.ONE
+  ok { X := fe, Y := fe1, Z := fe1, T := fe }
+
+/-- [curve25519_dalek::edwards::{curve25519_dalek::edwards::EdwardsPoint}::as_projective]:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 533:4-539:5 -/
+def edwards.EdwardsPoint.as_projective
+  (self : edwards.EdwardsPoint) :
+  Result backend.serial.curve_models.ProjectivePoint
   := do
-  if k > 0#u32
-  then
-    let i ← Array.index_usize a 3#usize
-    let a3_19 ← 19#u64 * i
-    let i1 ← Array.index_usize a 4#usize
-    let a4_19 ← 19#u64 * i1
-    let i2 ← Array.index_usize a 0#usize
-    let i3 ← backend.serial.u64.field.FieldElement51.pow2k.m i2 i2
-    let i4 ← Array.index_usize a 1#usize
-    let i5 ← backend.serial.u64.field.FieldElement51.pow2k.m i4 a4_19
-    let i6 ← Array.index_usize a 2#usize
-    let i7 ← backend.serial.u64.field.FieldElement51.pow2k.m i6 a3_19
-    let i8 ← i5 + i7
-    let i9 ← 2#u128 * i8
-    let c0 ← i3 + i9
-    let i10 ← backend.serial.u64.field.FieldElement51.pow2k.m i a3_19
-    let i11 ← backend.serial.u64.field.FieldElement51.pow2k.m i2 i4
-    let i12 ← backend.serial.u64.field.FieldElement51.pow2k.m i6 a4_19
-    let i13 ← i11 + i12
-    let i14 ← 2#u128 * i13
-    let c1 ← i10 + i14
-    let i15 ← backend.serial.u64.field.FieldElement51.pow2k.m i4 i4
-    let i16 ← backend.serial.u64.field.FieldElement51.pow2k.m i2 i6
-    let i17 ← backend.serial.u64.field.FieldElement51.pow2k.m i1 a3_19
-    let i18 ← i16 + i17
-    let i19 ← 2#u128 * i18
-    let c2 ← i15 + i19
-    let i20 ← backend.serial.u64.field.FieldElement51.pow2k.m i1 a4_19
-    let i21 ← backend.serial.u64.field.FieldElement51.pow2k.m i2 i
-    let i22 ← backend.serial.u64.field.FieldElement51.pow2k.m i4 i6
-    let i23 ← i21 + i22
-    let i24 ← 2#u128 * i23
-    let c3 ← i20 + i24
-    let i25 ← backend.serial.u64.field.FieldElement51.pow2k.m i6 i6
-    let i26 ← backend.serial.u64.field.FieldElement51.pow2k.m i2 i1
-    let i27 ← backend.serial.u64.field.FieldElement51.pow2k.m i4 i
-    let i28 ← i26 + i27
-    let i29 ← 2#u128 * i28
-    let c4 ← i25 + i29
-    let i30 ← c0 >>> 51#i32
-    let i31 ← lift (UScalar.cast .U64 i30)
-    let i32 ← lift (UScalar.cast .U128 i31)
-    let c11 ← c1 + i32
-    let i33 ← lift (UScalar.cast .U64 c0)
-    let i34 ← backend.serial.u64.field.FieldElement51.pow2k.LOW_51_BIT_MASK
-    let i35 ← lift (i33 &&& i34)
-    let a1 ← Array.update a 0#usize i35
-    let i36 ← c11 >>> 51#i32
-    let i37 ← lift (UScalar.cast .U64 i36)
-    let i38 ← lift (UScalar.cast .U128 i37)
-    let c21 ← c2 + i38
-    let i39 ← lift (UScalar.cast .U64 c11)
-    let i40 ← lift (i39 &&& i34)
-    let a2 ← Array.update a1 1#usize i40
-    let i41 ← c21 >>> 51#i32
-    let i42 ← lift (UScalar.cast .U64 i41)
-    let i43 ← lift (UScalar.cast .U128 i42)
-    let c31 ← c3 + i43
-    let i44 ← lift (UScalar.cast .U64 c21)
-    let i45 ← lift (i44 &&& i34)
-    let a3 ← Array.update a2 2#usize i45
-    let i46 ← c31 >>> 51#i32
-    let i47 ← lift (UScalar.cast .U64 i46)
-    let i48 ← lift (UScalar.cast .U128 i47)
-    let c41 ← c4 + i48
-    let i49 ← lift (UScalar.cast .U64 c31)
-    let i50 ← lift (i49 &&& i34)
-    let a4 ← Array.update a3 3#usize i50
-    let i51 ← c41 >>> 51#i32
-    let carry ← lift (UScalar.cast .U64 i51)
-    let i52 ← lift (UScalar.cast .U64 c41)
-    let i53 ← lift (i52 &&& i34)
-    let a5 ← Array.update a4 4#usize i53
-    let i54 ← carry * 19#u64
-    let i55 ← Array.index_usize a5 0#usize
-    let i56 ← i55 + i54
-    let a6 ← Array.update a5 0#usize i56
-    let i57 ← Array.index_usize a6 0#usize
-    let i58 ← i57 >>> 51#i32
-    let i59 ← Array.index_usize a6 1#usize
-    let i60 ← i59 + i58
-    let a7 ← Array.update a6 1#usize i60
-    let i61 ← Array.index_usize a7 0#usize
-    let i62 ← lift (i61 &&& i34)
-    let a8 ← Array.update a7 0#usize i62
-    let k1 ← k - 1#u32
-    backend.serial.u64.field.FieldElement51.pow2k_loop k1 a8
-  else ok a
-partial_fixpoint
-
-/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::pow2k]:
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 462:4-564:5
-    Visibility: public -/
-def backend.serial.u64.field.FieldElement51.pow2k
-  (self : backend.serial.u64.field.FieldElement51) (k : Std.U32) :
-  Result backend.serial.u64.field.FieldElement51
-  := do
-  massert (k > 0#u32)
-  let a ← backend.serial.u64.field.FieldElement51.pow2k_loop k self
-  ok a
-
-/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::square]:
-    Source: 'curve25519-dalek/src/backend/serial/u64/field.rs', lines 567:4-569:5
-    Visibility: public -/
-def backend.serial.u64.field.FieldElement51.square
-  (self : backend.serial.u64.field.FieldElement51) :
-  Result backend.serial.u64.field.FieldElement51
-  := do
-  backend.serial.u64.field.FieldElement51.pow2k self 1#u32
-
-/-- [curve25519_dalek::field::{impl subtle::ConstantTimeEq for curve25519_dalek::backend::serial::u64::field::FieldElement51}::ct_eq]:
-    Source: 'curve25519-dalek/src/field.rs', lines 95:4-97:5
-    Visibility: public -/
-def backend.serial.u64.field.FieldElement51.Insts.SubtleConstantTimeEq.ct_eq
-  (self : backend.serial.u64.field.FieldElement51)
-  (other : backend.serial.u64.field.FieldElement51) :
-  Result subtle.Choice
-  := do
-  let a ← backend.serial.u64.field.FieldElement51.to_bytes self
-  let s ← lift (Array.to_slice a)
-  let a1 ← backend.serial.u64.field.FieldElement51.to_bytes other
-  let s1 ← lift (Array.to_slice a1)
-  Slice.Insts.SubtleConstantTimeEq.ct_eq U8.Insts.SubtleConstantTimeEq s s1
-
-/-- [curve25519_dalek::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::is_negative]:
-    Source: 'curve25519-dalek/src/field.rs', lines 149:4-152:5 -/
-def field.FieldElement51.is_negative
-  (self : backend.serial.u64.field.FieldElement51) : Result subtle.Choice := do
-  let bytes ← backend.serial.u64.field.FieldElement51.to_bytes self
-  let i ← Array.index_usize bytes 0#usize
-  let i1 ← lift (i &&& 1#u8)
-  core.convert.IntoFrom.into subtle.Choice.Insts.CoreConvertFromU8 i1
-
-/-- [curve25519_dalek::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::is_zero]:
-    Source: 'curve25519-dalek/src/field.rs', lines 159:4-164:5 -/
-def field.FieldElement51.is_zero
-  (self : backend.serial.u64.field.FieldElement51) : Result subtle.Choice := do
-  let zero := Array.repeat 32#usize 0#u8
-  let bytes ← backend.serial.u64.field.FieldElement51.to_bytes self
-  let s ← lift (Array.to_slice bytes)
-  let s1 ← lift (Array.to_slice zero)
-  Slice.Insts.SubtleConstantTimeEq.ct_eq U8.Insts.SubtleConstantTimeEq s s1
+  ok { X := self.X, Y := self.Y, Z := self.Z }
 
 /-- [curve25519_dalek::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::pow22501]:
     Source: 'curve25519-dalek/src/field.rs', lines 169:4-203:5 -/
@@ -1046,6 +6248,628 @@ def field.FieldElement51.invert
   let t20 ← backend.serial.u64.field.FieldElement51.pow2k t19 5#u32
   Shared0FieldElement51.Insts.CoreOpsArithMulSharedAFieldElement51FieldElement51.mul
     t20 t3
+
+/-- [curve25519_dalek::edwards::{curve25519_dalek::edwards::EdwardsPoint}::to_montgomery]:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 572:4-582:5
+    Visibility: public -/
+def edwards.EdwardsPoint.to_montgomery
+  (self : edwards.EdwardsPoint) : Result montgomery.MontgomeryPoint := do
+  let U ←
+    Shared0FieldElement51.Insts.CoreOpsArithAddSharedAFieldElement51FieldElement51.add
+      self.Z self.Y
+  let W ←
+    Shared0FieldElement51.Insts.CoreOpsArithSubSharedAFieldElement51FieldElement51.sub
+      self.Z self.Y
+  let fe ← field.FieldElement51.invert W
+  let u ←
+    Shared0FieldElement51.Insts.CoreOpsArithMulSharedAFieldElement51FieldElement51.mul
+      U fe
+  let a ← backend.serial.u64.field.FieldElement51.to_bytes u
+  ok a
+
+/-- [curve25519_dalek::window::{curve25519_dalek::window::LookupTable<T>}::select]: loop 0:
+    Source: 'curve25519-dalek/src/window.rs', lines 65:16-138:20
+    Visibility: public -/
+@[rust_loop]
+def window.LookupTable.select_loop
+  {T : Type} (subtleConditionallySelectableInst :
+  subtle.ConditionallySelectable T) (iter : core.ops.range.Range Std.Usize)
+  (self : window.LookupTable T) (xabs : Std.I16) (t : T) :
+  Result T
+  := do
+  let (o, iter1) ←
+    core.iter.range.IteratorRange.next core.iter.range.StepUsize iter
+  match o with
+  | none => ok t
+  | some j =>
+    let i ← lift (IScalar.hcast .U16 xabs)
+    let i1 ← lift (UScalar.cast .U16 j)
+    let c ← U16.Insts.SubtleConstantTimeEq.ct_eq i i1
+    let i2 ← j - 1#usize
+    let t1 ← Array.index_usize self i2
+    let t2 ← subtleConditionallySelectableInst.conditional_assign t t1 c
+    window.LookupTable.select_loop subtleConditionallySelectableInst iter1 self
+      xabs t2
+partial_fixpoint
+
+/-- [curve25519_dalek::window::{curve25519_dalek::window::LookupTable<T>}::select]:
+    Source: 'curve25519-dalek/src/window.rs', lines 55:12-78:13
+    Visibility: public -/
+def window.LookupTable.select
+  {T : Type} (traitsIdentityInst : traits.Identity T)
+  (subtleConditionallySelectableInst : subtle.ConditionallySelectable T)
+  (coremarkerCopyInst : core.marker.Copy T) (coreopsarithNegInst :
+  core.ops.arith.Neg T T) (self : window.LookupTable T) (x : Std.I8) :
+  Result T
+  := do
+  massert (x >= (-8)#i8)
+  let i ← lift (IScalar.cast .I16 x)
+  massert (i <= 8#i16)
+  let i1 ← lift (IScalar.cast .I16 x)
+  let xmask ← i1 >>> 7#i32
+  let i2 ← lift (IScalar.cast .I16 x)
+  let i3 ← i2 + xmask
+  let xabs ← lift (i3 ^^^ xmask)
+  let t ← traitsIdentityInst.identity
+  let t1 ←
+    window.LookupTable.select_loop subtleConditionallySelectableInst
+      { start := 1#usize, «end» := 9#usize } self xabs t
+  let i4 ← lift (xmask &&& 1#i16)
+  let i5 ← lift (IScalar.hcast .U8 i4)
+  let neg_mask ← subtle.Choice.Insts.CoreConvertFromU8.from i5
+  let t_neg ← coreopsarithNegInst.neg t1
+  subtleConditionallySelectableInst.conditional_assign t1 t_neg neg_mask
+
+/-- [curve25519_dalek::scalar::read_le_u64_into]: loop 0:
+    Source: 'curve25519-dalek/src/scalar.rs', lines 1379:4-1392:5 -/
+@[rust_loop]
+def scalar.read_le_u64_into_loop
+  (src : Slice Std.U8) (dst : Slice Std.U64) (i : Std.Usize) :
+  Result (Slice Std.U64)
+  := do
+  let i1 := Slice.len dst
+  if i < i1
+  then
+    let start ← i * 8#usize
+    let i2 ← Slice.index_usize src start
+    let i3 ← start + 1#usize
+    let i4 ← Slice.index_usize src i3
+    let i5 ← start + 2#usize
+    let i6 ← Slice.index_usize src i5
+    let i7 ← start + 3#usize
+    let i8 ← Slice.index_usize src i7
+    let i9 ← start + 4#usize
+    let i10 ← Slice.index_usize src i9
+    let i11 ← start + 5#usize
+    let i12 ← Slice.index_usize src i11
+    let i13 ← start + 6#usize
+    let i14 ← Slice.index_usize src i13
+    let i15 ← start + 7#usize
+    let i16 ← Slice.index_usize src i15
+    let i17 ←
+      lift (core.num.U64.from_le_bytes
+        (Array.make 8#usize [ i2, i4, i6, i8, i10, i12, i14, i16 ]))
+    let s ← Slice.update dst i i17
+    let i18 ← i + 1#usize
+    scalar.read_le_u64_into_loop src s i18
+  else ok dst
+partial_fixpoint
+
+/-- [curve25519_dalek::scalar::read_le_u64_into]:
+    Source: 'curve25519-dalek/src/scalar.rs', lines 1376:0-1393:1 -/
+def scalar.read_le_u64_into
+  (src : Slice Std.U8) (dst : Slice Std.U64) : Result (Slice Std.U64) := do
+  let i := Slice.len src
+  let i1 := Slice.len dst
+  let i2 ← 8#usize * i1
+  massert (i = i2)
+  scalar.read_le_u64_into_loop src dst 0#usize
+
+/-- [curve25519_dalek::scalar::{curve25519_dalek::scalar::Scalar}::as_radix_16::top_half]:
+    Source: 'curve25519-dalek/src/scalar.rs', lines 1007:8-1009:9 -/
+def scalar.Scalar.as_radix_16.top_half (x : Std.U8) : Result Std.U8 := do
+  let i ← x >>> 4#i32
+  ok (i &&& 15#u8)
+
+/-- [curve25519_dalek::scalar::{curve25519_dalek::scalar::Scalar}::as_radix_16::bot_half]:
+    Source: 'curve25519-dalek/src/scalar.rs', lines 1003:8-1005:9 -/
+def scalar.Scalar.as_radix_16.bot_half (x : Std.U8) : Result Std.U8 := do
+  let i ← x >>> 0#i32
+  ok (i &&& 15#u8)
+
+/-- [curve25519_dalek::scalar::{impl core::ops::index::Index<usize, u8> for curve25519_dalek::scalar::Scalar}::index]:
+    Source: 'curve25519-dalek/src/scalar.rs', lines 310:4-312:5
+    Visibility: public -/
+def scalar.Scalar.Insts.CoreOpsIndexIndexUsizeU8.index
+  (self : scalar.Scalar) (_index : Std.Usize) : Result Std.U8 := do
+  Array.index_usize self.bytes _index
+
+/-- [curve25519_dalek::scalar::{curve25519_dalek::scalar::Scalar}::as_radix_16]: loop 0:
+    Source: 'curve25519-dalek/src/scalar.rs', lines 1012:8-1016:9 -/
+@[rust_loop]
+def scalar.Scalar.as_radix_16_loop0
+  (self : scalar.Scalar) (output : Array Std.I8 64#usize) (i : Std.Usize) :
+  Result (Array Std.I8 64#usize)
+  := do
+  if i < 32#usize
+  then
+    let i1 ← scalar.Scalar.Insts.CoreOpsIndexIndexUsizeU8.index self i
+    let i2 ← scalar.Scalar.as_radix_16.bot_half i1
+    let i3 ← 2#usize * i
+    let i4 ← lift (UScalar.hcast .I8 i2)
+    let output1 ← Array.update output i3 i4
+    let i5 ← scalar.Scalar.as_radix_16.top_half i1
+    let i6 ← i3 + 1#usize
+    let i7 ← lift (UScalar.hcast .I8 i5)
+    let a ← Array.update output1 i6 i7
+    let i8 ← i + 1#usize
+    scalar.Scalar.as_radix_16_loop0 self a i8
+  else ok output
+partial_fixpoint
+
+/-- [curve25519_dalek::scalar::{curve25519_dalek::scalar::Scalar}::as_radix_16]: loop 1:
+    Source: 'curve25519-dalek/src/scalar.rs', lines 1021:8-1026:9 -/
+@[rust_loop]
+def scalar.Scalar.as_radix_16_loop1
+  (output : Array Std.I8 64#usize) (i : Std.Usize) :
+  Result (Array Std.I8 64#usize)
+  := do
+  if i < 63#usize
+  then
+    let i1 ← Array.index_usize output i
+    let i2 ← i1 + 8#i8
+    let carry ← i2 >>> 4#i32
+    let i3 ← carry <<< 4#i32
+    let i4 ← i1 - i3
+    let output1 ← Array.update output i i4
+    let i5 ← i + 1#usize
+    let i6 ← Array.index_usize output1 i5
+    let i7 ← i6 + carry
+    let a ← Array.update output1 i5 i7
+    scalar.Scalar.as_radix_16_loop1 a i5
+  else ok output
+partial_fixpoint
+
+/-- [curve25519_dalek::scalar::{curve25519_dalek::scalar::Scalar}::as_radix_16]:
+    Source: 'curve25519-dalek/src/scalar.rs', lines 995:4-1031:5 -/
+def scalar.Scalar.as_radix_16
+  (self : scalar.Scalar) : Result (Array Std.I8 64#usize) := do
+  let i ← scalar.Scalar.Insts.CoreOpsIndexIndexUsizeU8.index self 31#usize
+  massert (i <= 127#u8)
+  let output := Array.repeat 64#usize 0#i8
+  let output1 ← scalar.Scalar.as_radix_16_loop0 self output 0#usize
+  scalar.Scalar.as_radix_16_loop1 output1 0#usize
+
+/-- [curve25519_dalek::scalar::{curve25519_dalek::scalar::Scalar}::as_radix_2w]: loop 0:
+    Source: 'curve25519-dalek/src/scalar.rs', lines 1099:8-1121:9 -/
+@[rust_loop]
+def scalar.Scalar.as_radix_2w_loop
+  (iter : core.ops.range.Range Std.Usize) (w : Std.Usize)
+  (scalar64x4 : Array Std.U64 4#usize) (radix : Std.U64)
+  (window_mask : Std.U64) (carry : Std.U64) (digits : Array Std.I8 64#usize) :
+  Result (Std.U64 × (Array Std.I8 64#usize))
+  := do
+  let (o, iter1) ←
+    core.iter.range.IteratorRange.next core.iter.range.StepUsize iter
+  match o with
+  | none => ok (carry, digits)
+  | some i =>
+    let bit_offset ← i * w
+    let u64_idx ← bit_offset / 64#usize
+    let bit_idx ← bit_offset % 64#usize
+    let i1 ← 64#usize - w
+    let (iter2, bit_buf) ←
+      if bit_idx < i1
+      then
+        do
+        let i2 ← Array.index_usize scalar64x4 u64_idx
+        let bit_buf1 ← i2 >>> bit_idx
+        ok (iter1, bit_buf1)
+      else
+        do
+        let i2 ←
+          if u64_idx = 3#usize
+          then
+            do
+            let i3 ← Array.index_usize scalar64x4 u64_idx
+            i3 >>> bit_idx
+          else
+            do
+            let i3 ← Array.index_usize scalar64x4 u64_idx
+            let i4 ← i3 >>> bit_idx
+            let i5 ← 1#usize + u64_idx
+            let i6 ← Array.index_usize scalar64x4 i5
+            let i7 ← 64#usize - bit_idx
+            let i8 ← i6 <<< i7
+            ok (i4 ||| i8)
+        ok (iter1, i2)
+    let i2 ← lift (bit_buf &&& window_mask)
+    let coef ← carry + i2
+    let i3 ← radix / 2#u64
+    let i4 ← coef + i3
+    let carry1 ← i4 >>> w
+    let i5 ← lift (UScalar.hcast .I64 coef)
+    let i6 ← carry1 <<< w
+    let i7 ← lift (UScalar.hcast .I64 i6)
+    let i8 ← i5 - i7
+    let i9 ← lift (IScalar.cast .I8 i8)
+    let a ← Array.update digits i i9
+    scalar.Scalar.as_radix_2w_loop iter2 w scalar64x4 radix window_mask carry1
+      a
+partial_fixpoint
+
+/-- [curve25519_dalek::scalar::{curve25519_dalek::scalar::Scalar}::as_radix_2w]:
+    Source: 'curve25519-dalek/src/scalar.rs', lines 1080:4-1140:5 -/
+def scalar.Scalar.as_radix_2w
+  (self : scalar.Scalar) (w : Std.Usize) : Result (Array Std.I8 64#usize) := do
+  massert (w >= 4#usize)
+  massert (w <= 8#usize)
+  if w = 4#usize
+  then scalar.Scalar.as_radix_16 self
+  else
+    let scalar64x4 := Array.repeat 4#usize 0#u64
+    let s ← lift (Array.to_slice self.bytes)
+    let (s1, index_mut_back) ←
+      core.array.Array.index_mut (core.ops.index.IndexMutSlice
+        (core.slice.index.SliceIndexRangeUsizeSlice Std.U64)) scalar64x4
+        { start := 0#usize, «end» := 4#usize }
+    let s2 ← scalar.read_le_u64_into s s1
+    let radix ← 1#u64 <<< w
+    let window_mask ← radix - 1#u64
+    let digits := Array.repeat 64#usize 0#i8
+    let i ← 256#usize + w
+    let i1 ← i - 1#usize
+    let digits_count ← i1 / w
+    let scalar64x41 := index_mut_back s2
+    let (carry, digits1) ←
+      scalar.Scalar.as_radix_2w_loop
+        { start := 0#usize, «end» := digits_count } w scalar64x41 radix
+        window_mask 0#u64 digits
+    if w = 8#usize
+    then
+      let i2 ← lift (UScalar.hcast .I8 carry)
+      let i3 ← Array.index_usize digits1 digits_count
+      let i4 ← i3 + i2
+      Array.update digits1 digits_count i4
+    else
+      let i2 ← carry <<< w
+      let i3 ← lift (UScalar.hcast .I8 i2)
+      let i4 ← digits_count - 1#usize
+      let i5 ← Array.index_usize digits1 i4
+      let i6 ← i5 + i3
+      Array.update digits1 i4 i6
+
+/-- [curve25519_dalek::edwards::{curve25519_dalek::edwards::EdwardsPoint}::mul_by_pow_2]: loop 0:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1335:8-1339:9 -/
+@[rust_loop]
+def edwards.EdwardsPoint.mul_by_pow_2_loop
+  (k : Std.U32) (s : backend.serial.curve_models.ProjectivePoint) (i : Std.U32)
+  :
+  Result backend.serial.curve_models.ProjectivePoint
+  := do
+  let i1 ← k - 1#u32
+  if i < i1
+  then
+    let r ← backend.serial.curve_models.ProjectivePoint.double s
+    let s1 ← backend.serial.curve_models.CompletedPoint.as_projective r
+    let i2 ← i + 1#u32
+    edwards.EdwardsPoint.mul_by_pow_2_loop k s1 i2
+  else ok s
+partial_fixpoint
+
+/-- [curve25519_dalek::edwards::{curve25519_dalek::edwards::EdwardsPoint}::mul_by_pow_2]:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1330:4-1342:5 -/
+def edwards.EdwardsPoint.mul_by_pow_2
+  (self : edwards.EdwardsPoint) (k : Std.U32) :
+  Result edwards.EdwardsPoint
+  := do
+  massert (k > 0#u32)
+  let s ← edwards.EdwardsPoint.as_projective self
+  let s1 ← edwards.EdwardsPoint.mul_by_pow_2_loop k s 0#u32
+  let cp ← backend.serial.curve_models.ProjectivePoint.double s1
+  backend.serial.curve_models.CompletedPoint.as_extended cp
+
+/-- [curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{impl core::ops::function::FnMut<(&'_0 usize,), bool> for curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{closure#1}}::call_mut]:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1164:43-1164:57 -/
+def
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1.Insts.CoreOpsFunctionFnMutTupleShared0UsizeBool.call_mut
+  (c :
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1)
+  (tupled_args : Std.Usize) :
+  Result (Bool ×
+    edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1)
+  := do
+  let i ←
+    Shared0Usize.Insts.CoreOpsArithRemUsizeUsize.rem tupled_args 2#usize
+  ok (i = 0#usize, c)
+
+/-- [curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{impl core::ops::function::FnOnce<(&'_0 usize,), bool> for curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{closure#1}}::call_once]:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1164:43-1164:57 -/
+def
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1.Insts.CoreOpsFunctionFnOnceTupleShared0UsizeBool.call_once
+  (c :
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1)
+  (i : Std.Usize) :
+  Result Bool
+  := do
+  let (b, _) ←
+    edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1.Insts.CoreOpsFunctionFnMutTupleShared0UsizeBool.call_mut
+      c i
+  ok b
+
+/-- Trait implementation: [curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{impl core::ops::function::FnOnce<(&'_0 usize,), bool> for curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{closure#1}}]
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1164:43-1164:57 -/
+@[reducible]
+def
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1.Insts.CoreOpsFunctionFnOnceTupleShared0UsizeBool
+  : core.ops.function.FnOnce
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1
+  Std.Usize Bool := {
+  call_once :=
+    edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1.Insts.CoreOpsFunctionFnOnceTupleShared0UsizeBool.call_once
+}
+
+/-- Trait implementation: [curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{impl core::ops::function::FnMut<(&'_0 usize,), bool> for curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{closure#1}}]
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1164:43-1164:57 -/
+@[reducible]
+def
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1.Insts.CoreOpsFunctionFnMutTupleShared0UsizeBool
+  : core.ops.function.FnMut
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1
+  Std.Usize Bool := {
+  FnOnceInst :=
+    edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1.Insts.CoreOpsFunctionFnOnceTupleShared0UsizeBool
+  call_mut :=
+    edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1.Insts.CoreOpsFunctionFnMutTupleShared0UsizeBool.call_mut
+}
+
+/-- [curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{impl core::ops::function::FnMut<(&'_0 usize,), bool> for curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{closure}}::call_mut]:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1158:43-1158:57 -/
+def
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure.Insts.CoreOpsFunctionFnMutTupleShared0UsizeBool.call_mut
+  (c :
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure)
+  (tupled_args : Std.Usize) :
+  Result (Bool ×
+    edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure)
+  := do
+  let i ←
+    Shared0Usize.Insts.CoreOpsArithRemUsizeUsize.rem tupled_args 2#usize
+  ok (i = 1#usize, c)
+
+/-- [curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{impl core::ops::function::FnOnce<(&'_0 usize,), bool> for curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{closure}}::call_once]:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1158:43-1158:57 -/
+def
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure.Insts.CoreOpsFunctionFnOnceTupleShared0UsizeBool.call_once
+  (c :
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure)
+  (i : Std.Usize) :
+  Result Bool
+  := do
+  let (b, _) ←
+    edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure.Insts.CoreOpsFunctionFnMutTupleShared0UsizeBool.call_mut
+      c i
+  ok b
+
+/-- Trait implementation: [curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{impl core::ops::function::FnOnce<(&'_0 usize,), bool> for curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{closure}}]
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1158:43-1158:57 -/
+@[reducible]
+def
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure.Insts.CoreOpsFunctionFnOnceTupleShared0UsizeBool
+  : core.ops.function.FnOnce
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure
+  Std.Usize Bool := {
+  call_once :=
+    edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure.Insts.CoreOpsFunctionFnOnceTupleShared0UsizeBool.call_once
+}
+
+/-- Trait implementation: [curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{impl core::ops::function::FnMut<(&'_0 usize,), bool> for curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{closure}}]
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1158:43-1158:57 -/
+@[reducible]
+def
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure.Insts.CoreOpsFunctionFnMutTupleShared0UsizeBool
+  : core.ops.function.FnMut
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure
+  Std.Usize Bool := {
+  FnOnceInst :=
+    edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure.Insts.CoreOpsFunctionFnOnceTupleShared0UsizeBool
+  call_mut :=
+    edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure.Insts.CoreOpsFunctionFnMutTupleShared0UsizeBool.call_mut
+}
+
+/-- [curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base]: loop 0:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1158:16-1160:17
+    Visibility: public -/
+@[rust_loop]
+def
+  edwards.EdwardsBasepointTable.Insts.Curve25519_dalekTraitsBasepointTableEdwardsPoint.mul_base_loop0
+  (iter : core.iter.adapters.filter.Filter (core.ops.range.Range Std.Usize)
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure)
+  (a : Array Std.I8 64#usize)
+  (tables : Array (window.LookupTable
+  backend.serial.curve_models.AffineNielsPoint) 32#usize)
+  (P : edwards.EdwardsPoint) :
+  Result edwards.EdwardsPoint
+  := do
+  let (o, iter1) ←
+    core.iter.adapters.filter.Filter.Insts.CoreIterTraitsIteratorIterator.next
+      (core.iter.traits.iterator.IteratorRange core.iter.range.StepUsize)
+      edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure.Insts.CoreOpsFunctionFnMutTupleShared0UsizeBool
+      iter
+  match o with
+  | none => ok P
+  | some i =>
+    let i1 ← i / 2#usize
+    let lt ← Array.index_usize tables i1
+    let i2 ← Array.index_usize a i
+    let anp ←
+      window.LookupTable.select
+        backend.serial.curve_models.AffineNielsPoint.Insts.Curve25519_dalekTraitsIdentity
+        backend.serial.curve_models.AffineNielsPoint.Insts.SubtleConditionallySelectable
+        backend.serial.curve_models.AffineNielsPoint.Insts.CoreMarkerCopy
+        backend.serial.curve_models.AffineNielsPoint.Insts.CoreOpsArithNegAffineNielsPoint
+        lt i2
+    let cp ←
+      Shared0EdwardsPoint.Insts.CoreOpsArithAddSharedAAffineNielsPointCompletedPoint.add
+        P anp
+    let P1 ← backend.serial.curve_models.CompletedPoint.as_extended cp
+    edwards.EdwardsBasepointTable.Insts.Curve25519_dalekTraitsBasepointTableEdwardsPoint.mul_base_loop0
+      iter1 a tables P1
+partial_fixpoint
+
+/-- [curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base]: loop 1:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1164:16-1166:17
+    Visibility: public -/
+@[rust_loop]
+def
+  edwards.EdwardsBasepointTable.Insts.Curve25519_dalekTraitsBasepointTableEdwardsPoint.mul_base_loop1
+  (iter : core.iter.adapters.filter.Filter (core.ops.range.Range Std.Usize)
+  edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1)
+  (a : Array Std.I8 64#usize)
+  (tables : Array (window.LookupTable
+  backend.serial.curve_models.AffineNielsPoint) 32#usize)
+  (P : edwards.EdwardsPoint) :
+  Result edwards.EdwardsPoint
+  := do
+  let (o, iter1) ←
+    core.iter.adapters.filter.Filter.Insts.CoreIterTraitsIteratorIterator.next
+      (core.iter.traits.iterator.IteratorRange core.iter.range.StepUsize)
+      edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1.Insts.CoreOpsFunctionFnMutTupleShared0UsizeBool
+      iter
+  match o with
+  | none => ok P
+  | some i =>
+    let i1 ← i / 2#usize
+    let lt ← Array.index_usize tables i1
+    let i2 ← Array.index_usize a i
+    let anp ←
+      window.LookupTable.select
+        backend.serial.curve_models.AffineNielsPoint.Insts.Curve25519_dalekTraitsIdentity
+        backend.serial.curve_models.AffineNielsPoint.Insts.SubtleConditionallySelectable
+        backend.serial.curve_models.AffineNielsPoint.Insts.CoreMarkerCopy
+        backend.serial.curve_models.AffineNielsPoint.Insts.CoreOpsArithNegAffineNielsPoint
+        lt i2
+    let cp ←
+      Shared0EdwardsPoint.Insts.CoreOpsArithAddSharedAAffineNielsPointCompletedPoint.add
+        P anp
+    let P1 ← backend.serial.curve_models.CompletedPoint.as_extended cp
+    edwards.EdwardsBasepointTable.Insts.Curve25519_dalekTraitsBasepointTableEdwardsPoint.mul_base_loop1
+      iter1 a tables P1
+partial_fixpoint
+
+/-- [curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base]:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1152:12-1169:13
+    Visibility: public -/
+def
+  edwards.EdwardsBasepointTable.Insts.Curve25519_dalekTraitsBasepointTableEdwardsPoint.mul_base
+  (self : edwards.EdwardsBasepointTable) (scalar : scalar.Scalar) :
+  Result edwards.EdwardsPoint
+  := do
+  let a ← scalar.Scalar.as_radix_2w scalar 4#usize
+  let P ← edwards.EdwardsPoint.Insts.Curve25519_dalekTraitsIdentity.identity
+  let iter ←
+    core.iter.traits.iterator.Iterator.filter.default
+      (core.iter.traits.iterator.IteratorRange core.iter.range.StepUsize)
+      edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure.Insts.CoreOpsFunctionFnMutTupleShared0UsizeBool
+      { start := 0#usize, «end» := 64#usize } ()
+  let P1 ←
+    edwards.EdwardsBasepointTable.Insts.Curve25519_dalekTraitsBasepointTableEdwardsPoint.mul_base_loop0
+      iter a self P
+  let P2 ← edwards.EdwardsPoint.mul_by_pow_2 P1 4#u32
+  let iter1 ←
+    core.iter.traits.iterator.Iterator.filter.default
+      (core.iter.traits.iterator.IteratorRange core.iter.range.StepUsize)
+      edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1.Insts.CoreOpsFunctionFnMutTupleShared0UsizeBool
+      { start := 0#usize, «end» := 64#usize } ()
+  edwards.EdwardsBasepointTable.Insts.Curve25519_dalekTraitsBasepointTableEdwardsPoint.mul_base_loop1
+    iter1 a self P2
+
+/-- [curve25519_dalek::edwards::{impl core::ops::arith::Mul<&'b curve25519_dalek::scalar::Scalar, curve25519_dalek::edwards::EdwardsPoint> for &'a curve25519_dalek::edwards::EdwardsBasepointTable}::mul]:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1177:12-1180:13
+    Visibility: public -/
+def
+  SharedAEdwardsBasepointTable.Insts.CoreOpsArithMulSharedBScalarEdwardsPoint.mul
+  (self : edwards.EdwardsBasepointTable) (scalar : scalar.Scalar) :
+  Result edwards.EdwardsPoint
+  := do
+  edwards.EdwardsBasepointTable.Insts.Curve25519_dalekTraitsBasepointTableEdwardsPoint.mul_base
+    self scalar
+
+/-- [curve25519_dalek::edwards::{impl core::ops::arith::Mul<&'a curve25519_dalek::edwards::EdwardsBasepointTable, curve25519_dalek::edwards::EdwardsPoint> for &'b curve25519_dalek::scalar::Scalar}::mul]:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1188:12-1190:13
+    Visibility: public -/
+def
+  SharedBScalar.Insts.CoreOpsArithMulSharedAEdwardsBasepointTableEdwardsPoint.mul
+  (self : scalar.Scalar) (basepoint_table : edwards.EdwardsBasepointTable) :
+  Result edwards.EdwardsPoint
+  := do
+  SharedAEdwardsBasepointTable.Insts.CoreOpsArithMulSharedBScalarEdwardsPoint.mul
+    basepoint_table self
+
+/-- [curve25519_dalek::edwards::{curve25519_dalek::edwards::EdwardsPoint}::mul_base]:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 877:4-887:5
+    Visibility: public -/
+def edwards.EdwardsPoint.mul_base
+  (scalar : scalar.Scalar) : Result edwards.EdwardsPoint := do
+  let ebt ← backend.serial.u64.constants.ED25519_BASEPOINT_TABLE
+  SharedBScalar.Insts.CoreOpsArithMulSharedAEdwardsBasepointTableEdwardsPoint.mul
+    scalar ebt
+
+/-- [curve25519_dalek::scalar::clamp_integer]:
+    Source: 'curve25519-dalek/src/scalar.rs', lines 1415:0-1420:1
+    Visibility: public -/
+def scalar.clamp_integer
+  (bytes : Array Std.U8 32#usize) : Result (Array Std.U8 32#usize) := do
+  let i ← Array.index_usize bytes 0#usize
+  let i1 ← lift (i &&& 248#u8)
+  let bytes1 ← Array.update bytes 0#usize i1
+  let i2 ← Array.index_usize bytes1 31#usize
+  let i3 ← lift (i2 &&& 127#u8)
+  let bytes2 ← Array.update bytes1 31#usize i3
+  let i4 ← Array.index_usize bytes2 31#usize
+  let i5 ← lift (i4 ||| 64#u8)
+  Array.update bytes2 31#usize i5
+
+/-- [curve25519_dalek::edwards::{curve25519_dalek::edwards::EdwardsPoint}::mul_base_clamped]:
+    Source: 'curve25519-dalek/src/edwards.rs', lines 907:4-915:5
+    Visibility: public -/
+def edwards.EdwardsPoint.mul_base_clamped
+  (bytes : Array Std.U8 32#usize) : Result edwards.EdwardsPoint := do
+  let a ← scalar.clamp_integer bytes
+  edwards.EdwardsPoint.mul_base { bytes := a }
+
+/-- [curve25519_dalek::field::{impl subtle::ConstantTimeEq for curve25519_dalek::backend::serial::u64::field::FieldElement51}::ct_eq]:
+    Source: 'curve25519-dalek/src/field.rs', lines 95:4-97:5
+    Visibility: public -/
+def backend.serial.u64.field.FieldElement51.Insts.SubtleConstantTimeEq.ct_eq
+  (self : backend.serial.u64.field.FieldElement51)
+  (other : backend.serial.u64.field.FieldElement51) :
+  Result subtle.Choice
+  := do
+  let a ← backend.serial.u64.field.FieldElement51.to_bytes self
+  let s ← lift (Array.to_slice a)
+  let a1 ← backend.serial.u64.field.FieldElement51.to_bytes other
+  let s1 ← lift (Array.to_slice a1)
+  Slice.Insts.SubtleConstantTimeEq.ct_eq U8.Insts.SubtleConstantTimeEq s s1
+
+/-- [curve25519_dalek::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::is_negative]:
+    Source: 'curve25519-dalek/src/field.rs', lines 149:4-152:5 -/
+def field.FieldElement51.is_negative
+  (self : backend.serial.u64.field.FieldElement51) : Result subtle.Choice := do
+  let bytes ← backend.serial.u64.field.FieldElement51.to_bytes self
+  let i ← Array.index_usize bytes 0#usize
+  let i1 ← lift (i &&& 1#u8)
+  core.convert.IntoFrom.into subtle.Choice.Insts.CoreConvertFromU8 i1
+
+/-- [curve25519_dalek::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::is_zero]:
+    Source: 'curve25519-dalek/src/field.rs', lines 159:4-164:5 -/
+def field.FieldElement51.is_zero
+  (self : backend.serial.u64.field.FieldElement51) : Result subtle.Choice := do
+  let zero := Array.repeat 32#usize 0#u8
+  let bytes ← backend.serial.u64.field.FieldElement51.to_bytes self
+  let s ← lift (Array.to_slice bytes)
+  let s1 ← lift (Array.to_slice zero)
+  Slice.Insts.SubtleConstantTimeEq.ct_eq U8.Insts.SubtleConstantTimeEq s s1
 
 /-- [curve25519_dalek::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::pow_p58]:
     Source: 'curve25519-dalek/src/field.rs', lines 268:4-277:5 -/
@@ -1347,21 +7171,6 @@ def scalar.Scalar.Insts.CoreOpsArithMulMontgomeryPointMontgomeryPoint.mul
   := do
   Shared1Scalar.Insts.CoreOpsArithMulShared0MontgomeryPointMontgomeryPoint.mul
     self rhs
-
-/-- [curve25519_dalek::scalar::clamp_integer]:
-    Source: 'curve25519-dalek/src/scalar.rs', lines 1415:0-1420:1
-    Visibility: public -/
-def scalar.clamp_integer
-  (bytes : Array Std.U8 32#usize) : Result (Array Std.U8 32#usize) := do
-  let i ← Array.index_usize bytes 0#usize
-  let i1 ← lift (i &&& 248#u8)
-  let bytes1 ← Array.update bytes 0#usize i1
-  let i2 ← Array.index_usize bytes1 31#usize
-  let i3 ← lift (i2 &&& 127#u8)
-  let bytes2 ← Array.update bytes1 31#usize i3
-  let i4 ← Array.index_usize bytes2 31#usize
-  let i5 ← lift (i4 ||| 64#u8)
-  Array.update bytes2 31#usize i5
 
 /-- [curve25519_dalek::montgomery::{curve25519_dalek::montgomery::MontgomeryPoint}::mul_clamped]:
     Source: 'curve25519-dalek/src/montgomery.rs', lines 134:4-146:5

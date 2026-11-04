@@ -183,7 +183,8 @@ agree.
 |---|---|
 | `tracks/<track>/README.md` | the full description of the track |
 | `tracks/<track>/lean/` | the Lake project: generated code, hand-written models, proofs in `Sim/` |
-| `shared/dalek/` | the curve25519-dalek extraction and Lean library that tracks B and D import, with the field specs in `lean/Curve25519Dalek/Specs/` ([README](shared/dalek/README.md)) |
+| `shared/dalek/` | the curve25519-dalek extraction and Lean library that tracks B and D import, with the field specs in `lean/Curve25519Dalek/Specs/` ([README](shared/dalek/README.md)). It also extracts the basepoint table path of the X25519 public key and proves the table |
+| `tools/` | scripts that compute certificates and witness points for the proofs in `shared/dalek/lean/DalekSim/`. The proofs check them, so the scripts are not trusted |
 | `tracks/<track>/` other directories | work copies of the Rust sources and extraction scripts |
 | `scripts/fetch-upstreams.sh` | clones the upstream repositories at the recorded commits and prepares the Lean projects |
 | `scripts/check-short-names.py` | the name-binding scan of section 3 |

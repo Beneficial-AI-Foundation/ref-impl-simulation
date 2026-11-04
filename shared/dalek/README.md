@@ -15,13 +15,14 @@ All paths are relative to `shared/dalek/`.
 |---|---|
 | Rust code | the copy of curve25519-dalek 4.2.0 from `curve25519-dalek-lean-verify` `26d49052`, in `../../tracks/x25519/real-dalek/curve25519-dalek` |
 | Backend | serial, 64-bit limbs (`../../tracks/x25519/real-dalek/.cargo/config.toml`) |
-| Features | `--no-default-features --features alloc,zeroize` |
+| Features | `--no-default-features --features alloc,zeroize,precomputed-tables` |
 | Charon | `0.1.281` |
 | Aeneas | `nightly-2026.10.12-d119a47` |
 | Rust | `nightly-2026-09-17` (`../../tracks/x25519/real-dalek/rust-toolchain`) |
 
-Charon starts from six functions. Track B uses the first four, and track D uses the last
-two:
+Charon starts from eight functions. Track B uses the first four, and track D uses the next
+two. The last two are the path of the X25519 public key, which multiplies the basepoint with
+the precomputed table. No proof uses them yet:
 
 1. `montgomery::differential_add_and_double`
 2. `montgomery::MontgomeryPoint::mul_clamped`
@@ -29,16 +30,31 @@ two:
 4. `montgomery::MontgomeryPoint::as_bytes`
 5. `ristretto::CompressedRistretto::decompress`
 6. `ristretto::RistrettoPoint::compress`
+7. `edwards::EdwardsPoint::mul_base_clamped`
+8. `edwards::EdwardsPoint::to_montgomery`
 
 The script writes the clean Aeneas output to `extract/`. It copies `Funs.lean` and
-`Types.lean` to `lean/Curve25519Dalek/` and applies the patches in `patches/` to the
-copies. There is one patch, `01-mul-scalar-shadowing.patch`. Its header gives the reason.
+`Types.lean` to `lean/Curve25519Dalek/` and applies three hand edits to the copies:
 
-The output has 55 functions and constants and 7 type and trait declarations. Each of them
-except `MontgomeryPoint::as_bytes` is also in the earlier extraction of track B or of track
-D, with the same text. `as_bytes` came later, for `SharedSecret::as_bytes` in track B. Its
-Lean body is `ok self`. The two templates list 11 external
-functions and the external type `subtle.Choice`.
+1. `patches/01-mul-scalar-shadowing.patch` and `patches/02-mul-base-scalar-shadowing.patch`.
+   In `MontgomeryPoint::mul` and in `EdwardsBasepointTable::mul_base`, the parameter
+   `scalar` shadows the namespace `scalar`, and Lean does not elaborate the call. The
+   headers of the patches give the details.
+2. `inline-table.py`. Aeneas writes the basepoint table
+   `ED25519_BASEPOINT_TABLE_INNER_DOC_HIDDEN` as 768 monadic binds of
+   `FieldElement51::from_limbs`, then `ok` of the 32 x 8 array. The script replaces the
+   body with one `ok` of the literal. The two bodies are equal, because `from_limbs` is
+   `ok limbs`. The kernel does not reduce `bind` of `Result`, so a proof can read the table
+   only after this edit. As a patch, the edit has more than 5,000 lines.
+
+The output has 97 functions and constants, and 19 type and trait declarations. Two of the
+types are the closures of `mul_base`. The last two entry points and the feature
+`precomputed-tables` do not change the text of any function, constant or type of the first
+six. Each of these items except `MontgomeryPoint::as_bytes` is also in the earlier
+extraction of track B or of track D, with the same text. `as_bytes` came later,
+for `SharedSecret::as_bytes` in track B. Its Lean body is `ok self`. The two templates list
+15 external functions and the external types `subtle.Choice` and
+`core.iter.adapters.filter.Filter`.
 
 Commands, from the repository root, with the Aeneas release in `.aeneas/`:
 
@@ -53,7 +69,7 @@ shared/dalek/extract.sh --check
 The first command writes `extract/` and the two Lean files. The second command extracts
 into a temporary directory and compares the result with the committed files. If they
 differ, it fails.
-`extract.sh --check-copies` runs neither Charon nor Aeneas. It applies the patches to
+`extract.sh --check-copies` runs neither Charon nor Aeneas. It applies the hand edits to
 `extract/` and compares the result with `lean/`.
 
 ## 2. Lean library
@@ -62,15 +78,15 @@ differ, it fails.
 
 | File | Source |
 |---|---|
-| `Funs.lean`, `Types.lean` | `extract/`, with the patches |
-| `FunsExternal.lean` | hand-written definitions of the 11 external functions of `subtle` and `zeroize`: 5 from track B and 6 from track D, plus the loop of the slice `ct_eq` from track D (the READMEs of the tracks, section 4) |
-| `TypesExternal.lean` | the type `subtle.Choice`, from `curve25519-dalek-lean-verify` |
+| `Funs.lean`, `Types.lean` | `extract/`, with the hand edits of section 1 |
+| `FunsExternal.lean` | hand-written definitions of the 15 external functions: 5 of `subtle` and `zeroize` from track B, 6 of `subtle` from track D, plus the loop of the slice `ct_eq` from track D (the READMEs of the tracks, section 4), and 4 for the table path: `Iterator::filter`, `Filter::next` (a loop with `partial_fixpoint`, as `find` in `core`), `Rem` on `&usize` and `ConstantTimeEq` on `u16` |
+| `TypesExternal.lean` | the type `subtle.Choice`, from `curve25519-dalek-lean-verify`, and `Filter`, a structure of the inner iterator and the predicate, as in `core` |
 | `Math/`, `Auxiliary.lean` | `curve25519-dalek-lean-verify` `26d49052` |
 | `Specs/` | the field specs. Track B ported them to Aeneas `d119a474` (track B README, section 2). `Negate.lean` comes from track D and is unchanged from `curve25519-dalek-lean-verify` |
 
-No definition in `FunsExternal.lean` is an axiom. The library does not contain the
-relations to the reference programs or the refinement proofs. Those use the field model of
-each reference and stay in the `Sim/` directory of each track.
+No definition in `FunsExternal.lean` or `TypesExternal.lean` is an axiom. The library does
+not contain the relations to the reference programs or the refinement proofs. Those use
+the field model of each reference and stay in the `Sim/` directory of each track.
 
 The second library, `DalekSim` (`lean/DalekSim/`), holds the lemmas of the proofs that do
 not depend on a reference, in the namespace `DalekSim`:
@@ -81,6 +97,7 @@ not depend on a reference, in the namespace `DalekSim`:
 | `Basic.lean` | the limb bound `Bnd` and `bnd_mono`, and the `Result` lemmas `exists_ok_of_spec` and `eq_ok_of_spec` |
 | `Choice.lean` | the slice `ct_eq` of `subtle` on two 32-byte arrays (`ct_eq_loop_u8`, `slice_ct_eq_arr`), and `to_bytes` and the field `ct_eq` over `Field51_as_Nat` mod `p` (`to_bytes_mod`, `fe_ct_eq_mod`). Track D wrote the slice lemmas. Both tracks use them |
 | `Edwards.lean` | the group law of the Edwards curve `-x² + y² = 1 + d x² y²` over a field where `2 ≠ 0`, `-1` is a square and `d` is not (class `Complete`): the denominators of the unified addition are never 0, the sum is on the curve, associativity (`add_assoc'`), the group `Point d` with `nsmul` lemmas that a proof of a ladder or of a table of multiples can use, and the instance for edwards25519. `Point d` is a new type. It does not replace `Edwards.Point Ed25519` of curve25519-dalek-lean-verify, and a proof that uses that type still depends on the `sorry` in `add_assoc_Ed25519`. The lemmas do not relate scalar multiplication to the Montgomery ladder, to clamped scalars or to the prime-order subgroup. `dEd` is the parameter `d` as an element of `ZMod p`, with `dEd_not_square` and `dEd_rel` (`121666 d = -121665`), which track B uses in `Sim/EdwardsBridge.lean`. The certificates of the polynomial identities come from Singular, through `tools/edwards-assoc/gen.py`. `linear_combination` checks them, so the script is not trusted |
+| `BasepointTable.lean` | the basepoint table `ED25519_BASEPOINT_TABLE` (`basepoint_table`): entry `j` of row `i` encodes `[(j + 1) 256^i] B` in the group `Point dEd` of `Edwards.lean`, as `(y + x, y - x, 2 d x y)` over `Field51_as_Nat` mod `p`, and every limb is below `2^52`. `B` is the point with `y = 4/5` and an even `x` (`B_y`, `Bx_even`). The kernel checks the limbs with `decide +kernel` in about 3 s: `xy2d` of each entry, the additions within a row, and the 8 doublings from one row to the next. The doublings go through the witness points of `BasepointTableData.lean`, which `tools/basepoint-table/gen.py` writes. The kernel checks every doubling, so the script is not trusted. Standard axioms only |
 
 Tracks B and D open the namespace `DalekSim` in their proofs.
 

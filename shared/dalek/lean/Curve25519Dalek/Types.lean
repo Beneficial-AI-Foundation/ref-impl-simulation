@@ -20,6 +20,14 @@ set_option maxRecDepth 2048
 
 namespace curve25519_dalek
 
+/-- Trait declaration: [core::ops::arith::Neg]
+    Source: '/rustc/library/core/src/ops/arith.rs', lines 690:0-690:19
+    Name pattern: [core::ops::arith::Neg]
+    Visibility: public -/
+@[rust_trait "core::ops::arith::Neg"]
+structure core.ops.arith.Neg (Self : Type) (Self_Output : Type) where
+  neg : Self → Result Self_Output
+
 /-- Trait declaration: [subtle::ConstantTimeEq]
     Source: '/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/subtle-2.6.1/src/lib.rs', lines 262:0-262:24
     Name pattern: [subtle::ConstantTimeEq]
@@ -56,6 +64,37 @@ structure zeroize.DefaultIsZeroes (Self : Type) where
 @[reducible]
 def backend.serial.u64.field.FieldElement51 := Array Std.U64 5#usize
 
+/-- [curve25519_dalek::backend::serial::curve_models::ProjectivePoint]
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 154:0-158:1
+    Visibility: public -/
+structure backend.serial.curve_models.ProjectivePoint where
+  X : backend.serial.u64.field.FieldElement51
+  Y : backend.serial.u64.field.FieldElement51
+  Z : backend.serial.u64.field.FieldElement51
+
+/-- [curve25519_dalek::backend::serial::curve_models::CompletedPoint]
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 169:0-174:1
+    Visibility: public -/
+structure backend.serial.curve_models.CompletedPoint where
+  X : backend.serial.u64.field.FieldElement51
+  Y : backend.serial.u64.field.FieldElement51
+  Z : backend.serial.u64.field.FieldElement51
+  T : backend.serial.u64.field.FieldElement51
+
+/-- [curve25519_dalek::backend::serial::curve_models::AffineNielsPoint]
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 184:0-188:1
+    Visibility: public -/
+structure backend.serial.curve_models.AffineNielsPoint where
+  y_plus_x : backend.serial.u64.field.FieldElement51
+  y_minus_x : backend.serial.u64.field.FieldElement51
+  xy2d : backend.serial.u64.field.FieldElement51
+
+/-- Trait declaration: [curve25519_dalek::traits::Identity]
+    Source: 'curve25519-dalek/src/traits.rs', lines 26:0-30:1
+    Visibility: public -/
+structure traits.Identity (Self : Type) where
+  identity : Result Self
+
 /-- [curve25519_dalek::edwards::EdwardsPoint]
     Source: 'curve25519-dalek/src/edwards.rs', lines 381:0-386:1
     Visibility: public -/
@@ -65,23 +104,50 @@ structure edwards.EdwardsPoint where
   Z : backend.serial.u64.field.FieldElement51
   T : backend.serial.u64.field.FieldElement51
 
-/-- [curve25519_dalek::scalar::Scalar]
-    Source: 'curve25519-dalek/src/scalar.rs', lines 195:0-232:1
+/-- [curve25519_dalek::window::LookupTable]
+    Source: 'curve25519-dalek/src/window.rs', lines 48:8-48:51
     Visibility: public -/
-structure scalar.Scalar where
-  bytes : Array Std.U8 32#usize
+@[reducible]
+def window.LookupTable (T : Type) := Array T 8#usize
 
-/-- [curve25519_dalek::montgomery::ProjectivePoint]
-    Source: 'curve25519-dalek/src/montgomery.rs', lines 290:0-293:1 -/
-structure montgomery.ProjectivePoint where
-  U : backend.serial.u64.field.FieldElement51
-  W : backend.serial.u64.field.FieldElement51
+/-- [curve25519_dalek::edwards::EdwardsBasepointTable]
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1085:8-1085:68
+    Visibility: public -/
+@[reducible]
+def edwards.EdwardsBasepointTable :=
+  Array (window.LookupTable backend.serial.curve_models.AffineNielsPoint)
+  32#usize
 
 /-- [curve25519_dalek::montgomery::MontgomeryPoint]
     Source: 'curve25519-dalek/src/montgomery.rs', lines 75:0-75:41
     Visibility: public -/
 @[reducible]
 def montgomery.MontgomeryPoint := Array Std.U8 32#usize
+
+/-- [curve25519_dalek::scalar::Scalar]
+    Source: 'curve25519-dalek/src/scalar.rs', lines 195:0-232:1
+    Visibility: public -/
+structure scalar.Scalar where
+  bytes : Array Std.U8 32#usize
+
+/-- [curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{closure#1}]
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1164:43-1164:57 -/
+@[reducible]
+def edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure_1
+  :=
+Unit
+
+/-- [curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{closure}]
+    Source: 'curve25519-dalek/src/edwards.rs', lines 1158:43-1158:57 -/
+@[reducible]
+def edwards.BasepointTableEdwardsBasepointTableEdwardsPoint.mul_base.closure :=
+Unit
+
+/-- [curve25519_dalek::montgomery::ProjectivePoint]
+    Source: 'curve25519-dalek/src/montgomery.rs', lines 290:0-293:1 -/
+structure montgomery.ProjectivePoint where
+  U : backend.serial.u64.field.FieldElement51
+  W : backend.serial.u64.field.FieldElement51
 
 /-- [curve25519_dalek::ristretto::CompressedRistretto]
     Source: 'curve25519-dalek/src/ristretto.rs', lines 220:0-220:45

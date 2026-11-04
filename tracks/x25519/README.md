@@ -227,7 +227,7 @@ x25519-dalek 2.0.1 offers. It covers the Curve25519 part of the RFC.
 |---|---|---|---|
 | Section 5: the function `X25519(k, u)`. Mask bit 255 of `u` (MUST), accept non-canonical `u` (MUST) | `x25519_scalarmult` | `x25519` | proved (`x25519_refines`). For the translated reference, `decode_point_spec` (`lean/Sim/Full.lean`) proves both MUST rules under the trusted field model: it reads `u` as `u mod 2^255` in `ZMod p`. That the unchanged hacspec spec and the field model match the RFC rests on review and tests |
 | Section 6.1: the shared secret `X25519(a, K_B)` | `x25519_scalarmult` (no function of its own) | `diffie_hellman` on `EphemeralSecret`, `ReusableSecret`, `StaticSecret` | proved for the three types (`static_diffie_hellman_refines`, `ephemeral_diffie_hellman_refines`, `reusable_diffie_hellman_refines`, and `static_diffie_hellman_as_bytes_refines` with `SharedSecret::as_bytes`) |
-| Section 6.1: the public key `X25519(a, 9)` | `x25519_secret_to_public` | `PublicKey::from(&secret)` for the three secret types | not proved for `PublicKey::from(&secret)`. The real code goes through `EdwardsPoint::mul_base_clamped`, with precomputed base point tables if the feature `precomputed-tables` is on, and is not extracted. The bare `x25519(a, X25519_BASEPOINT_BYTES)` is proved against `x25519_secret_to_public` (next row) |
+| Section 6.1: the public key `X25519(a, 9)` | `x25519_secret_to_public` | `PublicKey::from(&secret)` for the three secret types | not proved for `PublicKey::from(&secret)`. The real code goes through `EdwardsPoint::mul_base_clamped`, with precomputed base point tables if the feature `precomputed-tables` is on. The shared library extracts this path with the feature and proves the table (`basepoint_table` in `shared/dalek/lean/DalekSim/BasepointTable.lean`). The specs of the functions on the path are open. The bare `x25519(a, X25519_BASEPOINT_BYTES)` is proved against `x25519_secret_to_public` (next row) |
 | Section 6.1: the base point 9 | inside `x25519_secret_to_public` | `X25519_BASEPOINT_BYTES` | proved: the constant is the base of the reference (`basepoint_eq`), and `x25519` on it agrees with `x25519_secret_to_public` (`x25519_basepoint_refines`) |
 | Section 6.1: Alice generates 32 random bytes | missing | `random_from_rng`, `random` (feature `getrandom`) and the deprecated `new` on the three secret types | not covered. The reference does not describe it, and functional refinement cannot state that bytes are random |
 | Sections 6.1 and 7: check for the all-zero shared secret (MAY), for example by an OR of all bytes | missing. We added `x25519_is_all_zero` to the port: the OR of all bytes, compared with 0 | `SharedSecret::was_contributory` | proved after `diffie_hellman` on the three secret types, against `x25519_scalarmult` and then the negation of `x25519_is_all_zero` (`static_diffie_hellman_was_contributory_refines` and the two others). dalek ignores bit 255 and compares with 0 mod p, so it also reports 0 for non-canonical encodings of 0. `SharedSecret` has no public constructor, and `diffie_hellman` returns canonical bytes, so this case does not occur through the API. For this reason, the theorems state the composition. That `x25519_is_all_zero` matches the RFC rests on review and tests |
@@ -599,12 +599,14 @@ A proof of `PublicKey::from` needs more:
 
 1. dalek adds and doubles in extended coordinates. `dblY` and `add` are affine formulas.
 2. With the feature `precomputed-tables`, `mul_base_clamped` multiplies with a radix-16
-   table of multiples of the base point, not with a ladder. A proof must show that the table
-   computes `k • basePoint` in `Point dEd`. `enc_ladder_nine_clamped` then gives the ladder
-   side.
+   table of multiples of the base point, not with a ladder.
+   `shared/dalek/lean/DalekSim/BasepointTable.lean` proves that entry `j` of row `i` of the
+   table encodes `[(j + 1) 256^i] B` in `Point dEd`. A proof must still show that `mul_base`
+   computes `k • B` from these entries. `enc_ladder_nine_clamped` then gives the ladder side.
 3. No theorem links `dEd` to dalek's `EDWARDS_D`, or `basePoint` to
    `ED25519_BASEPOINT_POINT`. Track D proves the first link for its own copy of the constant
-   (`edwards_d_spec`).
+   (`edwards_d_spec`). `B` of `BasepointTable.lean` and `basePoint` have the same
+   coordinates, but no theorem equates them yet.
 4. `EdwardsPoint::to_montgomery` maps the extended point `(X : Y : Z : T)` to
    `(Z + Y) / (Z - Y)`. A proof must show that this is `toU y` of the affine point.
 
