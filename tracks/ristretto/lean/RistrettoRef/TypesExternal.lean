@@ -26,7 +26,8 @@ instance : CommRing field.Fe := inferInstanceAs (CommRing (ZMod field.p))
 instance : DecidableEq field.Fe := inferInstanceAs (DecidableEq (ZMod field.p))
 
 
--- The group order l = 2^252 + 27742317777372353535851937790883648493 of edwards25519.
+-- The order l = 2^252 + 27742317777372353535851937790883648493 of the prime-order subgroup of
+-- edwards25519. The full group has order 8 l.
 @[reducible] def scalar.l : Nat := 2 ^ 252 + 27742317777372353535851937790883648493
 
 /-- [ristretto_ref::scalar::Scalar]

@@ -152,6 +152,20 @@ fn point_mul_matches_specs_and_dalek() {
     }
 }
 
+/// `a` and `b` have `Z ≠ 0` and stand for the same affine point: `X_a Z_b = X_b Z_a` and
+/// `Y_a Z_b = Y_b Z_a`.
+fn same_affine(a: Coords, b: Coords) -> bool {
+    let f = fe_from_bytes;
+    let mul = |x: [u8; 32], y: [u8; 32]| fe_to_bytes(fe_mul(f(x), f(y)));
+    a[2] != [0u8; 32] && b[2] != [0u8; 32]
+        && mul(a[0], b[2]) == mul(b[0], a[2]) && mul(a[1], b[2]) == mul(b[1], a[2])
+}
+
+/// The identity `(0, 1, 1, 0)`.
+fn identity() -> Coords {
+    [[0u8; 32], le(&[1]), le(&[1]), [0u8; 32]]
+}
+
 /// The theorem covers every represented point, not only the decoded ones. On a rescaled
 /// input and on the order-2 point, the port gives the same four coordinates as the unchanged
 /// edwards25519 spec.
@@ -167,13 +181,37 @@ fn point_mul_matches_edwards_spec_off_ristretto() {
     }
 }
 
+/// Checks that do not use hacspec as the oracle. A rescaled input gives the same affine
+/// result as the original input. On the order-2 point `T`, the port computes
+/// `(k mod l) • T`: `l` and `2 l` give the identity, `1` and `l + 1` give `T`, and `2` gives
+/// the identity. `T` is not the identity, so `l • T = T` differs from `(l mod l) • T`.
+#[test]
+fn point_mul_affine_properties() {
+    for b in points().into_iter().take(3) {
+        let c = port_coords(decode(b).ok().unwrap());
+        for k in scalars() {
+            assert!(same_affine(port_mul(k, c), port_mul(k, rescale(c))), "k = {:02x?}, P = {:02x?}", k, b);
+        }
+    }
+    let t = order_two();
+    let l = l_bytes();
+    let mut lp1 = l; lp1[0] += 1;
+    assert!(!same_affine(t, identity()));
+    assert!(same_affine(port_mul(le(&[1]), t), t));
+    assert!(same_affine(port_mul(le(&[2]), t), identity()));
+    assert!(same_affine(port_mul(l, t), identity()));
+    assert!(same_affine(port_mul(two_l_bytes(), t), identity()));
+    assert!(same_affine(port_mul(lp1, t), t));
+}
+
 /// The reason for the edwards25519 reference: the Ristretto `mul` of 2 and the identity
-/// returns `Z = 0`, which is not a valid representative. The port keeps `Z ≠ 0`.
+/// returns `(0, 0, 0, 0)`, which is not a valid representative. The port keeps `Z ≠ 0`.
 #[test]
 fn ristretto_mul_degenerates_on_identity() {
     let two = hr::Scalar::from_byte_seq_le(Seq::<U8>::from_public_slice(&le(&[2])));
-    let (_, _, z, _) = hr::mul(two, hr::IDENTITY_POINT());
-    assert!(z == hr::FieldElement::ZERO());
+    let (x, y, z, t) = hr::mul(two, hr::IDENTITY_POINT());
+    let zero = hr::FieldElement::ZERO();
+    assert!(x == zero && y == zero && z == zero && t == zero);
     let (_, _, z, _) = point_mul(sc_from_bytes(le(&[2])), point_identity());
     assert_ne!(fe_to_bytes(z), [0u8; 32]);
 }

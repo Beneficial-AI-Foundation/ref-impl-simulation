@@ -210,14 +210,15 @@ real-side theorem must state its scalar premise. Three corollaries relate the tw
 3. `point_mul_spec_order`: if `l • P = 0`, the result represents `k • P`.
 
 `Point dEd` is the full group of the curve, so `k • P` and `(k mod l) • P` can differ. For
-example, `(0, -1)` has order 2 and `l` is odd. So the premise `k < l` or `l • P = 0` is
-needed. The order of the group is `8 l`, a known fact that no theorem here proves or uses.
+example, `(0, -1)` has order 2 and `l` is odd, so `l • (0, -1) = (0, -1)` and
+`(l mod l) • (0, -1) = 0`. Either premise `k < l` or `l • P = 0` is enough for equality. The order of the group is `8 l`, a known fact that no theorem here proves or uses.
 
 ## 4. Assumptions
 
 Premises. `decompress_refines` has none. `compress_refines` has the limb bound of
 section 3. `point_mul_spec` has the premise that the input represents a point of the curve,
-and its corollaries for a natural number `k` add `k < l` or `l • P = 0`.
+and its corollaries for a natural number `k` add `(k : ZMod l) = s`. `point_mul_spec_lt` also
+needs `k < l`, and `point_mul_spec_order` also needs `l • P = 0`.
 
 Trusted definitions. `#print axioms` does not show them.
 
@@ -238,7 +239,8 @@ Trusted definitions. `#print axioms` does not show them.
    is `ZMod l`. For `i < 256`, `sc_bit s i` is bit `i` of the canonical representative of
    `s`. For `i ≥ 256`, hacspec panics and `sc_bit` fails. A Lean `example` in
    `Sim/ScalarMul.lean` checks that `scalar.l` equals the hex modulus of the Rust code. It
-   finds a transcription error, but it does not read the Rust source.
+   can detect a mismatch between the two written constants, but it does not read the Rust
+   source.
 3. The 7 hand definitions for `subtle` on the real side
    (`shared/dalek/lean/Curve25519Dalek/FunsExternal.lean`) and the type `subtle.Choice`
    (`shared/dalek/lean/Curve25519Dalek/TypesExternal.lean`). A `Choice` carries a proof that
@@ -314,8 +316,10 @@ the shared library set `maxRecDepth 4096`, as in track B.
    `encode (mul k P)` of the unchanged Ristretto spec and with `k * P` of dalek 5.0.0, in
    bytes. A second test compares the four coordinates on inputs that `decode` does not
    return: three of the points scaled by 7, and the order-2 point `(0, -1, 1, 0)`. A third
-   test shows that the Ristretto `mul` of 2 and the identity has `Z = 0` and that the port
-   keeps `Z ≠ 0`. Two tests check `sc_bit`: on `l - 1` it gives the bits of `l - 1`, on `l`
+   test does not use hacspec as the oracle. It checks that a scaled input gives the same
+   affine result, and that on `(0, -1)` the scalars `l` and `2 l` give the identity and
+   `l + 1` gives `(0, -1)`. A fourth test shows that the Ristretto `mul` of 2 and the identity
+   is `(0, 0, 0, 0)` and that the port keeps `Z ≠ 0`. Two tests check `sc_bit`: on `l - 1` it gives the bits of `l - 1`, on `l`
    it gives 0, and at index 256 it panics. The tests use `opt-level = 3`, because
    the big-integer arithmetic of hacspec is slow without it.
 2. `lake build` in `lean/` passes. No file in `lean/` or in
