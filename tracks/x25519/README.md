@@ -579,6 +579,9 @@ A proof of `PublicKey::from` needs more:
 2. With the feature `precomputed-tables`, `mul_base_clamped` multiplies with a radix-16
    table of multiples of the base point, not with a ladder. A proof must show that both
    compute the same multiple, so it needs a group law on one of the two curves.
+   `shared/dalek/lean/DalekSim/Edwards.lean` proves the group law of the Edwards curve
+   (`Point dEd` is an `AddCommGroup`). The proof that the table and the ladder compute the
+   same multiple is still open.
 3. `toU_dblY` equates encodings, not projective points. The encoding maps `(1 : 0)` and
    `(0 : 1)` to 0, but `dadd` does not respect this, so an equal encoding does not let a
    proof replace an intermediate ladder state.
