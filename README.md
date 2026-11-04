@@ -104,6 +104,13 @@ Trust accounting. Each track states its trusted base in four parts:
    outside `propext`, `Classical.choice` and `Quot.sound`.
 4. Tools. rustc's MIR, Charon, Aeneas, the Aeneas Lean library and the Lean kernel.
 
+The shared library `shared/dalek/` adds a fifth part:
+
+5. Edits of the generated Lean. The two patches in `shared/dalek/patches/` each change one
+   call, so that Lean elaborates it. `shared/dalek/inline-table.py` replaces the 768 binds of
+   the basepoint table with one literal. Lean does not check these edits against the Aeneas
+   output. The theorems that use `Curve25519Dalek/Funs.lean` hold for the edited text.
+
 Rules for the proofs. No `sorry`. No hand-written proof changes `maxHeartbeats`, so every
 proof fits the default limit of 200,000 heartbeats. A proof that does not fit is split
 into lemmas. The files that Aeneas generates set 1,000,000 for their own definitions.
@@ -183,7 +190,7 @@ agree.
 |---|---|
 | `tracks/<track>/README.md` | the full description of the track |
 | `tracks/<track>/lean/` | the Lake project: generated code, hand-written models, proofs in `Sim/` |
-| `shared/dalek/` | the curve25519-dalek extraction and Lean library that tracks B and D import, with the field specs in `lean/Curve25519Dalek/Specs/` ([README](shared/dalek/README.md)). It also extracts the basepoint table path of the X25519 public key and proves the table |
+| `shared/dalek/` | the curve25519-dalek extraction and Lean library that tracks B and D import, with the field specs in `lean/Curve25519Dalek/Specs/` ([README](shared/dalek/README.md)). It also extracts the basepoint table path of the X25519 public key and proves that entry `j` of row `i` of the table encodes `[(j + 1) 256^i] B` mod `p`, with every limb below `2^52` |
 | `tools/` | scripts that compute certificates and witness points for the proofs in `shared/dalek/lean/DalekSim/`. The proofs check them, so the scripts are not trusted |
 | `tracks/<track>/` other directories | work copies of the Rust sources and extraction scripts |
 | `scripts/fetch-upstreams.sh` | clones the upstream repositories at the recorded commits and prepares the Lean projects |

@@ -6,9 +6,10 @@ import DalekSim.BasepointTableData
 /-! # The basepoint table
 
 `ED25519_BASEPOINT_TABLE` is a 32 x 8 array of affine Niels points `(y + x, y - x, 2 d x y)`.
-`basepoint_table` shows that entry `j` of row `i` is the point `[(j + 1) 256^i] B`, where `B`
-is the basepoint of edwards25519 and the group law is the one of `DalekSim.Edwards`. Every
-limb of the table is below `2^52`.
+`basepoint_table` shows that entry `j` of row `i` encodes the point `[(j + 1) 256^i] B` mod `p`
+(`Encodes`), where `B` is the basepoint of edwards25519 and the group law is the one of
+`DalekSim.Edwards`. Every limb of the table is below `2^52`. `B_u` shows that `B` maps to the
+X25519 base point `u = 9`.
 
 The proof has two parts.
 
@@ -18,12 +19,14 @@ The proof has two parts.
    `i`. Each addition is a polynomial equation, with the denominators multiplied out. The
    doublings go through the witness points of `DalekSim.BasepointTableData`. The kernel runs
    `check` with `decide +kernel` in about 3 s.
-2. `addRel_sound` turns one equation into the addition of `DalekSim.Edwards`, because the
-   denominators are not 0 on the curve. An induction over the rows and the entries then gives
+2. `addRel_sound` turns the two equations of `addRel` into the addition of
+   `DalekSim.Edwards`, because the denominators are not 0 on the curve. An induction over the rows and the entries then gives
    the multiples of `B`.
 
-The edit of `extract.sh` with `inline-table.py` makes the table one literal. Without it, the
-kernel does not reduce the 768 binds of the Aeneas output. -/
+The theorems are about the table after `inline-table.py`, which `extract.sh` applies. The
+script replaces the 768 binds of `from_limbs` in the Aeneas output with one literal.
+`Result.bind` is a `partial_fixpoint`, so the binds do not reduce. Lean does not check that
+the literal is equal to the Aeneas output. This edit is in the trusted base. -/
 
 open Aeneas Aeneas.Std Result curve25519_dalek
 open backend.serial.curve_models backend.serial.u64
@@ -32,11 +35,12 @@ namespace DalekSim.BasepointTable
 
 open Edwards
 
-instance : Inhabited AffineNielsPoint := ⟨⟨default, default, default⟩⟩
+/-- The default entry, for the `!` indexing in this file. Its value has no meaning. -/
+scoped instance : Inhabited AffineNielsPoint := ⟨⟨default, default, default⟩⟩
 
 /-! ## The test on natural numbers -/
 
-/-- The value of five 51-bit limbs, by Horner's rule. `feNat_eq` shows that this is
+/-- The value of five limbs in radix `2^51`, by Horner's rule. `feNat_eq` shows that this is
 `Field51_as_Nat`. -/
 def feNat (fe : field.FieldElement51) : Nat :=
   fe.val.foldr (fun l acc => l.val + 2 ^ 51 * acc) 0
@@ -58,7 +62,9 @@ def nielsOK (e : AffineNielsPoint) : Bool :=
   limbsLt e.y_plus_x && limbsLt e.y_minus_x && limbsLt e.xy2d &&
   feNat e.xy2d % p == 2 * d * (affine e).1 * (affine e).2 % p
 
-/-- `R = P + Q` by the unified addition, with the denominators multiplied out. -/
+/-- With `t = d x_P x_Q y_P y_Q mod p`: `x_R (1 + t) = x_P y_Q + y_P x_Q` and
+`y_R (1 - t) = y_P y_Q + x_P x_Q` mod `p`. For `P` and `Q` on the curve, `addRel_sound` gives
+`R = P + Q`. -/
 def addRel (P Q R : Nat × Nat) : Bool :=
   let t := d * P.1 * Q.1 * P.2 * Q.2 % p
   R.1 * (1 + t) % p == (P.1 * Q.2 + P.2 * Q.1) % p &&
@@ -144,7 +150,8 @@ theorem affine_spec {e : AffineNielsPoint} (h : nielsOK e = true) :
     push_cast [Nat.cast_sub hb, ZMod.natCast_mod, ZMod.natCast_self]
     linear_combination (-(feNat e.y_minus_x : ZMod p)) * h2
 
-/-- One equation of `addRel` is the addition of `DalekSim.Edwards`, for points on the curve. -/
+/-- If `P` and `Q` are on the curve and `addRel P Q R`, then `R = P + Q` in
+`DalekSim.Edwards`. -/
 theorem addRel_sound {P Q R : Nat × Nat} (hP : OnCurve dEd (toZ P)) (hQ : OnCurve dEd (toZ Q))
     (h : addRel P Q R = true) : toZ R = add dEd (toZ P) (toZ Q) := by
   simp only [addRel, Bool.and_eq_true, beq_iff_eq] at h
@@ -183,6 +190,17 @@ theorem B_y : 5 * B.1.2 = 4 := by
 
 /-- The x-coordinate of `B`, as a natural number below `p`, is even. -/
 theorem Bx_even : Bx < p ∧ Bx % 2 = 0 := by unfold Bx p; decide +kernel
+
+/-- `B` maps to the X25519 base point: `u = (1 + y) / (1 - y) = 9` (RFC 7748, section 4.1). -/
+theorem B_u : 1 - B.1.2 ≠ 0 ∧ (1 + B.1.2) / (1 - B.1.2) = 9 := by
+  have hy := B_y
+  have hne : 1 - B.1.2 ≠ 0 := by
+    intro h
+    have h1 : (1 : ZMod p) = 0 := by linear_combination hy + 5 * h
+    exact one_ne_zero h1
+  refine ⟨hne, ?_⟩
+  rw [div_eq_iff hne]
+  linear_combination 2 * hy
 
 /-! ## The rows and the entries -/
 
@@ -247,23 +265,23 @@ theorem niels_spec {T : edwards.EdwardsBasepointTable} (h : check T = true) :
 
 /-! ## The theorem -/
 
+/-- The entry `e` encodes the point `P = (x, y)`: every limb is below `2^52`, and the three
+field elements are `y + x`, `y - x` and `2 d x y` mod `p`. -/
+def Encodes (e : AffineNielsPoint) (P : Point dEd) : Prop :=
+  Bnd 52 e.y_plus_x ∧ Bnd 52 e.y_minus_x ∧ Bnd 52 e.xy2d ∧
+  (Field51_as_Nat e.y_plus_x : ZMod p) = P.1.2 + P.1.1 ∧
+  (Field51_as_Nat e.y_minus_x : ZMod p) = P.1.2 - P.1.1 ∧
+  (Field51_as_Nat e.xy2d : ZMod p) = 2 * dEd * P.1.1 * P.1.2
+
 /-- The basepoint table of curve25519-dalek: entry `j` of row `i` encodes the point
-`P = [(j + 1) 256^i] B` as `(y + x, y - x, 2 d x y)` with `P = (x, y)`, and every limb is below
-`2^52`. -/
+`[(j + 1) 256^i] B`. -/
 theorem basepoint_table : ∃ T, constants.ED25519_BASEPOINT_TABLE = ok T ∧
-    ∀ i < 32, ∀ j < 8,
-      Bnd 52 ((T[i]!)[j]!).y_plus_x ∧ Bnd 52 ((T[i]!)[j]!).y_minus_x ∧ Bnd 52 ((T[i]!)[j]!).xy2d ∧
-      (Field51_as_Nat ((T[i]!)[j]!).y_plus_x : ZMod p) =
-        (((j + 1) * 256 ^ i) • B).1.2 + (((j + 1) * 256 ^ i) • B).1.1 ∧
-      (Field51_as_Nat ((T[i]!)[j]!).y_minus_x : ZMod p) =
-        (((j + 1) * 256 ^ i) • B).1.2 - (((j + 1) * 256 ^ i) • B).1.1 ∧
-      (Field51_as_Nat ((T[i]!)[j]!).xy2d : ZMod p) =
-        2 * dEd * (((j + 1) * 256 ^ i) • B).1.1 * (((j + 1) * 256 ^ i) • B).1.2 := by
+    ∀ i < 32, ∀ j < 8, Encodes ((T[i]!)[j]!) (((j + 1) * 256 ^ i) • B) := by
   obtain ⟨T, hT, h⟩ := check_table
   refine ⟨T, hT, fun i hi j hj => ?_⟩
   have hn := niels_spec h i hi j hj
   have he := entry_spec h i hi j hj
-  simp only [Array.getElem!_Nat_eq]
+  simp only [Encodes, Array.getElem!_Nat_eq]
   rw [← he]
   have hb : limbsLt T.val[i]!.val[j]!.y_plus_x = true ∧ limbsLt T.val[i]!.val[j]!.y_minus_x =
       true ∧ limbsLt T.val[i]!.val[j]!.xy2d = true := by

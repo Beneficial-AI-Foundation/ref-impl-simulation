@@ -2,9 +2,9 @@
 """Write the doubling witnesses of DalekSim/BasepointTable.lean.
 
 The proof of the basepoint table shows that entry 0 of row i + 1 is 2^8 times entry 0 of row
-i. The kernel cannot divide in the field, so it checks eight doublings through the points
-[2^k * 256^i] B, k = 0..8, given in affine coordinates as natural numbers below p. This script
-computes these points. The Lean file checks every doubling, so this script is not trusted.
+i. The check does not invert in the field. It checks eight doublings, with the denominators
+multiplied out, through the points [2^k * 256^i] B, k = 0..8. The points are in affine
+coordinates, as natural numbers below p. This script computes them. The Lean file checks every doubling, so this script is not trusted.
 
 Usage: gen.py > shared/dalek/lean/DalekSim/BasepointTableData.lean
 """

@@ -44,8 +44,13 @@ The script writes the clean Aeneas output to `extract/`. It copies `Funs.lean` a
    `ED25519_BASEPOINT_TABLE_INNER_DOC_HIDDEN` as 768 monadic binds of
    `FieldElement51::from_limbs`, then `ok` of the 32 x 8 array. The script replaces the
    body with one `ok` of the literal. The two bodies are equal, because `from_limbs` is
-   `ok limbs`. The kernel does not reduce `bind` of `Result`, so a proof can read the table
-   only after this edit. As a patch, the edit has more than 5,000 lines.
+   `ok limbs`. The script stops if `from_limbs` has another body. `Result.bind` is a
+   `partial_fixpoint`, so the binds do not reduce, and a proof can read the table only after
+   this edit. As a patch, the edit has more than 5,000 lines.
+
+Lean does not check that the edited files are equal to the Aeneas output. The edits are in
+the trusted base (README section 3, part 5). `basepoint_table` holds for the table after
+`inline-table.py`.
 
 The output has 97 functions and constants, and 19 type and trait declarations. Two of the
 types are the closures of `mul_base`. The last two entry points and the feature
@@ -97,7 +102,7 @@ not depend on a reference, in the namespace `DalekSim`:
 | `Basic.lean` | the limb bound `Bnd` and `bnd_mono`, and the `Result` lemmas `exists_ok_of_spec` and `eq_ok_of_spec` |
 | `Choice.lean` | the slice `ct_eq` of `subtle` on two 32-byte arrays (`ct_eq_loop_u8`, `slice_ct_eq_arr`), and `to_bytes` and the field `ct_eq` over `Field51_as_Nat` mod `p` (`to_bytes_mod`, `fe_ct_eq_mod`). Track D wrote the slice lemmas. Both tracks use them |
 | `Edwards.lean` | the group law of the Edwards curve `-x² + y² = 1 + d x² y²` over a field where `2 ≠ 0`, `-1` is a square and `d` is not (class `Complete`): the denominators of the unified addition are never 0, the sum is on the curve, associativity (`add_assoc'`), the group `Point d` with `nsmul` lemmas that a proof of a ladder or of a table of multiples can use, and the instance for edwards25519. `Point d` is a new type. It does not replace `Edwards.Point Ed25519` of curve25519-dalek-lean-verify, and a proof that uses that type still depends on the `sorry` in `add_assoc_Ed25519`. The lemmas do not relate scalar multiplication to the Montgomery ladder, to clamped scalars or to the prime-order subgroup. `dEd` is the parameter `d` as an element of `ZMod p`, with `dEd_not_square` and `dEd_rel` (`121666 d = -121665`), which track B uses in `Sim/EdwardsBridge.lean`. The certificates of the polynomial identities come from Singular, through `tools/edwards-assoc/gen.py`. `linear_combination` checks them, so the script is not trusted |
-| `BasepointTable.lean` | the basepoint table `ED25519_BASEPOINT_TABLE` (`basepoint_table`): entry `j` of row `i` encodes `[(j + 1) 256^i] B` in the group `Point dEd` of `Edwards.lean`, as `(y + x, y - x, 2 d x y)` over `Field51_as_Nat` mod `p`, and every limb is below `2^52`. `B` is the point with `y = 4/5` and an even `x` (`B_y`, `Bx_even`). The kernel checks the limbs with `decide +kernel` in about 3 s: `xy2d` of each entry, the additions within a row, and the 8 doublings from one row to the next. The doublings go through the witness points of `BasepointTableData.lean`, which `tools/basepoint-table/gen.py` writes. The kernel checks every doubling, so the script is not trusted. Standard axioms only |
+| `BasepointTable.lean` | the basepoint table `ED25519_BASEPOINT_TABLE` (`basepoint_table`): entry `j` of row `i` encodes `[(j + 1) 256^i] B` in the group `Point dEd` of `Edwards.lean` (`Encodes`): every limb is below `2^52`, and the three field elements are `(y + x, y - x, 2 d x y)` over `Field51_as_Nat` mod `p`. `B` is the point with `y = 4/5` and an even `x` (`B_y`, `Bx_even`). It maps to the X25519 base point `u = (1 + y) / (1 - y) = 9` (`B_u`). The kernel checks the table with `decide +kernel` in about 3 s: the limb bounds and `xy2d` of each entry, the additions within a row, and the 8 doublings from one row to the next. The doublings go through the witness points of `BasepointTableData.lean`, which `tools/basepoint-table/gen.py` writes. The kernel checks every doubling, so the script is not trusted. Standard axioms only. The theorem holds for the table after `inline-table.py` (section 1) |
 
 Tracks B and D open the namespace `DalekSim` in their proofs.
 

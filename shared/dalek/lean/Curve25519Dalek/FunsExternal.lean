@@ -146,14 +146,16 @@ def U64.Insts.SubtleConditionallySelectable.conditional_assign
 /-! Added for the basepoint table path of `EdwardsPoint::mul_base`. -/
 
 /-- [core::ops::arith::{impl core::ops::arith::Rem<usize, usize> for &'_0 usize}::rem]:
-    Rust: `*self % other`. It panics if `other` is 0, and `%` of `Usize` fails there. -/
+    Model: `a % b`, which fails if `b` is 0. Rust: `*self % other`, which panics if `other`
+    is 0. -/
 @[rust_fun
   "core::ops::arith::{core::ops::arith::Rem<&'0 usize, usize, usize>}::rem"]
 def Shared0Usize.Insts.CoreOpsArithRemUsizeUsize.rem (a b : Std.Usize) : Result Std.Usize :=
   a % b
 
 /-- [core::iter::traits::iterator::Iterator::filter]:
-    Rust: `Filter::new(self, predicate)`, a structure of the two values. -/
+    Model: the structure of the iterator and the predicate. Rust: `Filter::new(self,
+    predicate)`, the same structure. -/
 @[trait_default, rust_fun "core::iter::traits::iterator::Iterator::filter"]
 def core.iter.traits.iterator.Iterator.filter.default
     {Self : Type} {P : Type} {Clause0_Item : Type}
@@ -163,8 +165,11 @@ def core.iter.traits.iterator.Iterator.filter.default
   ok { iter := self, predicate := predicate }
 
 /-- [core::iter::adapters::filter::{impl Iterator<Clause0_Item> for Filter<I, P>}::next]:
-    Rust: `self.iter.find(&mut self.predicate)`. It calls `next` on the inner iterator until
-    that returns `None` or an item that satisfies the predicate. -/
+    Model: call `next` on the inner iterator until it returns `None` or an item that satisfies
+    the predicate. The result is `div` if this does not stop. Rust:
+    `self.iter.find(&mut self.predicate)`. The model agrees with Rust if the inner iterator
+    does not override `find` or `try_fold`. On the table path, the inner iterator is
+    `Range<usize>`. -/
 @[rust_fun
   "core::iter::adapters::filter::{core::iter::traits::iterator::Iterator<core::iter::adapters::filter::Filter<@I, @P>, @Clause0_Item>}::next"]
 def core.iter.adapters.filter.Filter.Insts.CoreIterTraitsIteratorIterator.next
@@ -185,8 +190,8 @@ def core.iter.adapters.filter.Filter.Insts.CoreIterTraitsIteratorIterator.next
 partial_fixpoint
 
 /-- [subtle::{impl subtle::ConstantTimeEq for u16}::ct_eq]:
-    Rust computes `x = a ^ b`, `y = (x | x.wrapping_neg()) >> 15` and `((y ^ 1) as u8).into()`.
-    The result is 1 iff `a = b`. -/
+    Model: 1 iff `a = b`. Rust computes `x = a ^ b`, `y = (x | x.wrapping_neg()) >> 15` and
+    `((y ^ 1) as u8).into()`. That this is 1 iff `a = b` is not proved here. -/
 @[rust_fun "subtle::{subtle::ConstantTimeEq<u16>}::ct_eq"]
 def U16.Insts.SubtleConstantTimeEq.ct_eq (a b : Std.U16) : Result subtle.Choice :=
   if a = b then ok ⟨1#u8, Or.inr rfl⟩ else ok ⟨0#u8, Or.inl rfl⟩
