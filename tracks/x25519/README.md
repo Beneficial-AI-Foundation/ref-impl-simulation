@@ -537,7 +537,10 @@ and `Quot.sound` for the step theorem, for `field_contracts` and for each contra
 ported `from_bytes_spec`, `to_bytes_spec` and `invert_spec`, and every theorem of
 `Sim/X25519.lean` and `Sim/Contributory.lean` that this README names.
 `lake env lean Sim/AxiomsBridge.lean` gives the same three for `toU_dblY` and
-`toU_dblY_curve25519`, and only `propext` and `Quot.sound` for `dadd_core` (section 5). The
+`toU_dblY_curve25519`, and only `propext` and `Quot.sound` for `dadd_core` (section 5). It
+gives the three standard axioms for the ladder theorems of `Sim/EdwardsLadder.lean` and
+`Sim/BaseLadder.lean`, from `dbl_rep` to `mul_basepoint_spec`, and for the base point facts
+`basePoint_y`, `basePoint_x_even` and `toU_basePoint`. The
 axioms of `X25519Dalek/FunsExternal_Template.lean` are not in the Lean project, so the
 theorems cannot depend on them.
 
@@ -548,7 +551,7 @@ the ported field specs:
 
 | File | Lines | Content |
 |---|---|---|
-| `Sim/LadderMath.lean` | 191 | The ladder as a pure function over any commutative ring. The scaling invariant `Rel`, the case `u = 0`, and `enc_ladder_extra_step` over a field |
+| `Sim/LadderMath.lean` | 199 | The ladder as a pure function over any commutative ring. The scaling invariant `Rel`, the case `u = 0`, and `enc_ladder_extra_step` over a field |
 | `Sim/RefSide.lean` | 117 | The reference `scalar_bit`, `ladder_step`, `ladder_loop`, `montgomery_ladder` and `encode_point` in closed form |
 | `Sim/Bytes.lean` | 53 | `fe_to_bytes` and `fe_from_bytes` against `U8x32_as_Nat`, in both directions for `fe_to_bytes`. The base-256 digits and the top-bit mask are in `shared/dalek/lean/DalekSim/Bytes.lean` |
 | `Sim/RealSide.lean` | 245 | `conditional_select`, `conditional_swap`, the bit read with `Isize` operations, and `mul_loop_spec` |
@@ -562,34 +565,48 @@ The limb bound `Bnd`, `bnd_mono` and the `Result` lemmas `exists_ok_of_spec` and
 `ct_eq` lemmas and the byte lemmas that `Sim/Contributory.lean` uses are in
 `shared/dalek/lean/DalekSim/Choice.lean` and `Bytes.lean`, shared with track D.
 
-`Sim/EdwardsBridge.lean` (114 lines) is a first step toward a proof of public-key derivation
-(`PublicKey::from`). It is not part of the proofs above. dalek computes the public key on
+`Sim/EdwardsBridge.lean` (136 lines), `Sim/EdwardsLadder.lean` (269 lines) and
+`Sim/BaseLadder.lean` (145 lines) are steps toward a proof of public-key derivation
+(`PublicKey::from`). They are not part of the proofs above. dalek computes the public key on
 the Edwards curve and maps it to the Montgomery u-coordinate `(1 + y) / (1 - y)`, but the
 reference uses the Montgomery ladder. `toU_dblY` shows that this map sends the affine
 Edwards double of a point to the encoding of the ladder doubling `dbl`.
 `toU_dblY_curve25519` is its instance for Curve25519, with the curve equation as the only
 premise. `dadd_core` is the identity behind the differential addition, with the
-denominators multiplied out. The proofs use the curve equation, not the Edwards group law.
-The Curve25519 constant `d` and its two facts are in
+denominators multiplied out. `dbl_key` and `dbl_factor_ne_zero` are the doubling identities
+that `toU_dblY` and `dbl_rep` share. The Curve25519 constant `d` and its two facts are in
 `shared/dalek/lean/DalekSim/Edwards.lean`.
+
+`Sim/EdwardsLadder.lean` proves that the ladder computes multiples in the Edwards group
+`Point d` of `DalekSim/Edwards.lean`. The Edwards point `(x, y)` has the projective point
+`rep (x, y) = (1 + y : 1 - y)`, and the identity has `rep = (2 : 0)`. `dbl_rep` and
+`dadd_rep` equate projective points up to a nonzero factor, not only encodings. `dadd_rep`
+needs `u (1 - y_D) = 1 + y_D` for the y-coordinate `y_D` of the difference, and `u ≠ 0`.
+With `u ≠ 0`, these hypotheses hold exactly when `u = toU y_D`. Both the identity and
+`(0, -1)` have `toU = 0`, so these hypotheses exclude `P = Q` and
+`P - Q = (0, -1)`. The ladder keeps the
+difference equal to `B`, so the invariant `ladder_rep` has no exceptional state. A state
+can hold the identity, or two points that are negatives of each other. Only the final
+encoding uses `a⁻¹ = 0`, where `toU` of the identity is 0. `basePoint` is the edwards25519
+base point, and `toU_basePoint` shows that its u-coordinate is 9.
+`enc_ladder_nine` states: the ladder at `u = 9` over a list of bits returns `toU` of
+`m • basePoint`, where `m` is the number of the bits. `Sim/BaseLadder.lean` reads the bits of
+a 32-byte scalar. `enc_ladder_nine_clamped` covers a scalar with bit 255 cleared, as after
+clamping, with `m = U8x32_as_Nat k`. `mul_basepoint_spec` states the same for dalek's
+`&MontgomeryPoint * &Scalar` on `X25519_BASEPOINT_BYTES`.
 
 A proof of `PublicKey::from` needs more:
 
-1. dalek adds and doubles in extended coordinates. `dblY` is the affine formula.
+1. dalek adds and doubles in extended coordinates. `dblY` and `add` are affine formulas.
 2. With the feature `precomputed-tables`, `mul_base_clamped` multiplies with a radix-16
-   table of multiples of the base point, not with a ladder. A proof must show that both
-   compute the same multiple, so it needs a group law on one of the two curves.
-   `shared/dalek/lean/DalekSim/Edwards.lean` proves the group law of the Edwards curve
-   (`Point dEd` is an `AddCommGroup`). The proof that the table and the ladder compute the
-   same multiple is still open.
-3. `toU_dblY` equates encodings, not projective points. The encoding maps `(1 : 0)` and
-   `(0 : 1)` to 0, but `dadd` does not respect this, so an equal encoding does not let a
-   proof replace an intermediate ladder state.
-4. No theorem links `dEd` to dalek's `EDWARDS_D`. Track D proves this link for its own copy
-   of the constant (`edwards_d_spec`).
-
-So far, the route needs only the curve equation and `linear_combination`. Item 2 is the
-part that this file does not test.
+   table of multiples of the base point, not with a ladder. A proof must show that the table
+   computes `k • basePoint` in `Point dEd`. `enc_ladder_nine_clamped` then gives the ladder
+   side.
+3. No theorem links `dEd` to dalek's `EDWARDS_D`, or `basePoint` to
+   `ED25519_BASEPOINT_POINT`. Track D proves the first link for its own copy of the constant
+   (`edwards_d_spec`).
+4. `EdwardsPoint::to_montgomery` maps the extended point `(X : Y : Z : T)` to
+   `(Z + Y) / (Z - Y)`. A proof must show that this is `toU y` of the affine point.
 
 `mul_loop_spec` is an induction on the number of remaining bits. The loop body reads a bit,
 swaps, calls the step theorem and recurses. A fold lemma, `mul_loop_unfold`, moves the bit

@@ -7,7 +7,8 @@ import Mathlib.Tactic.FieldSimp
 For `(x, y)` on `-x² + y² = 1 + d x² y²`, with `d` not a square and `121666 d = -121665`,
 `u = (1 + y) / (1 - y)` maps the affine Edwards double of `(x, y)` to
 `enc (dbl (1 + y, 1 - y))` (`toU_dblY`). `dadd_core` is the cleared-denominator identity
-behind differential addition. Neither proof uses the Edwards group law.
+behind differential addition. Neither proof uses the Edwards group law. `dbl_key` and
+`dbl_factor_ne_zero` are shared with `dbl_rep` of `Sim/EdwardsLadder.lean`.
 
 With `a⁻¹ = 0` for `a = 0`, the identity `(0, 1)` maps to 0, as in
 `EdwardsPoint::to_montgomery`. `toU_dblY` therefore has no case split. It holds for `(0, 1)`
@@ -26,6 +27,43 @@ def toU (y : F) : F := (1 + y) * (1 - y)⁻¹
 /-- The y-coordinate of `(x, y) + (x, y)` by the unified Edwards addition formula with
 `a = -1`: `(y₁ y₂ - a x₁ x₂) / (1 - d x₁ x₂ y₁ y₂)`. -/
 def dblY (d x y : F) : F := (y * y + x * x) / (1 - d * x * x * y * y)
+
+section DblKey
+
+variable {d x y : F} (hd' : 121666 * d = -121665) (hc : -x ^ 2 + y ^ 2 = 1 + d * x ^ 2 * y ^ 2)
+include hd' hc
+
+/-- `1 + d y² ≠ 0` for `(x, y)` on the curve: otherwise `y² = 1`, so `d = -1`, against
+`121666 d = -121665`. -/
+theorem one_add_d_sq_ne_zero : 1 + d * y ^ 2 ≠ 0 := by
+  intro h
+  have hy : y ^ 2 = 1 := by linear_combination hc + x ^ 2 * h
+  exact one_ne_zero
+    (by linear_combination 121666 * h - 121666 * d * hy - hd' : (1 : F) = 0)
+
+/-- The doubling identity `(1 + x²) (1 + 121665 (1 - y²)) = y²` for `(x, y)` on the curve. -/
+theorem dbl_key : (1 + x ^ 2) * (1 + 121665 * (1 - y ^ 2)) = y ^ 2 := by
+  have hx : x ^ 2 * (1 + d * y ^ 2) = y ^ 2 - 1 := by linear_combination -hc
+  have : (1 + d * y ^ 2) * ((1 + x ^ 2) * (1 + 121665 * (1 - y ^ 2)) - y ^ 2) = 0 := by
+    linear_combination (1 + 121665 * (1 - y ^ 2)) * hx + y ^ 2 * (1 - y ^ 2) * hd'
+  linear_combination (mul_eq_zero.mp this).resolve_left (one_add_d_sq_ne_zero hd' hc)
+
+/-- `1 + 121665 (1 - y²) ≠ 0` for `(x, y)` on the curve: otherwise `y = 0` by `dbl_key`, so
+`121666 = 0`, against `121666 d = -121665`. -/
+theorem dbl_factor_ne_zero : 1 + 121665 * (1 - y ^ 2) ≠ 0 := by
+  intro h0
+  have hk := dbl_key hd' hc
+  rw [h0, mul_zero] at hk
+  have hy0 : y = 0 := pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hk.symm
+  subst hy0
+  exact one_ne_zero (by linear_combination (1 + d) * h0 - hd' : (1 : F) = 0)
+
+end DblKey
+
+/-- If `u (1 - y) = 1 + y` and `2 ≠ 0`, then `1 - y ≠ 0`. -/
+theorem one_sub_ne_zero_of_u {u y : F} (h2 : (2 : F) ≠ 0) (hu : u * (1 - y) = 1 + y) :
+    1 - y ≠ 0 := by
+  intro h; apply h2; linear_combination -hu + u * h + h
 
 /-- The u-coordinate of the Edwards double of `(x, y)` is the encoding of the ladder doubling
 of `(1 + y : 1 - y)`. -/
@@ -46,17 +84,8 @@ theorem toU_dblY (d x y : F) (hd : ¬IsSquare d) (hd' : 121666 * d = -121665)
     refine hd ⟨(x * y)⁻¹, ?_⟩
     field_simp
     linear_combination -h
-  -- `1 + d y² ≠ 0`: otherwise `y² = 1`, so `d = -1`, against `121666 d = -121665`.
-  have hdy : 1 + d * y ^ 2 ≠ 0 := by
-    intro h
-    have hy : y ^ 2 = 1 := by linear_combination hc + x ^ 2 * h
-    exact one_ne_zero
-      (by linear_combination 121666 * h - 121666 * d * hy - hd' : (1 : F) = 0)
-  -- The key identity: `(1 + x²) (1 + 121665 (1 - y²)) = y²`.
-  have hk : (1 + x ^ 2) * (1 + 121665 * (1 - y ^ 2)) = y ^ 2 := by
-    have : (1 + d * y ^ 2) * ((1 + x ^ 2) * (1 + 121665 * (1 - y ^ 2)) - y ^ 2) = 0 := by
-      linear_combination (1 + 121665 * (1 - y ^ 2)) * hx + y ^ 2 * (1 - y ^ 2) * hd'
-    linear_combination (mul_eq_zero.mp this).resolve_left hdy
+  have hdy := one_add_d_sq_ne_zero hd' hc
+  have hk := dbl_key hd' hc
   rw [toU, ← div_eq_mul_inv, enc, ← div_eq_mul_inv]
   by_cases hy2 : 1 - y ^ 2 = 0
   · -- `y = ±1` and `x = 0`: both sides are 0.
@@ -69,13 +98,7 @@ theorem toU_dblY (d x y : F) (hd : ¬IsSquare d) (hd' : 121666 * d = -121665)
     have hY : dblY d 0 y = 1 := by
       simp only [dblY]; rw [div_eq_one_iff_eq (by simp)]; linear_combination -hy2
     simp [dbl, hZ, hY]
-  · have hK : 1 + 121665 * (1 - y ^ 2) ≠ 0 := by
-      intro h0
-      rw [h0, mul_zero] at hk
-      have hy0 : y = 0 := pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hk.symm
-      subst hy0
-      have h1 : (1 : F) = 0 := by linear_combination (1 + d) * h0 - hd'
-      exact one_ne_zero h1
+  · have hK := dbl_factor_ne_zero hd' hc
     have hL : (1 + dblY d x y) / (1 - dblY d x y) = (1 + x ^ 2) / (1 - y ^ 2) := by
       have e1 : 1 + dblY d x y = 2 * (1 + x ^ 2) / (1 - d * x * x * y * y) := by
         simp only [dblY]; rw [eq_div_iff hs, add_mul, div_mul_cancel₀ _ hs]

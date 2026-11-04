@@ -22,7 +22,7 @@ functions and types are the definitions of the shared library. -/
 @[default_target] lean_lib Sim where
   globs := #[.one `Sim.Pilot, .one `Sim.Discharge, .one `Sim.LadderMath, .one `Sim.RefSide,
     .one `Sim.Bytes, .one `Sim.RealSide, .one `Sim.Full, .one `Sim.X25519,
-    .one `Sim.Contributory, .one `Sim.EdwardsBridge]
+    .one `Sim.Contributory, .one `Sim.EdwardsBridge, .one `Sim.EdwardsLadder, .one `Sim.BaseLadder]
 
 /-- Checks that fail the build on a wrong result: the axiom lists (`#guard_msgs`) and the
 reference test vectors (`#guard`). -/
