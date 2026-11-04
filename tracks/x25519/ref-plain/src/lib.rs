@@ -104,6 +104,18 @@ pub fn x25519_secret_to_public(s: SerializedScalar) -> SerializedPoint {
     x25519_scalarmult(s, base)
 }
 
+/// Not in the hacspec spec: our addition. RFC 7748, section 6.1: the check whether the
+/// shared secret `K` is the all-zero value, by an OR of all bytes.
+pub fn x25519_is_all_zero(k: SerializedPoint) -> bool {
+    let mut acc = 0u8;
+    let mut i = 0;
+    while i < 32 {
+        acc = acc | k[i];
+        i += 1;
+    }
+    acc == 0u8
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -124,5 +136,56 @@ mod tests {
         let a = h("77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a");
         let pa = h("8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a");
         assert_eq!(x25519_secret_to_public(a), pa);
+    }
+    #[test]
+    fn rfc7748_5_2_vector2() {
+        let k = h("4b66e9d4d1b4673c5ad22691957d6af5c11b6421e0ea01d42ca4169e7918ba0d");
+        let u = h("e5210f12786811d3f4b7959d0538ae2c31dbe7106fc03c3efc4cd549c715a493");
+        let r = h("95cbde9476e8907d7aade45cb4b873f88b595a68799fa152e6f8f7647aac7957");
+        assert_eq!(x25519_scalarmult(k, u), r);
+    }
+    /// RFC 7748 section 5.2: start with k = u = 9, then set u to the old k and k to the
+    /// result, `n` times.
+    fn iterate(n: usize) -> [u8; 32] {
+        let mut k = [0u8; 32];
+        k[0] = 9;
+        let mut u = k;
+        for _ in 0..n {
+            let r = x25519_scalarmult(k, u);
+            u = k;
+            k = r;
+        }
+        k
+    }
+    #[test]
+    fn rfc7748_5_2_iterated_1_and_1000() {
+        assert_eq!(iterate(1), h("422c8e7a6227d7bca1350b3e2bb7279f7897b87bb6854b783c60e80311ae3079"));
+        assert_eq!(iterate(1000), h("684cf59ba83309552800ef566f2f4d3c1c3887c49360e3875f2eb94d99532c51"));
+    }
+    #[test]
+    #[ignore] // 1,000,000 scalar multiplications, hours: `cargo test -- --ignored`
+    fn rfc7748_5_2_iterated_1000000() {
+        assert_eq!(iterate(1_000_000), h("7c3911e0ab2586fd864497297e575e6f3bc601c0883c30df5f4dd2d24f665424"));
+    }
+    #[test]
+    fn rfc7748_6_1_bob_public_and_shared_secret() {
+        let a = h("77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a");
+        let pa = h("8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a");
+        let b = h("5dab087e624a8a4b79e17f8b83800ee66f3bb1292618b6fd1c2f8b27ff88e0eb");
+        let pb = h("de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f");
+        let k = h("4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742");
+        assert_eq!(x25519_secret_to_public(b), pb);
+        assert_eq!(x25519_scalarmult(a, pb), k);
+        assert_eq!(x25519_scalarmult(b, pa), k);
+        assert!(!x25519_is_all_zero(k));
+    }
+    #[test]
+    fn is_all_zero() {
+        assert!(x25519_is_all_zero([0u8; 32]));
+        for i in 0..32 {
+            let mut k = [0u8; 32];
+            k[i] = 1;
+            assert!(!x25519_is_all_zero(k));
+        }
     }
 }

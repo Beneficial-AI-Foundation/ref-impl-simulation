@@ -20,6 +20,30 @@ set_option maxHeartbeats 1000000
 set_option maxRecDepth 2048
 open x25519_dalek
 
+/-- [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::from_bytes]:
+    Source: 'tracks/x25519/real-dalek/curve25519-dalek/src/backend/serial/u64/field.rs', lines 340:4-340:63
+    Name pattern: [curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::from_bytes]
+    Visibility: public -/
+@[rust_fun
+  "curve25519_dalek::backend::serial::u64::field::{curve25519_dalek::backend::serial::u64::field::FieldElement51}::from_bytes"]
+axiom curve25519_dalek.backend.serial.u64.field.FieldElement51.from_bytes
+  :
+  Array Std.U8 32#usize → Result
+    curve25519_dalek.backend.serial.u64.field.FieldElement51
+
+/-- [curve25519_dalek::field::{impl subtle::ConstantTimeEq for curve25519_dalek::backend::serial::u64::field::FieldElement51}::ct_eq]:
+    Source: 'tracks/x25519/real-dalek/curve25519-dalek/src/field.rs', lines 95:4-95:51
+    Name pattern: [curve25519_dalek::field::{subtle::ConstantTimeEq<curve25519_dalek::backend::serial::u64::field::FieldElement51>}::ct_eq]
+    Visibility: public -/
+@[rust_fun
+  "curve25519_dalek::field::{subtle::ConstantTimeEq<curve25519_dalek::backend::serial::u64::field::FieldElement51>}::ct_eq"]
+axiom
+  curve25519_dalek.backend.serial.u64.field.FieldElement51.Insts.SubtleConstantTimeEq.ct_eq
+  :
+  curve25519_dalek.backend.serial.u64.field.FieldElement51 →
+    curve25519_dalek.backend.serial.u64.field.FieldElement51 → Result
+    subtle.Choice
+
 /-- [curve25519_dalek::montgomery::{curve25519_dalek::montgomery::MontgomeryPoint}::mul_clamped]:
     Source: 'tracks/x25519/real-dalek/curve25519-dalek/src/montgomery.rs', lines 134:4-134:53
     Name pattern: [curve25519_dalek::montgomery::{curve25519_dalek::montgomery::MontgomeryPoint}::mul_clamped]
@@ -52,4 +76,17 @@ axiom curve25519_dalek.montgomery.MontgomeryPoint.to_bytes
   :
   curve25519_dalek.montgomery.MontgomeryPoint → Result (Array Std.U8
     32#usize)
+
+/-- [subtle::{impl core::convert::From<subtle::Choice> for bool}::from]:
+    Source: '/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/subtle-2.6.1/src/lib.rs', lines 153:4-153:35
+    Name pattern: [subtle::{core::convert::From<bool, subtle::Choice>}::from]
+    Visibility: public -/
+@[rust_fun "subtle::{core::convert::From<bool, subtle::Choice>}::from"]
+axiom Bool.Insts.CoreConvertFromChoice.from : subtle.Choice → Result Bool
+
+/-- [x25519_dalek::x25519::{impl core::ops::drop::Drop for x25519_dalek::x25519::EphemeralSecret}::drop]:
+    Source: 'x25519-dalek/src/x25519.rs', lines 73:39-73:46
+    Visibility: public -/
+axiom x25519.EphemeralSecret.Insts.CoreOpsDropDrop.drop
+  : x25519.EphemeralSecret → Result x25519.EphemeralSecret
 

@@ -1,8 +1,9 @@
 import X25519Ref.Funs
 
-/-! Runs the Lean reference (`x25519_ref`, with the `ZMod p` field model) on the two
-RFC 7748 vectors that `ref-plain` tests in Rust, and on the edge inputs of
-`ref-plain/tests/edge.rs`. This is a test with `#guard`, not a proof. Run with
+/-! Runs the Lean reference (`x25519_ref`, with the `ZMod p` field model) on the RFC 7748
+vectors that `ref-plain` tests in Rust, and on the edge inputs of
+`ref-plain/tests/edge.rs`. The iterated test of section 5.2 runs 1 and 1,000 iterations, not
+1,000,000. This is a test with `#guard`, not a proof. Run with
 `lake env lean Sim/RefVectors.lean` after `lake build`. The command fails if any check fails. -/
 
 open Aeneas Aeneas.Std Result
@@ -40,6 +41,50 @@ def same (r : Result (Array Std.U8 32#usize)) (expected : String) : Bool :=
   (x25519_ref.x25519_secret_to_public
     (bytes "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"))
   "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a"
+
+-- RFC 7748 section 5.2, second vector.
+#guard same
+  (x25519_ref.x25519_scalarmult
+    (bytes "4b66e9d4d1b4673c5ad22691957d6af5c11b6421e0ea01d42ca4169e7918ba0d")
+    (bytes "e5210f12786811d3f4b7959d0538ae2c31dbe7106fc03c3efc4cd549c715a493"))
+  "95cbde9476e8907d7aade45cb4b873f88b595a68799fa152e6f8f7647aac7957"
+
+/-- RFC 7748 section 5.2, the iterated test: from `k = u = 9`, set `u` to the old `k` and `k`
+to the result, `n` times. -/
+def iterate : Nat → Array Std.U8 32#usize → Array Std.U8 32#usize → Result (Array Std.U8 32#usize)
+  | 0, k, _ => ok k
+  | n + 1, k, u => do
+    let r ← x25519_ref.x25519_scalarmult k u
+    iterate n r k
+
+def nine : Array Std.U8 32#usize :=
+  bytes "0900000000000000000000000000000000000000000000000000000000000000"
+
+#guard same (iterate 1 nine nine)
+  "422c8e7a6227d7bca1350b3e2bb7279f7897b87bb6854b783c60e80311ae3079"
+#guard same (iterate 1000 nine nine)
+  "684cf59ba83309552800ef566f2f4d3c1c3887c49360e3875f2eb94d99532c51"
+
+-- RFC 7748 section 6.1: Bob's public key, and the shared secret `K` from both sides.
+def alice : String := "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"
+def alicePub : String := "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a"
+def bob : String := "5dab087e624a8a4b79e17f8b83800ee66f3bb1292618b6fd1c2f8b27ff88e0eb"
+def bobPub : String := "de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f"
+def sharedK : String := "4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742"
+
+#guard same (x25519_ref.x25519_secret_to_public (bytes bob)) bobPub
+#guard same (x25519_ref.x25519_scalarmult (bytes alice) (bytes bobPub)) sharedK
+#guard same (x25519_ref.x25519_scalarmult (bytes bob) (bytes alicePub)) sharedK
+
+-- Our addition `x25519_is_all_zero` (RFC 7748 section 6.1): false on `K`, true on 0.
+def isZero (s : String) : Option Bool :=
+  match (x25519_ref.x25519_is_all_zero (bytes s)).match with
+  | .ok b => some b
+  | _ => none
+
+#guard isZero sharedK == some false
+#guard isZero "0000000000000000000000000000000000000000000000000000000000000000" == some true
+#guard isZero "0000000000000000000000000000000000000000000000000000000000000080" == some false
 
 /-! ## Edge inputs, as in `ref-plain/tests/edge.rs` -/
 

@@ -187,4 +187,28 @@ def x25519_secret_to_public
   let base1 ← Array.update base 0#usize 9#u8
   x25519_scalarmult s base1
 
+/-- [x25519_ref::x25519_is_all_zero]: loop 0:
+    Source: 'src/lib.rs', lines 112:4-115:5
+    Visibility: public -/
+@[rust_loop]
+def x25519_is_all_zero_loop
+  (k : Array Std.U8 32#usize) (acc : Std.U8) (i : Std.Usize) :
+  Result Std.U8
+  := do
+  if i < 32#usize
+  then
+    let i1 ← Array.index_usize k i
+    let acc1 ← lift (acc ||| i1)
+    let i2 ← i + 1#usize
+    x25519_is_all_zero_loop k acc1 i2
+  else ok acc
+partial_fixpoint
+
+/-- [x25519_ref::x25519_is_all_zero]:
+    Source: 'src/lib.rs', lines 109:0-117:1
+    Visibility: public -/
+def x25519_is_all_zero (k : Array Std.U8 32#usize) : Result Bool := do
+  let acc ← x25519_is_all_zero_loop k 0#u8 0#usize
+  ok (acc = 0#u8)
+
 end x25519_ref

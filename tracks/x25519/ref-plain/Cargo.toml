@@ -7,3 +7,8 @@ edition = "2021"
 hacspec-lib = { path = "../hacspec-old/lib" }
 
 [workspace]
+
+# The RFC 7748 iterated test runs 1,000 scalar multiplications on the bignum field of
+# hacspec. Optimized tests take seconds instead of minutes.
+[profile.test]
+opt-level = 3

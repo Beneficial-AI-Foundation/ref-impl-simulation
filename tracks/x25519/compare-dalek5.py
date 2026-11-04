@@ -105,6 +105,8 @@ ITEMS = [
     (U64C, None, "const", "ED25519_BASEPOINT_POINT"),
     (U64C, None, "static", "ED25519_BASEPOINT_TABLE"),
     (U64C, None, "static", "ED25519_BASEPOINT_TABLE_INNER_DOC_HIDDEN"),
+    # `was_contributory` (step X1): the field `ct_eq` that `MontgomeryPoint::ct_eq` calls.
+    ("src/field.rs", ["ConstantTimeEq for FieldElement"], "fn", "ct_eq"),
 ]
 
 # The items of x25519-dalek on the paths of `x25519_refines` and of the `diffie_hellman`
@@ -125,6 +127,10 @@ X_ITEMS = [
     ("src/x25519.rs", ["From<&'a StaticSecret> for PublicKey"], "fn", "from"),
     ("src/x25519.rs", ["impl SharedSecret {"], "fn", "was_contributory"),
     ("src/x25519.rs", ["impl SharedSecret {"], "fn", "to_bytes"),
+    ("src/x25519.rs", ["impl StaticSecret {"], "fn", "to_bytes"),
+    ("src/x25519.rs", ["impl StaticSecret {"], "fn", "as_bytes"),
+    ("src/x25519.rs", ["impl PublicKey {"], "fn", "to_bytes"),
+    ("src/x25519.rs", ["impl PublicKey {"], "fn", "as_bytes"),
     ("src/x25519.rs", None, "struct", "PublicKey"),
     ("src/x25519.rs", None, "struct", "EphemeralSecret"),
     ("src/x25519.rs", None, "struct", "ReusableSecret"),
