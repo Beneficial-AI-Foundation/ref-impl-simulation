@@ -64,6 +64,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "64cd1e32ddd350061ae6edb1b082d7c54915b5c672c389143b9a63403a109f24"
 
 [[package]]
+name = "hacspec-edwards25519"
+version = "0.1.0"
+dependencies = [
+ "hacspec-lib",
+ "hacspec-sha512",
+]
+
+[[package]]
 name = "hacspec-lib"
 version = "0.1.0-beta.1"
 dependencies = [
@@ -74,6 +82,13 @@ dependencies = [
 
 [[package]]
 name = "hacspec-ristretto"
+version = "0.1.0"
+dependencies = [
+ "hacspec-lib",
+]
+
+[[package]]
+name = "hacspec-sha512"
 version = "0.1.0"
 dependencies = [
  "hacspec-lib",
@@ -181,6 +196,7 @@ name = "ristretto-ref"
 version = "0.1.0"
 dependencies = [
  "curve25519-dalek",
+ "hacspec-edwards25519",
  "hacspec-lib",
  "hacspec-ristretto",
 ]

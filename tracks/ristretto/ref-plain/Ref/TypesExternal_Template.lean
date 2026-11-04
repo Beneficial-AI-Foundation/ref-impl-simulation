@@ -23,3 +23,8 @@ set_option maxRecDepth 2048
     Visibility: public -/
 axiom field.Fe : Type
 
+/-- [ristretto_ref::scalar::Scalar]
+    Source: 'src/scalar.rs', lines 15:0-15:33
+    Visibility: public -/
+axiom scalar.Scalar : Type
+
