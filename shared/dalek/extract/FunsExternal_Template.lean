@@ -20,6 +20,42 @@ set_option maxHeartbeats 1000000
 set_option maxRecDepth 2048
 open curve25519_dalek
 
+/-- [core::ops::arith::{impl core::ops::arith::Rem<usize, usize> for &'_0 usize}::rem]:
+    Source: '/rustc/library/core/src/internal_macros.rs', lines 27:12-27:67
+    Name pattern: [core::ops::arith::{core::ops::arith::Rem<&'0 usize, usize, usize>}::rem]
+    Visibility: public -/
+@[rust_fun
+  "core::ops::arith::{core::ops::arith::Rem<&'0 usize, usize, usize>}::rem"]
+axiom Shared0Usize.Insts.CoreOpsArithRemUsizeUsize.rem
+  : Std.Usize → Std.Usize → Result Std.Usize
+
+/-- [core::iter::traits::iterator::Iterator::filter]:
+    Source: '/rustc/library/core/src/iter/traits/iterator.rs', lines 966:4-969:38
+    Name pattern: [core::iter::traits::iterator::Iterator::filter]
+    Visibility: public -/
+@[trait_default, rust_fun "core::iter::traits::iterator::Iterator::filter"]
+axiom core.iter.traits.iterator.Iterator.filter.default
+  {Self : Type} {P : Type} {Clause0_Item : Type} (IteratorInst :
+  core.iter.traits.iterator.Iterator Self Clause0_Item)
+  (opsfunctionFnMutPTupleSharedClause0_ItemBoolInst : core.ops.function.FnMut P
+  Clause0_Item Bool) :
+  Self → P → Result (core.iter.adapters.filter.Filter Self P)
+
+/-- [core::iter::adapters::filter::{impl core::iter::traits::iterator::Iterator<Clause0_Item> for core::iter::adapters::filter::Filter<I, P>}::next]:
+    Source: '/rustc/library/core/src/iter/adapters/filter.rs', lines 97:4-97:41
+    Name pattern: [core::iter::adapters::filter::{core::iter::traits::iterator::Iterator<core::iter::adapters::filter::Filter<@I, @P>, @Clause0_Item>}::next]
+    Visibility: public -/
+@[rust_fun
+  "core::iter::adapters::filter::{core::iter::traits::iterator::Iterator<core::iter::adapters::filter::Filter<@I, @P>, @Clause0_Item>}::next"]
+axiom
+  core.iter.adapters.filter.Filter.Insts.CoreIterTraitsIteratorIterator.next
+  {I : Type} {P : Type} {Clause0_Item : Type} (traitsiteratorIteratorInst :
+  core.iter.traits.iterator.Iterator I Clause0_Item)
+  (opsfunctionFnMutPTupleShared0Clause0_ItemBoolInst : core.ops.function.FnMut
+  P Clause0_Item Bool) :
+  core.iter.adapters.filter.Filter I P → Result ((Option Clause0_Item) ×
+    (core.iter.adapters.filter.Filter I P))
+
 /-- [subtle::{impl core::convert::From<subtle::Choice> for bool}::from]:
     Source: '/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/subtle-2.6.1/src/lib.rs', lines 153:4-153:35
     Name pattern: [subtle::{core::convert::From<bool, subtle::Choice>}::from]
@@ -69,6 +105,14 @@ axiom Slice.Insts.SubtleConstantTimeEq.ct_eq
 @[rust_fun "subtle::{subtle::ConstantTimeEq<u8>}::ct_eq"]
 axiom U8.Insts.SubtleConstantTimeEq.ct_eq
   : Std.U8 → Std.U8 → Result subtle.Choice
+
+/-- [subtle::{impl subtle::ConstantTimeEq for u16}::ct_eq]:
+    Source: '/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/subtle-2.6.1/src/lib.rs', lines 348:12-348:51
+    Name pattern: [subtle::{subtle::ConstantTimeEq<u16>}::ct_eq]
+    Visibility: public -/
+@[rust_fun "subtle::{subtle::ConstantTimeEq<u16>}::ct_eq"]
+axiom U16.Insts.SubtleConstantTimeEq.ct_eq
+  : Std.U16 → Std.U16 → Result subtle.Choice
 
 /-- [subtle::ConditionallySelectable::conditional_assign]:
     Source: '/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/subtle-2.6.1/src/lib.rs', lines 442:4-442:66

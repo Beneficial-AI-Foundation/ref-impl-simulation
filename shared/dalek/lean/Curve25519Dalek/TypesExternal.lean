@@ -27,3 +27,10 @@ structure subtle.Choice where
   val : U8
   valid : val = 0#u8 ∨ val = 1#u8
 
+
+/-- [core::iter::adapters::filter::Filter]: the inner iterator and the predicate, as in
+    `core`. -/
+@[rust_type "core::iter::adapters::filter::Filter"]
+structure core.iter.adapters.filter.Filter (I : Type) (P : Type) where
+  iter : I
+  predicate : P

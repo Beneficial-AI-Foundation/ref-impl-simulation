@@ -18,6 +18,13 @@ set_option maxHeartbeats 1000000
 /- You can set the `maxRecDepth` value with the `-max-recdepth` CLI option -/
 set_option maxRecDepth 2048
 
+/-- [core::iter::adapters::filter::Filter]
+    Source: '/rustc/library/core/src/iter/adapters/filter.rs', lines 21:0-21:23
+    Name pattern: [core::iter::adapters::filter::Filter]
+    Visibility: public -/
+@[rust_type "core::iter::adapters::filter::Filter"]
+axiom core.iter.adapters.filter.Filter (I : Type) (P : Type) : Type
+
 /-- [subtle::Choice]
     Source: '/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/subtle-2.6.1/src/lib.rs', lines 120:0-120:17
     Name pattern: [subtle::Choice]

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Extracts curve25519-dalek with Charon and Aeneas for the shared library, and applies the
-# hand edits in patches/ to the clean output.
+# hand edits in patches/ and inline-table.py to the clean output.
 #
 #   extract.sh                write the clean output to extract/ and the patched files to
 #                             lean/Curve25519Dalek/
 #   extract.sh --check        extract into a temporary directory. Fail if the clean output
 #                             differs from extract/ or the patched files differ from lean/
-#   extract.sh --check-copies do not run Charon or Aeneas. Apply the patches to extract/
-#                             and fail if the result differs from lean/
+#   extract.sh --check-copies do not run Charon or Aeneas. Apply the hand edits to
+#                             extract/ and fail if the result differs from lean/
 #
 # The first two modes need the Aeneas release in .aeneas/ and the Rust toolchain of
 # tracks/x25519/real-dalek/rust-toolchain.
@@ -21,8 +21,10 @@ aeneas_version="nightly-2026.10.12-d119a47"
 # The copy of curve25519-dalek 4.2.0 from curve25519-dalek-lean-verify 26d49052, in track B.
 # Its .cargo/config.toml selects the serial backend with 64-bit limbs.
 workspace="$root/tracks/x25519/real-dalek"
-features="alloc,zeroize"
-# The entry points. Track B uses the first four, track D the last two.
+# precomputed-tables gives the basepoint table path of EdwardsPoint::mul_base.
+features="alloc,zeroize,precomputed-tables"
+# The entry points. Track B uses the first four, track D the next two. The last two are the
+# public key path of X25519: mul_base_clamped multiplies the basepoint with the table.
 entry_points=(
   'crate::montgomery::differential_add_and_double'
   'crate::montgomery::MontgomeryPoint::mul_clamped'
@@ -30,6 +32,8 @@ entry_points=(
   'crate::montgomery::MontgomeryPoint::as_bytes'
   'crate::ristretto::CompressedRistretto::decompress'
   'crate::ristretto::RistrettoPoint::compress'
+  'crate::edwards::EdwardsPoint::mul_base_clamped'
+  'crate::edwards::EdwardsPoint::to_montgomery'
 )
 # All generated files go to extract/. Funs.lean and Types.lean also go to lean/, after the
 # patches. lean/ has hand-written files for the items of the two templates.
@@ -46,18 +50,21 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
 # apply_patches <dir with clean Funs.lean and Types.lean> <output dir>
+# Applies the patches, then inline-table.py. The script rewrites the body of the basepoint
+# table into one literal. As a patch, this edit has more than 5,000 lines.
 apply_patches() {
   mkdir -p "$2"
   for f in "${copied[@]}"; do cp "$1/$f" "$2/$f"; done
   for p in "$here"/patches/*.patch; do
     patch --quiet --no-backup-if-mismatch -d "$2" -p1 < "$p"
   done
+  python3 "$here/inline-table.py" "$2/Funs.lean"
 }
 
 if [ "$mode" = --check-copies ]; then
   apply_patches "$here/extract" "$tmp/patched"
   for f in "${copied[@]}"; do diff -u "$here/lean/Curve25519Dalek/$f" "$tmp/patched/$f"; done
-  echo "extract/ with the patches gives the Lean files of the library"
+  echo "extract/ with the hand edits gives the Lean files of the library"
   exit 0
 fi
 
@@ -81,7 +88,7 @@ apply_patches "$tmp/out" "$tmp/patched"
 if [ "$mode" = --check ]; then
   for f in "${generated[@]}"; do diff -u "$here/extract/$f" "$tmp/out/$f"; done
   for f in "${copied[@]}"; do diff -u "$here/lean/Curve25519Dalek/$f" "$tmp/patched/$f"; done
-  echo "the extraction replays, and the patches give the Lean files of the library"
+  echo "the extraction replays, and the hand edits give the Lean files of the library"
 else
   mkdir -p "$here/extract"
   for f in "${generated[@]}"; do cp "$tmp/out/$f" "$here/extract/$f"; done

@@ -1,0 +1,17 @@
+Hand edit of the Aeneas output, the same as patch 01. In `EdwardsBasepointTable::mul_base`,
+the parameter `scalar` shadows the namespace `scalar`. Lean reads
+`scalar.Scalar.as_radix_2w scalar` as the projection `Scalar` of the parameter and fails.
+The edit calls the same function, `scalar.Scalar.as_radix_2w`, with dot notation on the
+parameter.
+
+--- a/Funs.lean
++++ b/Funs.lean
+@@ -6765,7 +6765,7 @@
+   (self : edwards.EdwardsBasepointTable) (scalar : scalar.Scalar) :
+   Result edwards.EdwardsPoint
+   := do
+-  let a ← scalar.Scalar.as_radix_2w scalar 4#usize
++  let a ← scalar.as_radix_2w 4#usize
+   let P ← edwards.EdwardsPoint.Insts.Curve25519_dalekTraitsIdentity.identity
+   let iter ←
+     core.iter.traits.iterator.Iterator.filter.default

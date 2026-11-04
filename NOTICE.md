@@ -31,4 +31,5 @@ The Lean files that Aeneas generated are translations of the code in the table a
 hpke-spec. They are in `Ref/`, `Real/`, `RealAead/`, `X25519Ref/`, `RistrettoRef/`,
 `shared/dalek/extract/`, `real-x25519/X25519/` and `ref-plain/Ref/`. They are also `Curve25519Dalek/Funs.lean`,
 `Curve25519Dalek/Types.lean`, `X25519Dalek/Funs.lean` and `X25519Dalek/Types.lean`.
-`shared/dalek/patches/` holds the hand edits of `Curve25519Dalek/Funs.lean`.
+`shared/dalek/patches/` and `shared/dalek/inline-table.py` hold the hand edits of
+`Curve25519Dalek/Funs.lean`.
