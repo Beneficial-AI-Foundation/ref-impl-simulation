@@ -20,25 +20,35 @@ set_option maxHeartbeats 1000000
 set_option maxRecDepth 2048
 open ristretto_ref
 
-/-- [ristretto_ref::field::fe_lit]:
-    Source: 'src/field.rs', lines 18:0-18:73
+/-- [ristretto_ref::field::fe_from_bytes]:
+    Source: 'src/field.rs', lines 41:0-43:1
     Visibility: public -/
-axiom field.fe_lit : Std.U32 → Result field.Fe
+axiom field.fe_from_bytes : Array Std.U8 32#usize → Result field.Fe
 
-/-- [ristretto_ref::field::fe_add]:
-    Source: 'src/field.rs', lines 19:0-19:51
+/-- [ristretto_ref::field::fe_mul]:
+    Source: 'src/field.rs', lines 21:0-21:51
     Visibility: public -/
-axiom field.fe_add : field.Fe → field.Fe → Result field.Fe
+axiom field.fe_mul : field.Fe → field.Fe → Result field.Fe
 
 /-- [ristretto_ref::field::fe_sub]:
     Source: 'src/field.rs', lines 20:0-20:51
     Visibility: public -/
 axiom field.fe_sub : field.Fe → field.Fe → Result field.Fe
 
-/-- [ristretto_ref::field::fe_mul]:
-    Source: 'src/field.rs', lines 21:0-21:51
+/-- [ristretto_ref::field::fe_add]:
+    Source: 'src/field.rs', lines 19:0-19:51
     Visibility: public -/
-axiom field.fe_mul : field.Fe → field.Fe → Result field.Fe
+axiom field.fe_add : field.Fe → field.Fe → Result field.Fe
+
+/-- [ristretto_ref::field::fe_lit]:
+    Source: 'src/field.rs', lines 18:0-18:73
+    Visibility: public -/
+axiom field.fe_lit : Std.U32 → Result field.Fe
+
+/-- [ristretto_ref::scalar::sc_bit]:
+    Source: 'src/scalar.rs', lines 22:0-22:57
+    Visibility: public -/
+axiom scalar.sc_bit : scalar.Scalar → Std.Usize → Result Bool
 
 /-- [ristretto_ref::field::fe_sq]:
     Source: 'src/field.rs', lines 23:0-23:48
@@ -59,11 +69,6 @@ axiom field.fe_is_negative : field.Fe → Result Bool
     Source: 'src/field.rs', lines 31:0-39:1
     Visibility: public -/
 axiom field.fe_pow_p58 : field.Fe → Result field.Fe
-
-/-- [ristretto_ref::field::fe_from_bytes]:
-    Source: 'src/field.rs', lines 41:0-43:1
-    Visibility: public -/
-axiom field.fe_from_bytes : Array Std.U8 32#usize → Result field.Fe
 
 /-- [ristretto_ref::field::fe_to_bytes]:
     Source: 'src/field.rs', lines 45:0-50:1

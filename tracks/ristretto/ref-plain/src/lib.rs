@@ -1,8 +1,11 @@
 //! Hand port of `decode`, `encode` and their helpers from hacspec/specs
 //! ristretto/src/ristretto.rs (commit c511110d) to plain Rust. Field arithmetic is
 //! behind the opaque `field` module. The order of the field operations is the order of
-//! the spec. Each function names the spec function it ports.
+//! the spec. Each function names the spec function it ports. The module `edwards` ports
+//! the scalar multiplication of hacspec/specs edwards25519.
+pub mod edwards;
 pub mod field;
+pub mod scalar;
 use field::*;
 
 /// hacspec: `(FieldElement, FieldElement, FieldElement, FieldElement)`.

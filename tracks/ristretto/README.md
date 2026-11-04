@@ -8,7 +8,9 @@ On the other inputs, the two points have the same four coordinates. The theorem 
 standard axioms. For encoding, `RistrettoPoint::compress` returns without panic for every
 point with limbs below `2^53`, and it returns the bytes of the reference `encode`. The
 theorem is `RistrettoSim.compress_refines`. Its only premise is the limb bound, and it uses
-only the three standard axioms.
+only the three standard axioms. For scalar multiplication, only the reference side is proved.
+The reference `point_mul` computes `s • P` in the group of edwards25519. The theorem is
+`RistrettoSim.point_mul_spec`, and it uses only the three standard axioms.
 
 All paths are relative to `tracks/ristretto/`, except the paths that start with `shared/` or
 `scripts/`. Those are relative to the repository root.
@@ -18,6 +20,7 @@ All paths are relative to `tracks/ristretto/`, except the paths that start with 
 | Role | Code | Commit |
 |---|---|---|
 | Reference | [`hacspec/specs` `ristretto/src/ristretto.rs`](https://github.com/hacspec/specs/blob/c511110d6f4bb4628da193a2c8e44c928d9555b8/ristretto/src/ristretto.rs), old hacspec | `c511110d` |
+| Reference for scalar multiplication | [`hacspec/specs` `edwards25519/src/edwards25519.rs`](https://github.com/hacspec/specs/blob/c511110d6f4bb4628da193a2c8e44c928d9555b8/edwards25519/src/edwards25519.rs), `point_add`, `point_identity`, `point_mul` | `c511110d` |
 | Reference library | [`hacspec/hacspec` `lib/`](https://github.com/hacspec/hacspec/tree/4ecc847fc944fe996e19423aa41f002f2039dab0/lib) | `4ecc847f` |
 | Real | curve25519-dalek 4.2.0 as modified by `curve25519-dalek-lean-verify`, the copy of track B (`../x25519/real-dalek/curve25519-dalek`) | `26d49052` |
 
@@ -55,8 +58,20 @@ with the `fiat` backend or with `curve25519_dalek_bits = "32"`. For encoding, th
 premise of section 3 must also hold for the points that libsignal passes to `compress`. No
 theorem here shows this.
 
-The theorems do not cover the group operations,
-scalar multiplication, `from_uniform_bytes`, constant time or the erasure of secrets.
+The reference for Ristretto scalar multiplication is `encode ∘ point_mul k` of the
+edwards25519 spec, not the `mul` of the Ristretto spec. The Ristretto `add` is a dedicated
+formula. For two inputs that are the same Ristretto point, it returns `(0, 0, 0, 0)`. `mul`
+reaches this case for the identity and every `k` with `k mod l ≠ 0`. `(0, 0, 0, 0)` has
+`Z = 0`, so it is not a valid representative, but `encode` maps it to the identity bytes. The
+edwards25519 `point_add` is complete and keeps `Z ≠ 0`. Both specs use the same field, the
+same scalar modulus `l` and the same `(X, Y, Z, T)` layout. Rust tests compare the two
+references in bytes, and show the `Z = 0` result of the Ristretto `mul` (section 6).
+`point_mul_spec` covers `point_mul` only. No theorem covers the decoding of the scalar bytes.
+No theorem gives the `Rep` premise for a decoded point. No theorem composes the result with
+`encode`.
+
+The theorems do not cover the real side of scalar multiplication, the other group operations,
+`from_uniform_bytes`, constant time or the erasure of secrets.
 
 ## 2. Translation
 
@@ -77,8 +92,17 @@ the spec. It also makes these changes:
 3. `is_negative`, `eq` and the exponent of `sqrt_ratio_m1` are calls into `field`
    (`fe_is_negative`, `fe_eq`, `fe_pow_p58`), with the expressions of the spec.
 
-In Lean, the field module is written by hand over `ZMod (2^255 - 19)`
-(`lean/RistrettoRef/FunsExternal.lean`, section 4).
+`ref-plain/src/edwards.rs` ports `point_add`, `point_identity` and `point_mul` of the
+edwards25519 spec in the same way. The scalars become calls into a module `scalar`
+(`ref-plain/src/scalar.rs`), which wraps hacspec's `nat_mod` type mod `l`, with the same
+definition as the spec. Charon treats it as opaque. The port makes two changes:
+
+1. The `for` loop of `point_mul` is a `while` loop.
+2. `point_add` gets the constant `d` from `d()` of the Ristretto port. The spec decodes
+   `CONSTANT_D`, which has the same little-endian bytes.
+
+In Lean, the field module is written by hand over `ZMod (2^255 - 19)` and the scalar module
+over `ZMod l` (`lean/RistrettoRef/FunsExternal.lean`, section 4).
 
 Real. The real side comes from the shared library of tracks B and D
 ([`shared/dalek`](../../shared/dalek/README.md)), which the Lake project requires. The
@@ -156,16 +180,52 @@ point has limbs below `2^52`, so the premise of `compress_refines` holds.
 The theorems do not prove that `encode (decode b) = b` for an accepted `b`. That is a
 fact about the reference alone, and only the tests of section 6 check it.
 
+The scalar multiplication theorem is `RistrettoSim.point_mul_spec`
+(`lean/Sim/ScalarMul.lean`). It is a theorem about the reference only:
+
+```lean
+def Rep (Q : ExtPt) (P : Point dEd) : Prop :=
+  Q.2.2.1 ≠ 0 ∧ Q.1 * Q.2.1 = Q.2.2.1 * Q.2.2.2 ∧ (Q.1 / Q.2.2.1, Q.2.1 / Q.2.2.1) = P.1
+
+theorem point_mul_spec (s : scalar.Scalar) (Q : ExtPt) (P : Point dEd) (h : Rep Q P) :
+    ristretto_ref.edwards.point_mul s Q ⦃ r => Rep r (scVal s • P) ⦄
+```
+
+`Point dEd` is the group of the affine points of edwards25519
+(`shared/dalek/lean/DalekSim/Edwards.lean`). `Rep Q P` states that the extended coordinates
+`Q = (X, Y, Z, T)` stand for the affine point `P = (X / Z, Y / Z)`, with `Z ≠ 0` and
+`X Y = Z T`. The premise `h` states that the input stands for a point of the curve. The
+reference has no separate doubling formula: it doubles with `point_add p p`. The lemma
+`addExt_rep` shows that `point_add` maps two represented points to their sum. It uses the
+completeness of the addition, so the two points can be equal.
+
+The reference reads the scalar as an element of `ZMod l`, so it multiplies by `scVal s`, the
+canonical representative below `l`. dalek multiplies by the integer of the scalar bytes. That
+integer is below `2^255`, but it is not always below `l`: dalek's `Scalar` invariant allows
+clamped scalars. `from_bytes_mod_order`, which the tests use, gives a value below `l`. The
+real-side theorem must state its scalar premise. Three corollaries relate the two readings. If `(k : ZMod l) = s`, then:
+
+1. `point_mul_spec_nat`: the result represents `(k mod l) • P`.
+2. `point_mul_spec_lt`: if `k < l`, the result represents `k • P`.
+3. `point_mul_spec_order`: if `l • P = 0`, the result represents `k • P`.
+
+`Point dEd` is the full group of the curve, so `k • P` and `(k mod l) • P` can differ. For
+example, `(0, -1)` has order 2 and `l` is odd, so `l • (0, -1) = (0, -1)` and
+`(l mod l) • (0, -1) = 0`. Either premise `k < l` or `l • P = 0` is enough for equality. The order of the group is `8 l`, a known fact that no theorem here proves or uses.
+
 ## 4. Assumptions
 
 Premises. `decompress_refines` has none. `compress_refines` has the limb bound of
-section 3.
+section 3. `point_mul_spec` has the premise that the input represents a point of the curve,
+and its corollaries for a natural number `k` add `(k : ZMod l) = s`. `point_mul_spec_lt` also
+needs `k < l`, and `point_mul_spec_order` also needs `l • P = 0`.
 
 Trusted definitions. `#print axioms` does not show them.
 
 1. The port to plain Rust computes the same as the hacspec spec. Its Rust tests compare
    `decode` and `encode` of the port with the unchanged spec, and the round trip with dalek
-   5.0.0 (section 6).
+   5.0.0 (section 6). Further tests compare `point_mul` of the port with the unchanged
+   edwards25519 spec.
 2. The Lean field model computes the same as hacspec's `nat_mod`. `field.Fe` is
    `ZMod (2^255 - 19)` (`lean/RistrettoRef/TypesExternal.lean`). `fe_add`, `fe_sub`,
    `fe_mul` and `fe_sq` are the ring operations. `fe_eq` is equality. `fe_is_negative` tests
@@ -175,6 +235,12 @@ Trusted definitions. `#print axioms` does not show them.
    Its canonical representative is `(p - 5) / 8`, because 8 divides `p - 5`.
    `RistrettoSim.p58_field` proves that `((p - 5) / 8) * 8 = -5` in `ZMod p`. `fe_from_bytes` decodes all 256 bits little-endian and reduces mod `p`.
    `fe_to_bytes` encodes the canonical representative. `fe_lit` is the cast of a number.
+   The Lean scalar model computes the same as hacspec's `nat_mod` mod `l`. `scalar.Scalar`
+   is `ZMod l`. For `i < 256`, `sc_bit s i` is bit `i` of the canonical representative of
+   `s`. For `i ≥ 256`, hacspec panics and `sc_bit` fails. A Lean `example` in
+   `Sim/ScalarMul.lean` checks that `scalar.l` equals the hex modulus of the Rust code. It
+   can detect a mismatch between the two written constants, but it does not read the Rust
+   source.
 3. The 7 hand definitions for `subtle` on the real side
    (`shared/dalek/lean/Curve25519Dalek/FunsExternal.lean`) and the type `subtle.Choice`
    (`shared/dalek/lean/Curve25519Dalek/TypesExternal.lean`). A `Choice` carries a proof that
@@ -188,7 +254,9 @@ Trusted definitions. `#print axioms` does not show them.
    theorem holds for that copy.
 
 Axioms. `lean/Sim/Axioms.lean` checks with `#guard_msgs` that `decompress_refines`,
-`compress_refines`, `decompress_compress_refines` and `sqrt_ratio_i_refines` depend only on `propext`, `Classical.choice` and `Quot.sound`, and that `p58_field` depends on `propext` and `Quot.sound`.
+`compress_refines`, `decompress_compress_refines`, `sqrt_ratio_i_refines`, `addExt_rep`,
+`point_mul_spec` and its three corollaries depend only on `propext`, `Classical.choice` and
+`Quot.sound`, and that `p58_field` depends on `propext` and `Quot.sound`.
 
 ## 5. Proof structure
 
@@ -202,6 +270,7 @@ Axioms. `lean/Sim/Axioms.lean` checks with `#guard_msgs` that `decompress_refine
 | `Sim/GeqP.lean` | 118 | The reference `geq_p` loop computes `p ≤ x` |
 | `Sim/Decode.lean` | 378 | `step_1`, `invsqrt`, `step_2`, the reference `decode` in three cases, and `decompress_refines` |
 | `Sim/Encode.lean` | 253 | The reference `encode` in closed form, `compress_refines` and `decompress_compress_refines` |
+| `Sim/ScalarMul.lean` | 206 | The reference `point_add` against the affine group law, the loop of `point_mul`, `point_mul_spec` and its corollaries for natural numbers |
 
 The base-256 digit lemmas, the slice `ct_eq` on 32 bytes, the field `ct_eq` mod `p`, the limb bound `Bnd`, `bnd_mono`
 and the `Result` lemma `exists_ok_of_spec` do not depend on the reference. They are in the library `DalekSim` of
@@ -217,6 +286,11 @@ compares `to_bytes` of the result with the input. The reference rejects inputs `
 the loop `geq_p`. `step_1_z` and `geq_p_spec` show that both tests reject exactly the inputs
 `≥ p`. Second, the `subtle` tests return a `Choice`, and the reference returns a `bool`.
 For each `Choice` lemma, the statement gives the condition for the value 1.
+
+The scalar multiplication proof is about the reference only. It substitutes `X = x Z`,
+`Y = y Z` and `T = x y Z` and compares the result of `point_add` with the affine formula of
+`DalekSim.Edwards.add` by cross-multiplication. The completeness lemmas of that file show that
+the denominators are not 0. The loop proof is an induction on the number of remaining bits.
 
 No proof in `lean/Sim/` sets `maxHeartbeats` or `maxRecDepth`. Some of the field specs of
 the shared library set `maxRecDepth 4096`, as in track B.
@@ -234,6 +308,20 @@ the shared library set `maxRecDepth 4096`, as in track B.
    `decode` does not return: each A.1 point scaled by 20 random factors, and 500 random
    tuples. A last test runs the port's `sqrt_ratio_m1` on the 6 vectors of RFC 9496 A.4.
    The spec and dalek keep this function private, so the test checks only the port.
+   `tests/edwards.rs` runs `point_mul` on 12 points (the first 12 encodings of RFC 9496 A.1,
+   decoded) and 53 scalars (0, 1, 2, 3, `l - 1`, `l - 2`, `l`, `l + 1`, `2 l`, `2^252`,
+   `2^252 - 1`, `2^255`, `2^256 - 1` and 40 random 32-byte strings, reduced mod `l`). For
+   each of the 636 cases, it compares the four coordinates of the port and of the unchanged
+   edwards25519 spec. It also compares `encode (point_mul k P)` of the port with
+   `encode (mul k P)` of the unchanged Ristretto spec and with `k * P` of dalek 5.0.0, in
+   bytes. A second test compares the four coordinates on inputs that `decode` does not
+   return: three of the points scaled by 7, and the order-2 point `(0, -1, 1, 0)`. A third
+   test does not use hacspec as the oracle. It checks that a scaled input gives the same
+   affine result, and that on `(0, -1)` the scalars `l` and `2 l` give the identity and
+   `l + 1` gives `(0, -1)`. A fourth test shows that the Ristretto `mul` of 2 and the identity
+   is `(0, 0, 0, 0)` and that the port keeps `Z ≠ 0`. Two tests check `sc_bit`: on `l - 1` it gives the bits of `l - 1`, on `l`
+   it gives 0, and at index 256 it panics. The tests use `opt-level = 3`, because
+   the big-integer arithmetic of hacspec is slow without it.
 2. `lake build` in `lean/` passes. No file in `lean/` or in
    `shared/dalek/lean/Curve25519Dalek/` has a `sorry`.
 3. `Sim/Axioms.lean` checks the axiom lists of section 4 with `#guard_msgs`.
@@ -260,10 +348,13 @@ Strengths:
 1. The decoding theorem covers every 32-byte input. It has no premises. The encoding
    theorem covers every tuple with the limb bound of a valid point. The axioms are only the
    standard three.
-2. The relation is equality of the four coordinates in the field, which is stronger than
-   equality in the Ristretto group.
-3. The proof does not depend on the group law of Edwards curves. dalek-lean's statement of
-   that law depends on a `sorry` (`add_assoc_Ed25519`).
+2. The relation of the decoding theorem is equality of the four coordinates in the field,
+   which is stronger than equality in the Ristretto group. The relation of `point_mul_spec`
+   is `Rep`, equality of the affine points.
+3. The decoding and encoding proofs do not depend on the group law of Edwards curves.
+   dalek-lean's statement of that law depends on a `sorry` (`add_assoc_Ed25519`). The
+   scalar multiplication proof uses the group law of `shared/dalek/lean/DalekSim/Edwards.lean`,
+   which has no `sorry` and uses only the standard axioms.
 4. The real side has no axioms. All `subtle` functions on the path have definitions.
 5. The proved path is the decoding and encoding code of libsignal's builds with 64-bit limbs, apart from
    the reviewed edits of section 1.
@@ -275,7 +366,8 @@ Weaknesses:
    on review and on the tests of section 6.
 3. The `subtle` definitions state the result of constant-time code. The theorem says
    nothing about constant time.
-4. The theorems cover decoding and encoding only. Scalar multiplication is a later stage.
+4. For scalar multiplication, only the reference side is proved. No theorem relates it to
+   dalek's code.
 5. No theorem states that `encode (decode b) = b`. Only tests check it.
 
 ## 8. Reproduce
@@ -293,7 +385,7 @@ The extraction commands of the reference. Run them in `ref-plain/`, with the Aen
 of `.aeneas/` on `PATH`:
 
 ```bash
-charon cargo --preset=aeneas --start-from crate::decode --start-from crate::encode --opaque crate::field -- --offline
+charon cargo --preset=aeneas --start-from crate::decode --start-from crate::encode --start-from crate::edwards::point_mul --opaque crate::field --opaque crate::scalar -- --offline
 aeneas -backend lean -split-files -loops-to-rec -namespace ristretto_ref -dest Ref ristretto_ref.llbc
 ```
 

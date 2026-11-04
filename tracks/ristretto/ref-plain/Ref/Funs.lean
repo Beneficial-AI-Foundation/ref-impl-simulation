@@ -24,13 +24,8 @@ noncomputable section
 
 namespace ristretto_ref
 
-/-- [ristretto_ref::DECODING_ERROR]
-    Source: 'src/lib.rs', lines 15:0-15:36
-    Visibility: public -/
-@[global_simps, irreducible] def DECODING_ERROR : Std.U8 := 20#u8
-
 /-- [ristretto_ref::d]:
-    Source: 'src/lib.rs', lines 18:0-24:1
+    Source: 'src/lib.rs', lines 21:0-27:1
     Visibility: public -/
 def d : Result field.Fe := do
   field.fe_from_bytes
@@ -41,8 +36,86 @@ def d : Result field.Fe := do
       238#u8, 108#u8, 3#u8, 82#u8
       ])
 
+/-- [ristretto_ref::edwards::point_add]:
+    Source: 'src/edwards.rs', lines 13:0-32:1
+    Visibility: public -/
+def edwards.point_add
+  (p : (field.Fe × field.Fe × field.Fe × field.Fe))
+  (q : (field.Fe × field.Fe × field.Fe × field.Fe)) :
+  Result (field.Fe × field.Fe × field.Fe × field.Fe)
+  := do
+  let d_c ← d
+  let two ← field.fe_lit 2#u32
+  let (x1, y1, z1, t1) := p
+  let (x2, y2, z2, t2) := q
+  let f ← field.fe_sub y1 x1
+  let f1 ← field.fe_sub y2 x2
+  let a ← field.fe_mul f f1
+  let f2 ← field.fe_add y1 x1
+  let f3 ← field.fe_add y2 x2
+  let b ← field.fe_mul f2 f3
+  let f4 ← field.fe_mul t1 two
+  let f5 ← field.fe_mul f4 d_c
+  let c ← field.fe_mul f5 t2
+  let f6 ← field.fe_mul z1 two
+  let d1 ← field.fe_mul f6 z2
+  let e ← field.fe_sub b a
+  let f7 ← field.fe_sub d1 c
+  let g ← field.fe_add d1 c
+  let h ← field.fe_add b a
+  let x3 ← field.fe_mul e f7
+  let y3 ← field.fe_mul g h
+  let t3 ← field.fe_mul e h
+  let z3 ← field.fe_mul f7 g
+  ok (x3, y3, z3, t3)
+
+/-- [ristretto_ref::edwards::point_identity]:
+    Source: 'src/edwards.rs', lines 35:0-37:1
+    Visibility: public -/
+def edwards.point_identity
+  : Result (field.Fe × field.Fe × field.Fe × field.Fe) := do
+  let f ← field.fe_lit 0#u32
+  let f1 ← field.fe_lit 1#u32
+  ok (f, f1, f1, f)
+
+/-- [ristretto_ref::edwards::point_mul]: loop 0:
+    Source: 'src/edwards.rs', lines 44:4-50:5
+    Visibility: public -/
+@[rust_loop]
+def edwards.point_mul_loop
+  (s : scalar.Scalar) (p : (field.Fe × field.Fe × field.Fe × field.Fe))
+  (q : (field.Fe × field.Fe × field.Fe × field.Fe)) (i : Std.Usize) :
+  Result (field.Fe × field.Fe × field.Fe × field.Fe)
+  := do
+  if i < 256#usize
+  then
+    let b ← scalar.sc_bit s i
+    let q1 ← if b
+               then edwards.point_add q p
+               else ok q
+    let p1 ← edwards.point_add p p
+    let i1 ← i + 1#usize
+    edwards.point_mul_loop s p1 q1 i1
+  else ok q
+partial_fixpoint
+
+/-- [ristretto_ref::edwards::point_mul]:
+    Source: 'src/edwards.rs', lines 40:0-52:1
+    Visibility: public -/
+def edwards.point_mul
+  (s : scalar.Scalar) (p : (field.Fe × field.Fe × field.Fe × field.Fe)) :
+  Result (field.Fe × field.Fe × field.Fe × field.Fe)
+  := do
+  let q ← edwards.point_identity
+  edwards.point_mul_loop s p q 0#usize
+
+/-- [ristretto_ref::DECODING_ERROR]
+    Source: 'src/lib.rs', lines 18:0-18:36
+    Visibility: public -/
+@[global_simps, irreducible] def DECODING_ERROR : Std.U8 := 20#u8
+
 /-- [ristretto_ref::sqrt_m1]:
-    Source: 'src/lib.rs', lines 27:0-33:1
+    Source: 'src/lib.rs', lines 30:0-36:1
     Visibility: public -/
 def sqrt_m1 : Result field.Fe := do
   field.fe_from_bytes
@@ -54,7 +127,7 @@ def sqrt_m1 : Result field.Fe := do
       ])
 
 /-- [ristretto_ref::invsqrt_a_minus_d]:
-    Source: 'src/lib.rs', lines 36:0-42:1
+    Source: 'src/lib.rs', lines 39:0-45:1
     Visibility: public -/
 def invsqrt_a_minus_d : Result field.Fe := do
   field.fe_from_bytes
@@ -66,7 +139,7 @@ def invsqrt_a_minus_d : Result field.Fe := do
       ])
 
 /-- [ristretto_ref::geq_p]: loop 0:
-    Source: 'src/lib.rs', lines 53:4-60:5
+    Source: 'src/lib.rs', lines 56:4-63:5
     Visibility: public -/
 @[rust_loop]
 def geq_p_loop
@@ -87,7 +160,7 @@ def geq_p_loop
 partial_fixpoint
 
 /-- [ristretto_ref::geq_p]:
-    Source: 'src/lib.rs', lines 45:0-62:1
+    Source: 'src/lib.rs', lines 48:0-65:1
     Visibility: public -/
 @[reducible]
 def geq_p (x : Array Std.U8 32#usize) : Result Bool := do
@@ -100,19 +173,19 @@ def geq_p (x : Array Std.U8 32#usize) : Result Bool := do
       ]) true 0#usize
 
 /-- [ristretto_ref::is_negative]:
-    Source: 'src/lib.rs', lines 65:0-67:1
+    Source: 'src/lib.rs', lines 68:0-70:1
     Visibility: public -/
 def is_negative (e : field.Fe) : Result Bool := do
   field.fe_is_negative e
 
 /-- [ristretto_ref::eq]:
-    Source: 'src/lib.rs', lines 70:0-72:1
+    Source: 'src/lib.rs', lines 73:0-75:1
     Visibility: public -/
 def eq (u : field.Fe) (v : field.Fe) : Result Bool := do
   field.fe_eq u v
 
 /-- [ristretto_ref::select]:
-    Source: 'src/lib.rs', lines 75:0-77:1
+    Source: 'src/lib.rs', lines 78:0-80:1
     Visibility: public -/
 def select (u : field.Fe) (cond : Bool) (v : field.Fe) : Result field.Fe := do
   if cond
@@ -120,14 +193,14 @@ def select (u : field.Fe) (cond : Bool) (v : field.Fe) : Result field.Fe := do
   else ok v
 
 /-- [ristretto_ref::neg_fe]:
-    Source: 'src/lib.rs', lines 80:0-82:1
+    Source: 'src/lib.rs', lines 83:0-85:1
     Visibility: public -/
 def neg_fe (u : field.Fe) : Result field.Fe := do
   let f ← field.fe_lit 0#u32
   field.fe_sub f u
 
 /-- [ristretto_ref::abs]:
-    Source: 'src/lib.rs', lines 85:0-87:1
+    Source: 'src/lib.rs', lines 88:0-90:1
     Visibility: public -/
 def abs (u : field.Fe) : Result field.Fe := do
   let f ← neg_fe u
@@ -135,7 +208,7 @@ def abs (u : field.Fe) : Result field.Fe := do
   select f b u
 
 /-- [ristretto_ref::sqrt_ratio_m1]:
-    Source: 'src/lib.rs', lines 90:0-109:1
+    Source: 'src/lib.rs', lines 93:0-112:1
     Visibility: public -/
 def sqrt_ratio_m1
   (u : field.Fe) (v : field.Fe) : Result (Bool × field.Fe) := do
@@ -167,7 +240,7 @@ def sqrt_ratio_m1
   else ok (flipped_sign_sqrt, r2)
 
 /-- [ristretto_ref::encode]:
-    Source: 'src/lib.rs', lines 112:0-141:1
+    Source: 'src/lib.rs', lines 115:0-144:1
     Visibility: public -/
 def encode
   (u : (field.Fe × field.Fe × field.Fe × field.Fe)) :
@@ -206,7 +279,7 @@ def encode
   field.fe_to_bytes s
 
 /-- [ristretto_ref::decode]:
-    Source: 'src/lib.rs', lines 144:0-172:1
+    Source: 'src/lib.rs', lines 147:0-175:1
     Visibility: public -/
 def decode
   (u : Array Std.U8 32#usize) :
