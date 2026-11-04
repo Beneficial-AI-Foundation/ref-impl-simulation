@@ -33,7 +33,8 @@ section DblKey
 variable {d x y : F} (hd' : 121666 * d = -121665) (hc : -x ^ 2 + y ^ 2 = 1 + d * x ^ 2 * y ^ 2)
 include hd' hc
 
-/-- `1 + d y² ≠ 0` for `(x, y)` on the curve: otherwise `y² = 1`, so `d = -1`. -/
+/-- `1 + d y² ≠ 0` for `(x, y)` on the curve: otherwise `y² = 1`, so `d = -1`, against
+`121666 d = -121665`. -/
 theorem one_add_d_sq_ne_zero : 1 + d * y ^ 2 ≠ 0 := by
   intro h
   have hy : y ^ 2 = 1 := by linear_combination hc + x ^ 2 * h
@@ -48,7 +49,7 @@ theorem dbl_key : (1 + x ^ 2) * (1 + 121665 * (1 - y ^ 2)) = y ^ 2 := by
   linear_combination (mul_eq_zero.mp this).resolve_left (one_add_d_sq_ne_zero hd' hc)
 
 /-- `1 + 121665 (1 - y²) ≠ 0` for `(x, y)` on the curve: otherwise `y = 0` by `dbl_key`, so
-`d = -1`. -/
+`121666 = 0`, against `121666 d = -121665`. -/
 theorem dbl_factor_ne_zero : 1 + 121665 * (1 - y ^ 2) ≠ 0 := by
   intro h0
   have hk := dbl_key hd' hc

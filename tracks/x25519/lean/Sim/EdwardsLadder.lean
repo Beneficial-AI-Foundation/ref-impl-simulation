@@ -9,9 +9,9 @@ On `-x² + y² = 1 + d x² y²` with `Complete d` and `121666 d = -121665`:
 
 1. `dbl_rep`: `dbl (rep P)` is `rep (P + P)` times a nonzero factor, for every point `P`.
 2. `dadd_rep`: `dadd u (rep P) (rep Q)` is `rep (P + Q)` times a nonzero factor, if
-   `u (1 - y_D) = 1 + y_D` for the y-coordinate `y_D` of `P - Q`, and `u ≠ 0`. Both the
-   identity and `(0, -1)` have `toU = 0`, so the hypotheses exclude `P = Q` and
-   `P - Q = (0, -1)`. `P`, `Q` or `P + Q` can be the identity, and `P` and `Q` can be
+   `u (1 - y_D) = 1 + y_D` for the y-coordinate `y_D` of `P - Q`, and `u ≠ 0`. With `u ≠ 0`,
+   the hypotheses hold exactly when `u = toU y_D`. Both the identity and `(0, -1)` have
+   `toU = 0`, so the hypotheses exclude `P = Q` and `P - Q = (0, -1)`. `P`, `Q` or `P + Q` can be the identity, and `P` and `Q` can be
    negatives of each other.
 3. `ladder_rep`: if `u ≠ 0` is the u-coordinate of `B`, the ladder over `bits` takes
    `(n • B, (n + 1) • B)` to `(m • B, (m + 1) • B)` with `m = bitsVal n bits`, up to nonzero

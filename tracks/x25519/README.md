@@ -582,7 +582,8 @@ that `toU_dblY` and `dbl_rep` share. The Curve25519 constant `d` and its two fac
 `rep (x, y) = (1 + y : 1 - y)`, and the identity has `rep = (2 : 0)`. `dbl_rep` and
 `dadd_rep` equate projective points up to a nonzero factor, not only encodings. `dadd_rep`
 needs `u (1 - y_D) = 1 + y_D` for the y-coordinate `y_D` of the difference, and `u ≠ 0`.
-Both the identity and `(0, -1)` have `toU = 0`, so these hypotheses exclude `P = Q` and
+With `u ≠ 0`, these hypotheses hold exactly when `u = toU y_D`. Both the identity and
+`(0, -1)` have `toU = 0`, so these hypotheses exclude `P = Q` and
 `P - Q = (0, -1)`. The ladder keeps the
 difference equal to `B`, so the invariant `ladder_rep` has no exceptional state. A state
 can hold the identity, or two points that are negatives of each other. Only the final
