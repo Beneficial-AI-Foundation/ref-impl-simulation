@@ -5,9 +5,10 @@ Aeneas writes the basepoint table ED25519_BASEPOINT_TABLE_INNER_DOC_HIDDEN as on
 definition: 768 binds `let feN <- FieldElement51.from_limbs (Array.make 5#usize [...])`, then
 `ok` of a 32 x 8 array of AffineNielsPoint records. The script replaces the body with one
 `ok` of the literal, where each `feN` is its array. The two bodies are equal, because
-`from_limbs` is `ok limbs`. The script stops if the file has another body of `from_limbs`.
+`from_limbs` is `ok limbs`. The script stops if `from_limbs` has another body, up to the next docstring.
 `Result.bind` is a `partial_fixpoint`, so `bind (ok x) f` is equal to `f x` only by the
-theorem `bind_ok`, not by reduction. A proof can read the table only after this edit.
+theorem `bind_ok`, not by reduction. The edit lets `decide +kernel` read the table. A proof
+by `bind_ok` does not need it, but `simp` on the 768 binds exceeds the default limits.
 Lean does not check that the two bodies are equal, so this edit is in the trusted base.
 
 Usage: inline-table.py <Funs.lean>. The script edits the file in place. It stops with an
@@ -27,7 +28,7 @@ FROM_LIMBS = (
     "  (limbs : Array Std.U64 5#usize) :\n"
     "  Result backend.serial.u64.field.FieldElement51\n"
     "  := do\n"
-    "  ok limbs\n\n")
+    "  ok limbs\n\n/--")
 
 
 def main(path):

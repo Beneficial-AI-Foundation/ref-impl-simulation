@@ -44,9 +44,11 @@ The script writes the clean Aeneas output to `extract/`. It copies `Funs.lean` a
    `ED25519_BASEPOINT_TABLE_INNER_DOC_HIDDEN` as 768 monadic binds of
    `FieldElement51::from_limbs`, then `ok` of the 32 x 8 array. The script replaces the
    body with one `ok` of the literal. The two bodies are equal, because `from_limbs` is
-   `ok limbs`. The script stops if `from_limbs` has another body. `Result.bind` is a
-   `partial_fixpoint`, so the binds do not reduce, and a proof can read the table only after
-   this edit. As a patch, the edit has more than 5,000 lines.
+   `ok limbs`. The script stops if `from_limbs` has another body, up to the next docstring.
+   `Result.bind` is a `partial_fixpoint`, so the binds do not reduce. The edit lets
+   `decide +kernel` read the table. A proof by the theorem `bind_ok` does not need the edit,
+   but `simp` on the 768 binds exceeds the default limits. As a patch, the edit has more
+   than 5,000 lines.
 
 Lean does not check that the edited files are equal to the Aeneas output. The edits are in
 the trusted base (README section 3, part 5). `basepoint_table` holds for the table after
