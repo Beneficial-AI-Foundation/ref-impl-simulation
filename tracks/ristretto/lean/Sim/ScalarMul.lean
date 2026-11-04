@@ -23,7 +23,8 @@ namespace RistrettoSim
 
 open DalekSim DalekSim.Edwards
 
-/-- Extended coordinates `(X, Y, Z, T)` over `ZMod p`. -/
+/-- Extended coordinates `(X, Y, Z, T)` over `ZMod p`. This is `RefPt` by definition. `RefPt`
+uses `field.Fe`, which has no division, and `Rep` divides. -/
 abbrev ExtPt := ZMod p × ZMod p × ZMod p × ZMod p
 
 /-- `Q = (X, Y, Z, T)` represents the affine point `P = (X / Z, Y / Z)`, with `Z ≠ 0` and
@@ -31,8 +32,8 @@ abbrev ExtPt := ZMod p × ZMod p × ZMod p × ZMod p
 def Rep (Q : ExtPt) (P : Point dEd) : Prop :=
   Q.2.2.1 ≠ 0 ∧ Q.1 * Q.2.1 = Q.2.2.1 * Q.2.2.2 ∧ (Q.1 / Q.2.2.1, Q.2.1 / Q.2.2.1) = P.1
 
-/-- The formula of the reference `point_add`, over `ZMod p`. It returns `RefPt`, the type of the
-reference, which is `ExtPt` by definition. -/
+/-- The formula of the reference `point_add`, over `ZMod p`. It returns `RefPt`, so that
+`ref_point_add` can rewrite the binds of the reference. -/
 def addExt (P Q : ExtPt) : RefPt :=
   let (x1, y1, z1, t1) := P
   let (x2, y2, z2, t2) := Q
@@ -108,11 +109,16 @@ theorem mod_two_pow_succ' (n i : Nat) :
   rw [Nat.mod_pow_succ, Nat.testBit_eq_decide_div_mod_eq]
   rcases Nat.mod_two_eq_zero_or_one (n / 2 ^ i) with h | h <;> simp [h]
 
+/-- The Lean `scalar.l` is the modulus of hacspec `Scalar`, which the Rust code gives in hex. -/
+example : scalar.l = 0x1000000000000000000000000000000014def9dea2f79cd65812631a5cf5d3ed := by
+  norm_num [scalar.l]
+
 /-- The value of a scalar: its canonical representative, below `l`. -/
 def scVal (s : scalar.Scalar) : Nat := (show ZMod scalar.l from s).val
 
-/-- The loop of `point_mul`. Before step `i`, the register `p` represents `2^i • P` and the
-accumulator `q` represents `(s mod 2^i) • P`. -/
+/-- The loop of `point_mul` from step `i`, with `i + n = 256`. If the register `pp` represents
+`2^i • P` and the accumulator `q` represents `(scVal s mod 2^i) • P`, the loop returns a
+representative of `(scVal s mod 2^256) • P`. -/
 theorem point_mul_loop_spec (s : scalar.Scalar) (P : Point dEd) :
     ∀ n, ∀ (i : Usize), i.val + n = 256 → ∀ (pp q : RefPt),
       Rep pp ((2 ^ i.val) • P) → Rep q ((scVal s % 2 ^ i.val) • P) →
@@ -133,16 +139,18 @@ theorem point_mul_loop_spec (s : scalar.Scalar) (P : Point dEd) :
     have hp2 : Rep (addExt pp pp) ((2 ^ (i.val + 1)) • P) := by
       rw [pow_succ, mul_two, add_nsmul]
       exact addExt_rep hp hp
+    have h256 : i.val < 256 := by omega
     have hbit := mod_two_pow_succ' (scVal s) i.val
     by_cases hb : (scVal s).testBit i.val
     · have hb' : (show ZMod scalar.l from s).val.testBit i.val = true := hb
-      simp only [scalar.sc_bit, hb', bind_ok, ref_point_add, ↓reduceIte]
+      simp only [scalar.sc_bit, h256, hb', bind_ok, ref_point_add, ↓reduceIte]
       step as ⟨i1, hi1⟩
       apply ih i1 (by omega) _ _ (by rw [hi1]; exact hp2)
       rw [hi1, hbit, if_pos hb, add_nsmul]
       exact addExt_rep hq hp
     · have hb' : (show ZMod scalar.l from s).val.testBit i.val = false := by simpa [scVal] using hb
-      simp only [scalar.sc_bit, hb', bind_ok, ref_point_add, Bool.false_eq_true, ↓reduceIte]
+      simp only [scalar.sc_bit, h256, hb', bind_ok, ref_point_add, Bool.false_eq_true,
+        ↓reduceIte]
       step as ⟨i1, hi1⟩
       apply ih i1 (by omega) _ _ (by rw [hi1]; exact hp2)
       rw [hi1, hbit, if_neg hb, Nat.add_zero]
@@ -164,10 +172,11 @@ theorem point_mul_spec (s : scalar.Scalar) (Q : ExtPt) (P : Point dEd) (h : Rep 
 The reference reads a scalar as an element of `ZMod l`, so it multiplies by the canonical
 representative below `l`. A caller that starts from a natural number `k`, for example the
 value of 32 bytes, gets `(k mod l) • P`. This is `k • P` if `k < l`, or if `l • P = 0`.
-`Point dEd` is the full group of the curve, of order `8 l`, so `l • P = 0` does not hold for
-every point. -/
+`l • P = 0` does not hold for every point of `Point dEd`, the full group of the curve. For
+example, `(0, -1)` has order 2 and `l` is odd. The order of the group is `8 l`, a known fact
+that no theorem here proves or uses. -/
 
-/-- With the scalar `k mod l`: the reference computes `(k mod l) • P`. -/
+/-- If `s = k` in `ZMod l`, the reference computes `(k mod l) • P`. -/
 theorem point_mul_spec_nat (k : Nat) (s : scalar.Scalar) (hs : ((k : ZMod scalar.l)) = s)
     (Q : ExtPt) (P : Point dEd) (h : Rep Q P) :
     ristretto_ref.edwards.point_mul s Q ⦃ r => Rep r ((k % scalar.l) • P) ⦄ := by
@@ -177,14 +186,14 @@ theorem point_mul_spec_nat (k : Nat) (s : scalar.Scalar) (hs : ((k : ZMod scalar
   rw [← hv]
   exact point_mul_spec s Q P h
 
-/-- If `k < l`, the reference computes `k • P`. -/
+/-- If `s = k` in `ZMod l` and `k < l`, the reference computes `k • P`. -/
 theorem point_mul_spec_lt (k : Nat) (hk : k < scalar.l) (s : scalar.Scalar)
     (hs : ((k : ZMod scalar.l)) = s) (Q : ExtPt) (P : Point dEd) (h : Rep Q P) :
     ristretto_ref.edwards.point_mul s Q ⦃ r => Rep r (k • P) ⦄ := by
   have := point_mul_spec_nat k s hs Q P h
   rwa [Nat.mod_eq_of_lt hk] at this
 
-/-- If `l • P = 0`, the reference computes `k • P` for every `k`. -/
+/-- If `s = k` in `ZMod l` and `l • P = 0`, the reference computes `k • P`. -/
 theorem point_mul_spec_order (k : Nat) (s : scalar.Scalar) (hs : ((k : ZMod scalar.l)) = s)
     (Q : ExtPt) (P : Point dEd) (h : Rep Q P) (hP : scalar.l • P = 0) :
     ristretto_ref.edwards.point_mul s Q ⦃ r => Rep r (k • P) ⦄ := by

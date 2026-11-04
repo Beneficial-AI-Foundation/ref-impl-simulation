@@ -52,6 +52,7 @@ def field.fe_to_bytes (a : field.Fe) : Result (Array Std.U8 32#usize) :=
   let n : Nat := (show ZMod field.p from a).val
   ok (Array.from (List.ofFn (fun (i : Fin 32) => (UScalar.ofNatCore (ty := .U8) (n / 256 ^ i.val % 256) (by simp; omega)))) (by simp))
 
-/-- hacspec `s.bit(i)` on a `Scalar`: bit `i` of the canonical representative, below `l`. -/
+/-- hacspec `s.bit(i)` on a `Scalar`: bit `i` of the canonical representative, below `l`.
+hacspec asserts `i < 256` and panics otherwise. -/
 def scalar.sc_bit (s : scalar.Scalar) (i : Std.Usize) : Result Bool :=
-  ok ((show ZMod scalar.l from s).val.testBit i.val)
+  if i.val < 256 then ok ((show ZMod scalar.l from s).val.testBit i.val) else fail .panic

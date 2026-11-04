@@ -6,9 +6,9 @@ use curve25519_dalek::scalar::Scalar as DalekScalar;
 use hacspec_edwards25519 as he;
 use hacspec_lib::*;
 use hacspec_ristretto as hr;
-use ristretto_ref::edwards::{point_mul, EdPoint};
-use ristretto_ref::field::{fe_from_bytes, fe_to_bytes};
-use ristretto_ref::scalar::sc_from_bytes;
+use ristretto_ref::edwards::{point_identity, point_mul, EdPoint};
+use ristretto_ref::field::{fe_from_bytes, fe_lit, fe_mul, fe_to_bytes};
+use ristretto_ref::scalar::{sc_bit, sc_from_bytes};
 use ristretto_ref::{decode, encode};
 
 type Coords = [[u8; 32]; 4];
@@ -67,15 +67,38 @@ fn le(n: &[u8]) -> [u8; 32] {
     r
 }
 
-/// 48 scalars: 0, 1, 2, 3, l - 1, l - 2, 2^252, 2^252 - 1, and 40 random 32-byte strings.
-/// The random strings use all 256 bits, so most of them are reduced mod l.
+/// l, little-endian.
+fn l_bytes() -> [u8; 32] {
+    hex::<32>("edd3f55c1a631258d69cf7a2def9de1400000000000000000000000000000010")
+}
+
+/// 2 l, little-endian. 2 l is below 2^254, so it fits in 32 bytes.
+fn two_l_bytes() -> [u8; 32] {
+    let l = l_bytes();
+    let mut r = [0u8; 32];
+    let mut carry = 0u8;
+    for i in 0..32 {
+        r[i] = (l[i] << 1) | carry;
+        carry = l[i] >> 7;
+    }
+    r
+}
+
+/// 53 scalars: 0, 1, 2, 3, l - 1, l - 2, l, l + 1, 2 l, 2^252, 2^252 - 1, 2^255, 2^256 - 1, and
+/// 40 random 32-byte strings. The random strings use all 256 bits, so most of them are reduced
+/// mod l.
 fn scalars() -> Vec<[u8; 32]> {
-    let l = hex::<32>("edd3f55c1a631258d69cf7a2def9de1400000000000000000000000000000010");
+    let l = l_bytes();
     let mut l1 = l; l1[0] -= 1;
     let mut l2 = l; l2[0] -= 2;
+    let mut lp1 = l; lp1[0] += 1;
     let mut t = [0u8; 32]; t[31] = 0x10;
     let mut t1 = [0xffu8; 32]; t1[31] = 0x0f;
-    let mut v = vec![le(&[0]), le(&[1]), le(&[2]), le(&[3]), l1, l2, t, t1];
+    let mut h = [0u8; 32]; h[31] = 0x80;
+    let mut v = vec![
+        le(&[0]), le(&[1]), le(&[2]), le(&[3]), l1, l2, l, lp1, two_l_bytes(), t, t1, h,
+        [0xffu8; 32],
+    ];
     let mut x: u64 = 0x6a09_e667_f3bc_c908;
     for _ in 0..40 {
         let mut b = [0u8; 32];
@@ -99,28 +122,76 @@ fn points() -> Vec<[u8; 32]> {
     vectors::MULTIPLES.iter().take(12).copied().collect()
 }
 
-/// The port and the unchanged edwards25519 spec give the same four coordinates.
+/// The order-2 point `(0, -1, 1, 0)`. `-1` is `p - 1`, little-endian.
+fn order_two() -> Coords {
+    let mut m1 = [0xffu8; 32]; m1[0] = 0xec; m1[31] = 0x7f;
+    [[0u8; 32], m1, le(&[1]), [0u8; 32]]
+}
+
+/// `(λX, λY, λZ, λT)` with `λ = 7`: the same affine point with `Z ≠ 1`.
+fn rescale(c: Coords) -> Coords {
+    let lam = fe_lit(7);
+    let f = |b: [u8; 32]| fe_to_bytes(fe_mul(fe_from_bytes(b), lam));
+    [f(c[0]), f(c[1]), f(c[2]), f(c[3])]
+}
+
+/// On the decoded RFC points, the port gives the same four coordinates as the unchanged
+/// edwards25519 spec, and `encode` of the port gives the bytes of the unchanged Ristretto `mul`
+/// and of dalek 5.0.0 (12 points, 53 scalars).
 #[test]
-fn point_mul_matches_edwards_spec() {
+fn point_mul_matches_specs_and_dalek() {
     for b in points() {
-        let p = decode(b).ok().expect("an RFC multiple decodes");
-        let c = port_coords(p);
+        let c = port_coords(decode(b).ok().expect("an RFC multiple decodes"));
         for k in scalars() {
-            assert_eq!(port_mul(k, c), spec_ed_mul(k, c), "k = {:02x?}, P = {:02x?}", k, b);
+            let port = port_mul(k, c);
+            assert_eq!(port, spec_ed_mul(k, c), "edwards25519 spec, k = {:02x?}, P = {:02x?}", k, b);
+            let enc = port_encode(port);
+            assert_eq!(enc, spec_ristretto_mul(k, b), "Ristretto spec, k = {:02x?}, P = {:02x?}", k, b);
+            assert_eq!(enc, dalek_mul(k, b), "dalek, k = {:02x?}, P = {:02x?}", k, b);
         }
     }
 }
 
-/// `encode` of the port's `point_mul` gives the bytes of the hacspec Ristretto `mul` and of
-/// dalek 5.0.0, on 12 points and 48 scalars (576 cases).
+/// The theorem covers every represented point, not only the decoded ones. On a rescaled
+/// input and on the order-2 point, the port gives the same four coordinates as the unchanged
+/// edwards25519 spec.
 #[test]
-fn point_mul_encodes_as_ristretto_mul() {
-    for b in points() {
-        let c = port_coords(decode(b).ok().unwrap());
+fn point_mul_matches_edwards_spec_off_ristretto() {
+    let mut inputs: Vec<Coords> = points().into_iter().take(3)
+        .map(|b| rescale(port_coords(decode(b).ok().unwrap()))).collect();
+    inputs.push(order_two());
+    for c in inputs {
         for k in scalars() {
-            let port = port_encode(port_mul(k, c));
-            assert_eq!(port, spec_ristretto_mul(k, b), "Ristretto spec, k = {:02x?}, P = {:02x?}", k, b);
-            assert_eq!(port, dalek_mul(k, b), "dalek, k = {:02x?}, P = {:02x?}", k, b);
+            assert_eq!(port_mul(k, c), spec_ed_mul(k, c), "k = {:02x?}, P = {:02x?}", k, c);
         }
     }
+}
+
+/// The reason for the edwards25519 reference: the Ristretto `mul` of 2 and the identity
+/// returns `Z = 0`, which is not a valid representative. The port keeps `Z ≠ 0`.
+#[test]
+fn ristretto_mul_degenerates_on_identity() {
+    let two = hr::Scalar::from_byte_seq_le(Seq::<U8>::from_public_slice(&le(&[2])));
+    let (_, _, z, _) = hr::mul(two, hr::IDENTITY_POINT());
+    assert!(z == hr::FieldElement::ZERO());
+    let (_, _, z, _) = point_mul(sc_from_bytes(le(&[2])), point_identity());
+    assert_ne!(fe_to_bytes(z), [0u8; 32]);
+}
+
+/// `sc_bit` reads the bits of the reduced value: `l - 1` gives its own bits, `l` gives 0.
+#[test]
+fn sc_bit_reads_reduced_value() {
+    let l = l_bytes();
+    let mut l1 = l; l1[0] -= 1;
+    for i in 0..256 {
+        assert_eq!(sc_bit(sc_from_bytes(l1), i), (l1[i / 8] >> (i % 8)) & 1 == 1, "bit {}", i);
+        assert!(!sc_bit(sc_from_bytes(l), i), "bit {}", i);
+    }
+}
+
+/// hacspec `bit` panics for an index of 256 or more, as the Lean model `scalar.sc_bit` fails.
+#[test]
+#[should_panic]
+fn sc_bit_panics_at_256() {
+    sc_bit(sc_from_bytes(le(&[1])), 256);
 }
