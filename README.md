@@ -55,6 +55,14 @@ that satisfies the premises.
 | [C](tracks/hpke/README.md) | RFC 9180 (HPKE) | [hacspec HPKE spec](https://github.com/cryspen/hpke-spec/tree/85429a9ab519ca6eb5b286294203cefe75399223) (`cryspen/hpke-spec`) behind a library shim | [`cryspen/hpke-rs` 0.6.1](https://github.com/cryspen/hpke-rs/tree/e1a4b12d3e630c713a89e97a2a91e4a597f3fc82) | key schedule, base mode, HKDF-SHA256 |
 | [D](tracks/ristretto/README.md) | RFC 9496 (ristretto255) | [hacspec ristretto spec](https://github.com/hacspec/specs/blob/c511110d6f4bb4628da193a2c8e44c928d9555b8/ristretto/src/ristretto.rs) (`hacspec/specs`), ported to plain Rust | [curve25519-dalek 4.2.0](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-lean-verify/tree/26d49052347e52cb3923952ea225d28faf48fe72/curve25519-dalek), as modified by `curve25519-dalek-lean-verify` (the copy of track B) | `CompressedRistretto::decompress` against `decode`, and `RistrettoPoint::compress` against `encode` (full refinement for these pairs) |
 
+[`tracks/fork/`](tracks/fork/README.md) builds on
+[`curve25519-dalek-fork`](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-fork),
+which proves curve25519-dalek 5.0.0 against Lean definitions written by hand. It proves the
+track B reference equal to the fork's `x25519`. Composed with the fork's specs, this gives
+`MontgomeryPoint::mul_base_clamped` and `mul_clamped` of 5.0.0 against the reference, for
+the four builds that the fork covers. These theorems go through the fork's definitions,
+not through a lockstep simulation.
+
 Each track README is self-contained. It gives the sources, the translation and its edits,
 and the exact theorem. It also gives the assumptions, the proof structure, the checks, and
 the strengths and weaknesses of the track.

@@ -1,6 +1,7 @@
 # Toolchain copy, build outputs
 .aeneas/
 .aeneas-main/
+.aeneas-fork/
 target/
 .lake/
 *.llbc
