@@ -9,35 +9,26 @@ import Curve25519Dalek.Math.Edwards.Representation
 import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.Mul
 
 /-!
-# Spec theorem
+# `CompletedPoint::as_extended`
 
-Specification for `curve25519_dalek::backend::serial::curve_models::CompletedPoint::as_extended`.
-
-This function implements point conversion from completed coordinates (ℙ¹ × ℙ¹) to extended
-twisted Edwards coordinates (ℙ³) on the Curve25519 elliptic curve. Given a point
-P = (X:Y:Z:T) in completed coordinates (i.e., with affine coordinates given via
-X/Z = x and Y/T = y), it computes an equivalent representation (X':Y':Z':T') in extended coordinates
-(i.e., with X'/Z' = x, Y'/Z' = y and T' = X'Y'/Z')
+`as_extended` maps a `CompletedPoint` `(X, Y, Z, T)`, which represents `(X/Z, Y/T)`, to the
+`EdwardsPoint` `(X·T, Y·Z, Z·T, X·Y)`. An `EdwardsPoint` `(X', Y', Z', T')` represents
+`(X'/Z', Y'/Z')` with `T' = X'·Y'/Z'`.
 
 Source: "curve25519-dalek/src/backend/serial/curve_models/mod.rs"
+
+Port note (ref-impl-simulation, Aeneas d119a474): `toPoint` maps to
+`DalekSim.Edwards.Point dEd`. So the proof uses `Edwards.lift_mod_eq_iff` in place of
+`Montgomery.lift_mod_eq_iff` and `Point.mk'_inj` in place of `Point.mk.injEq`, and the import of
+`Math/Montgomery/Curve.lean` is dropped.
 -/
 
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 open curve25519_dalek.backend.serial.u64.field
 namespace curve25519_dalek.backend.serial.curve_models.CompletedPoint
 
-/-- **Spec theorem**
-
-For `curve25519_dalek::backend::serial::curve_models::CompletedPoint::as_extended`
-• No panic (always returns successfully)
-• Given input CompletedPoint with coordinates (X, Y, Z, T), the output EdwardsPoint (X', Y', Z', T')
-  satisfies the conversion formulas modulo p = 2^255 - 19:
-  • X' ≡ X·T (mod p)
-  • Y' ≡ Y·Z (mod p)
-  • Z' ≡ Z·T (mod p)
-  • T' ≡ X·Y (mod p)
-• Output limb bounds: all coordinates have limbs < 2^52 (from mul_spec)
-• The output is a valid EdwardsPoint whose `toPoint` equals `q.toPoint` -/
+/-- For valid `q`, `as_extended q` returns a valid `e = (X·T, Y·Z, Z·T, X·Y)` mod `p` with
+limbs `< 2^52` and `e.toPoint = q.toPoint`. -/
 @[step]
 theorem as_extended_spec (q : CompletedPoint)
     (h_q_Valid : q.IsValid) :

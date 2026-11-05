@@ -12,11 +12,9 @@ import Curve25519Dalek.Specs.Backend.Serial.CurveModels.CompletedPoint.AsProject
 import Curve25519Dalek.Specs.Backend.Serial.CurveModels.CompletedPoint.AsExtended
 
 /-!
-# Spec theorem for `curve25519_dalek::edwards::EdwardsPoint::mul_by_pow_2`
+# `EdwardsPoint::mul_by_pow_2`
 
-Takes an `EdwardsPoint` `self` and a positive integer `k`, and returns the result of doubling
-the point `k` times (i.e., computes `[2^k] self` where `self` is the input point) via successive
-doublings.
+`mul_by_pow_2 self k` doubles `self` `k` times and so computes `2^k • self`. It asserts `k > 0`.
 
 Source: "curve25519-dalek/src/edwards.rs"
 
@@ -33,16 +31,9 @@ open DalekSim (dEd)
 open DalekSim.Edwards (Point)
 namespace curve25519_dalek.edwards.EdwardsPoint
 
-/-- Loop spec for `mul_by_pow_2_loop`: repeatedly doubles `s` via
-`ProjectivePoint.double` + `CompletedPoint.as_projective` from counter `i` up to `k - 1`.
-
-Loop invariant at entry: `s.toPoint' hs_on = 2^i • P₀` for a reference point `P₀`.
-At exit (counter `k - 1`), `result.toPoint' h_on = 2^(k-1) • P₀`.
-
-Uses the weaker bounds `X, Y < 2^53` + `Z.IsValid` rather than `IsValid`'s `< 2^52`:
-the initial `s` (from `EdwardsPoint.as_projective`) has only `< 2^53`, but each loop
-iteration's `CompletedPoint.as_projective` produces `ProjectivePoint.IsValid` whose
-`< 2^52` bounds imply the weaker ones. So the invariant is self-sustaining. -/
+/-- Loop of `mul_by_pow_2`: for `k > 0` and `i ≤ k - 1`, if `s` represents `2^i • P₀`, the
+result represents `2^(k-1) • P₀`. The invariant uses limb bounds `< 2^53` for `X` and `Y`,
+because the input of the loop comes from `as_projective`. -/
 @[step]
 theorem mul_by_pow_2_loop_spec
     (k : U32) (s : ProjectivePoint) (i : U32)
@@ -110,11 +101,7 @@ theorem mul_by_pow_2_loop_spec
     let* ⟨ result, h_on, hX, hY, hZ, hpt ⟩ ← ih
     exact ⟨hX, hY, hZ, h_on, hpt⟩
 
-/-- **Spec theorem for `curve25519_dalek::edwards::EdwardsPoint::mul_by_pow_2`**
-• Does not panic for a valid input point `self` and `k > 0`
-• The result is a valid `EdwardsPoint`
-• The result equals `2 ^ k` scalar-multiplied with the input point `self`
--/
+/-- For `k > 0`, `mul_by_pow_2` of a valid point is valid and represents `2^k • self`. -/
 @[step]
 theorem mul_by_pow_2_spec (self : EdwardsPoint) (k : U32)
     (hself : self.IsValid) (hk : k.val > 0) :
@@ -160,9 +147,3 @@ theorem mul_by_pow_2_spec (self : EdwardsPoint) (k : U32)
   agrind
 
 end curve25519_dalek.edwards.EdwardsPoint
-
-/--
-info: 'curve25519_dalek.edwards.EdwardsPoint.mul_by_pow_2_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
--/
-#guard_msgs in
-#print axioms curve25519_dalek.edwards.EdwardsPoint.mul_by_pow_2_spec

@@ -13,15 +13,10 @@ import Curve25519Dalek.Specs.Backend.Serial.CurveModels.CompletedPoint.AsExtende
 import Curve25519Dalek.Specs.Window.Basic
 
 /-!
-# Spec theorem for `curve25519_dalek::window::LookupTable<ProjectiveNielsPoint>::from`
+# `LookupTable<ProjectiveNielsPoint>::from`
 
-Given an Edwards point `P`, this constructs a `LookupTable<ProjectiveNielsPoint>` of length 8
-whose `k`-th entry (for `k ∈ {0, 1, ..., 7}`) equals `(k+1)·P` in `ProjectiveNielsPoint` form,
-i.e. the table represents `[P, 2P, 3P, ..., 8P]`.
-
-The construction iterates `j = 0, 1, ..., 6` and writes
-`points[j+1] = (P + points[j]).as_extended().as_projective_niels()`, starting from
-`points[0] = P.as_projective_niels()`, which represents `1·P = P`.
+`from P` builds the table `[P, 2P, ..., 8P]` of projective Niels points. It sets entry `0` to
+`P` and, for `j = 0, ..., 6`, sets entry `j + 1` to `P + points[j]`.
 
 Source: "curve25519-dalek/src/window.rs"
 
@@ -38,11 +33,7 @@ open Edwards curve25519_dalek.backend.serial.curve_models curve25519_dalek.edwar
 namespace curve25519_dalek
 namespace window.LookupTableProjectiveNielsPoint.Insts.CoreConvertFromSharedAEdwardsPoint
 
--- Inhabited chain so `step` can apply Aeneas array specs (which require `[Inhabited α]`).
-/-- Two-conjunct wrapper around `Array.update_spec` for `ProjectiveNielsPoint` arrays of length 8.
-Provides:
-• `arr'[k]! = arr[k]!` for indices `k ≠ j.val`,
-• `arr'[j.val]! = v` at the updated index. -/
+/-- For `j < 8`, `Array.update arr j v` sets entry `j` to `v` and keeps every other entry. -/
 @[step]
 private lemma Array_PNP_8_update_spec (arr : Array ProjectiveNielsPoint 8#usize) (j : Usize)
     (v : ProjectiveNielsPoint) (hj : j.val < 8) :
@@ -60,16 +51,9 @@ private lemma Array_PNP_8_update_spec (arr : Array ProjectiveNielsPoint 8#usize)
   · simp only [Array.getElem!_Nat_eq, Array.set_val_eq]
     rw [List.getElem!_eq_getElem?_getD, List.getElem?_set_self (by simpa using hbound)]; rfl
 
-/-- Loop spec for `from_loop`: given a `points` array whose prefix `[0, iter.start.val]`
-(i.e. `iter.start.val + 1` entries) already holds `[P, 2P, ..., (iter.start.val + 1)P]` as
-valid `ProjectiveNielsPoint`s, the loop extends the prefix to cover all 8 indices.
-
-Loop invariant at entry: for every `k ≤ iter.start.val`, `points[k].IsValid` and
-`points[k].toPoint = (k + 1) • P.toPoint`. At exit, the invariant holds up to index 7.
-
-The loop body computes
-`points[j+1] = (P + points[j]).as_extended().as_projective_niels()`
-which turns `(j+1)·P` at index `j` into `(j+2)·P` at index `j+1`. -/
+/-- Loop of `from`: for a valid `P`, `iter.start ≤ 7` and `iter.end = 7`, if every entry
+`k ≤ iter.start` of `points` is valid and represents `(k + 1) • P`, then every entry of the
+result is valid and entry `k` represents `(k + 1) • P`. -/
 @[step]
 theorem from_loop_spec
     (P : EdwardsPoint) (hP : P.IsValid)
@@ -185,11 +169,7 @@ theorem from_loop_spec
     rw [hiter1_start, hiter1_end]
     grind
 
-/-- **Spec theorem for `curve25519_dalek::window::LookupTable<ProjectiveNielsPoint>::from`**
-• No panic (always returns successfully).
-• Every entry of the resulting 8-element lookup table is a valid `ProjectiveNielsPoint`.
-• For each `k ∈ {0, 1, ..., 7}`, the `k`-th entry represents `(k+1) • P` on the Ed25519
-  curve. -/
+/-- For a valid `P`, `from P` returns the valid table `[P, 2P, ..., 8P]`. -/
 @[step]
 theorem from_spec (P : EdwardsPoint) (hP : P.IsValid) :
     «from» P ⦃ (result : window.LookupTable ProjectiveNielsPoint) =>
@@ -216,22 +196,6 @@ theorem from_spec (P : EdwardsPoint) (hP : P.IsValid) :
     rw [pnp_post7]
     simp
   agrind
-
-/--
-info: 'curve25519_dalek.window.LookupTableProjectiveNielsPoint.Insts.CoreConvertFromSharedAEdwardsPoint.from_loop_spec' depends on axioms: [propext,
- Classical.choice,
- Quot.sound]
--/
-#guard_msgs in
-#print axioms from_loop_spec
-
-/--
-info: 'curve25519_dalek.window.LookupTableProjectiveNielsPoint.Insts.CoreConvertFromSharedAEdwardsPoint.from_spec' depends on axioms: [propext,
- Classical.choice,
- Quot.sound]
--/
-#guard_msgs in
-#print axioms from_spec
 
 end window.LookupTableProjectiveNielsPoint.Insts.CoreConvertFromSharedAEdwardsPoint
 end curve25519_dalek

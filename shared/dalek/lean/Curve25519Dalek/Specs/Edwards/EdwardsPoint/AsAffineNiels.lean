@@ -14,21 +14,10 @@ import Curve25519Dalek.Specs.Backend.Serial.U64.Constants.EdwardsD2
 import Curve25519Dalek.Auxiliary
 
 /-!
-# Spec theorem for `curve25519_dalek::edwards::EdwardsPoint::as_affine_niels`
+# `EdwardsPoint::as_affine_niels`
 
-This function converts an EdwardsPoint from extended twisted Edwards coordinates
-(X, Y, Z, T) to an AffineNielsPoint (y_plus_x, y_minus_x, xy2d) by first
-dehomogenizing (dividing by Z) to obtain the affine coordinates, and then
-computing the affine Niels representation optimized for mixed addition.
-Arithmetic is performed in the field 𝔽_p where p = 2^255 − 19.
-
-The concrete formulas are:
-- recip      = Z⁻¹
-- x          = X · recip
-- y          = Y · recip
-- y_plus_x   = y + x
-- y_minus_x  = y − x
-- xy2d       = x · y · 2d
+`as_affine_niels` maps extended coordinates `(X, Y, Z, T)` to affine Niels coordinates.
+With `x = X / Z` and `y = Y / Z` it returns `(y + x, y - x, x · y · 2d)` modulo `p`.
 
 Source: "curve25519-dalek/src/edwards.rs"
 
@@ -53,8 +42,7 @@ private lemma field51_modP_ne_zero_of_toField_ne_zero
   unfold toField
   exact Edwards.lift_mod_eq (Field51_as_Nat fe) 0 (by simpa [Nat.zero_mod] using hmod)
 
-/-- y_plus_x modular arithmetic: `(y + x) * Z ≡ Y + X` from
-    `y * Z ≡ Y` and `x * Z ≡ X`. -/
+/-- If `ypx = y + x`, `y * Z ≡ Y` and `x * Z ≡ X` mod `p`, then `ypx * Z ≡ Y + X` mod `p`. -/
 private lemma ypx_mod_arith (ypx_nat y_nat x_nat Z_nat X_nat Y_nat : ℕ)
     (h_ypx : ypx_nat = y_nat + x_nat)
     (h_yZ : y_nat * Z_nat ≡ Y_nat [MOD p])
@@ -63,8 +51,7 @@ private lemma ypx_mod_arith (ypx_nat y_nat x_nat Z_nat X_nat Y_nat : ℕ)
   rw [h_ypx, add_mul]
   exact Nat.ModEq.add h_yZ h_xZ
 
-/-- y_minus_x modular arithmetic: `ymx * Z + X ≡ Y` from
-    `(ymx + x) ≡ y`, `x * Z ≡ X`, and `y * Z ≡ Y`. -/
+/-- If `ymx + x ≡ y`, `x * Z ≡ X` and `y * Z ≡ Y` mod `p`, then `ymx * Z + X ≡ Y` mod `p`. -/
 private lemma ymx_mod_arith (ymx_nat x_nat y_nat Z_nat X_nat Y_nat : ℕ)
     (h_ymx : ymx_nat + x_nat ≡ y_nat [MOD p])
     (h_xZ : x_nat * Z_nat ≡ X_nat [MOD p])
@@ -78,8 +65,8 @@ private lemma ymx_mod_arith (ymx_nat x_nat y_nat Z_nat X_nat Y_nat : ℕ)
     _ ≡ y_nat * Z_nat [MOD p] := h_sum_Z
     _ ≡ Y_nat [MOD p] := h_yZ
 
-/-- xy2d modular arithmetic: `xy2d * Z * Z ≡ X * Y * (2 * d)` from
-    `xy2d ≡ x * y * (2 * d)`, `x * Z ≡ X`, and `y * Z ≡ Y`. -/
+/-- If `xy2d ≡ fe * d2`, `fe ≡ x * y`, `d2 ≡ 2 * d`, `x * Z ≡ X` and `y * Z ≡ Y` mod `p`,
+then `xy2d * Z * Z ≡ X * Y * (2 * d)` mod `p`. -/
 private lemma xy2d_mod_arith (xy2d_nat fe_nat d2_nat x_nat y_nat Z_nat X_nat Y_nat : ℕ)
     (h_xy2d : xy2d_nat ≡ fe_nat * d2_nat [MOD p])
     (h_fe : fe_nat ≡ x_nat * y_nat [MOD p])
@@ -99,15 +86,9 @@ private lemma xy2d_mod_arith (xy2d_nat fe_nat d2_nat x_nat y_nat Z_nat X_nat Y_n
     _ ≡ X_nat * Y_nat * (2 * d) [MOD p] :=
         Nat.ModEq.mul_right _ (Nat.ModEq.mul h_xZ h_yZ)
 
-/-- **Spec theorem for `curve25519_dalek::edwards::EdwardsPoint::as_affine_niels`**
-• The function always succeeds (no panic) for valid input EdwardsPoints
-• `y_plus_x · Z ≡ Y + X` (mod p)
-• `y_minus_x · Z + X ≡ Y` (mod p)
-• `xy2d · Z² ≡ X · Y · (2 · d)` (mod p)
-• `y_plus_x`: all limbs < 2^54
-• `y_minus_x`: all limbs < 2^52
-• `xy2d`: all limbs < 2^52
--/
+/-- For a valid `self`, `as_affine_niels self` satisfies `y_plus_x · Z ≡ Y + X`,
+`y_minus_x · Z + X ≡ Y` and `xy2d · Z · Z ≡ X · Y · (2 · d)` mod `p`. The limbs of
+`y_plus_x` are below `2^54`, and the limbs of `y_minus_x` and `xy2d` are below `2^52`. -/
 @[step]
 theorem as_affine_niels_spec
     (self : EdwardsPoint)

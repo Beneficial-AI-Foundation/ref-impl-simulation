@@ -6,10 +6,9 @@ Authors: Markus Dablander
 import Curve25519Dalek.Funs
 import Curve25519Dalek.Math.Basic
 
-/-! # Spec theorem for `curve25519_dalek::backend::serial::u64::field::FieldElement51::ONE`
+/-! # `FieldElement51::ONE`
 
-This constant represents the multiplicative identity element `1` in the field 𝔽_p (p = 2^255 - 19).
-It is stored as the five-limb array `[1, 0, 0, 0, 0]`.
+The constant `1`, stored as the limbs `[1, 0, 0, 0, 0]`.
 
 Source: "curve25519-dalek/src/backend/serial/u64/field.rs"
 -/
@@ -17,11 +16,7 @@ Source: "curve25519-dalek/src/backend/serial/u64/field.rs"
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 namespace curve25519_dalek.backend.serial.u64.field.FieldElement51
 
-/-- **Spec theorem for `curve25519_dalek::backend::serial::u64::field::FieldElement51::ONE`**
-• The function always succeeds (no panic)
-• `Field51_as_Nat ONE = 1`, the multiplicative identity of 𝔽_p
-• Every limb is bounded by `2 ^ 51`
--/
+/-- `ONE` is `1`, with limbs `< 2^51`. -/
 @[step]
 theorem ONE_spec :
     ONE ⦃ (result : FieldElement51) =>

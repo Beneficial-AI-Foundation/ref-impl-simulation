@@ -10,10 +10,9 @@ import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.ZERO
 import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.ONE
 
 /-!
-# Spec theorem for `curve25519_dalek::edwards::EdwardsPoint::identity`
+# `EdwardsPoint::identity`
 
-Returns the identity element of the Edwards curve in extended twisted Edwards coordinates
-(X, Y, Z, T).
+`identity` returns the neutral point `(X, Y, Z, T) = (0, 1, 1, 0)` in extended coordinates.
 
 Source: "curve25519-dalek/src/edwards.rs"
 
@@ -26,12 +25,7 @@ open Aeneas Aeneas.Std Result Aeneas.Std.WP
 open curve25519_dalek backend.serial.u64.field.FieldElement51
 namespace curve25519_dalek.edwards.EdwardsPoint.Insts.Curve25519_dalekTraitsIdentity
 
-/-- **Spec theorem for `curve25519_dalek::edwards::EdwardsPoint::identity`**
-• The function always succeeds (no panic)
-• The resulting EdwardsPoint has coordinates (X = 0, Y = 1, Z = 1, T = 0)
-• The resulting EdwardsPoint is valid
-• The resulting EdwardsPoint represents the identity element of the Ed25519 group
--/
+/-- `identity` returns the valid point `(0, 1, 1, 0)`, which represents `0` in `Point dEd`. -/
 @[step]
 theorem identity_spec :
     identity ⦃ (result : EdwardsPoint) =>

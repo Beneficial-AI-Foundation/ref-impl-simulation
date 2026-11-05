@@ -8,9 +8,8 @@ import Curve25519Dalek.Funs
 /-!
 # Support for the specs of `LookupTable`
 
-`next_spec` gives the result of `next` on a range of `usize`: `none` and the same range if
-the range is empty, otherwise its start and the range from the next index. The `Inhabited`
-instances let `step` apply the Aeneas array specs to tables of `ProjectiveNielsPoint`.
+`next_spec` gives the result of `next` on a `usize` range. The `Inhabited` instance of
+`ProjectiveNielsPoint` lets `step` apply the Aeneas array specs to tables of these points.
 
 Port note (ref-impl-simulation, Aeneas d119a474): curve25519-dalek-lean-verify proves
 `next_spec` in `Specs/Scalar/Scalar/ConditionalSelect.lean`, in the namespace of the `Scalar`
@@ -22,6 +21,8 @@ names, so that the two specs share one copy and their proofs do not change.
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 namespace curve25519_dalek.scalar.Scalar.Insts.SubtleConditionallySelectable
 
+/-- `next` on a `usize` range: `none` and the same range if the range is empty, else
+`some start` and the range from `start + 1`. -/
 theorem next_spec (range : core.ops.range.Range Usize) :
     ∃ opt range',
       core.iter.range.IteratorRange.next core.iter.range.StepUsize range = ok (opt, range') ∧

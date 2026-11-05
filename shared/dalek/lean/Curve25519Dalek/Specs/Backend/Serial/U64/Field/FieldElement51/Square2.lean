@@ -8,10 +8,9 @@ import Curve25519Dalek.Funs
 import Curve25519Dalek.Math.Basic
 import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.Pow2K
 
-/-! # Spec theorem for `curve25519_dalek::backend::serial::u64::field::FieldElement51::square2`
+/-! # `FieldElement51::square2`
 
-This function computes twice the square of a field element `a` in the field 𝔽_p
-(p = 2^255 - 19). The field element is represented as five `u64` limbs.
+Computes twice the square of a field element, in `𝔽_p` with `p = 2^255 - 19`.
 
 Source: "curve25519-dalek/src/backend/serial/u64/field.rs"
 
@@ -25,11 +24,8 @@ open Aeneas Aeneas.Std Result Aeneas.Std.WP
 
 namespace curve25519_dalek.backend.serial.u64.field.FieldElement51
 
-/-- **Spec theorem for `square2_loop`**
-• Does not overflow when `square[j].val * 2 ≤ U64.max` for `j ≥ i`
-• Doubles each limb from index `i` onwards
-• Leaves limbs before index `i` unchanged
--/
+/-- For `i ≤ 5`, if `square[j] * 2 ≤ U64.max` for `i ≤ j < 5`: each limb `j ≥ i` is doubled
+and each limb `j < i` is unchanged. -/
 @[step]
 theorem square2_loop_spec (square : Array U64 5#usize) (i : Usize) (hi : i.val ≤ 5)
     (h_no_overflow : ∀ j < 5, i.val ≤ j → square[j]!.val * 2 ≤ U64.max) :
@@ -74,11 +70,7 @@ theorem square2_loop_spec (square : Array U64 5#usize) (i : Usize) (hi : i.val �
   termination_by 5 - i.val
   decreasing_by scalar_tac
 
-/-- **Spec theorem for `curve25519_dalek::backend::serial::u64::field::FieldElement51::square2`**
-• The function always succeeds (no panic) when every input limb is `< 2 ^ 54`
-• `Field51_as_Nat result ≡ 2 * (Field51_as_Nat self) ^ 2 (mod p)`
-• Every output limb is `< 2 ^ 53`
--/
+/-- For limbs `< 2^54`: `result ≡ 2 · self^2 (mod p)`, with output limbs `< 2^53`. -/
 @[step]
 theorem square2_spec (self : Array U64 5#usize) (h_bounds : ∀ i < 5, self[i]!.val < 2 ^ 54) :
     square2 self ⦃ (result : FieldElement51) =>

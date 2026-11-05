@@ -19,7 +19,7 @@ structure `Point Ed25519` and its group law in this file. Its associativity is a
 port keeps `EdwardsCurve` and `Ed25519` and drops the rest. The specs use the group
 `DalekSim.Edwards.Point dEd`, which has the same addition formula and a proof of associativity
 with the standard axioms. The section `Point` gives that type the interface of the old one:
-`x`, `y`, `on_curve`, `mk'`, `ext`, and the lemmas `add_x`, `add_y`, `zero_x`, `zero_y`,
+`x`, `y`, `on_curve`, `mk'`, `ext_xy`, `mk'_inj`, and the lemmas `add_x`, `add_y`, `zero_x`, `zero_y`,
 `neg_x`, `neg_y` and `denomsNeZero` with the same statements.
 -/
 

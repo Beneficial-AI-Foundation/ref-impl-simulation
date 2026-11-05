@@ -8,20 +8,12 @@ import Curve25519Dalek.Math.Basic
 import Curve25519Dalek.Math.Edwards.Representation
 import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.Neg
 
-/-!
-# Spec theorem
+/-! # `ProjectiveNielsPoint::neg`
 
-Specification for `curve25519_dalek::backend::serial::curve_models::ProjectiveNielsPoint::neg`.
+Negates a projective Niels point `(Y+X, Y−X, Z, 2dXY)`. It swaps `Y_plus_X` and `Y_minus_X`,
+keeps `Z` and negates `T2d`. The swap maps `x ∝ YpX − YmX` to `−x` and keeps `y ∝ YpX + YmX`.
 
-This function computes the negation of a ProjectiveNielsPoint. Given a point
-N = (Y+X, Y−X, Z, 2dXY), it returns −N by swapping Y_plus_X and Y_minus_X,
-keeping Z unchanged, and negating T2d.
-
-Ed25519 negation is `(x, y) ↦ (-x, y)` in affine form; since the PNP form gives
-`x ∝ (YpX - YmX)`, the `Y_plus_X ↔ Y_minus_X` swap flips the sign of `x`, while
-`y ∝ (YpX + YmX)` is symmetric and unchanged.
-
-Source: "curve25519-dalek/src/backend/serial/curve_models/mod.rs, lines 503:4-510:5"
+Source: "curve25519-dalek/src/backend/serial/curve_models/mod.rs, lines 504:4-511:5"
 
 Port note (ref-impl-simulation, Aeneas d119a474): `step*` names the two posts of the field
 `neg` `fe_post` and `fe_post1`, so the proof uses these names. The point is in
@@ -36,17 +28,7 @@ open curve25519_dalek.backend.serial.curve_models
 open curve25519_dalek.backend.serial.u64.field
 namespace curve25519_dalek.Shared0ProjectiveNielsPoint.Insts.CoreOpsArithNegProjectiveNielsPoint
 
-/-- **Spec theorem**
-
-For `curve25519_dalek::backend::serial::curve_models::ProjectiveNielsPoint::neg` (shared-reference)
-• No panic (always returns successfully) given `self.IsValid`
-• The output is a valid `ProjectiveNielsPoint`
-• It represents `-self.toPoint` on Ed25519
-
-Derived by lifting the Field51-level `FieldElement51.neg_spec` postconditions
-(`r.Y_plus_X = self.Y_minus_X`, `r.Y_minus_X = self.Y_plus_X`, `r.Z = self.Z`,
-`r.T2d ≡ -self.T2d [mod p]` with `r.T2d[i]!.val < 2^52`) through
-`ProjectiveNielsPoint.toPoint'`. -/
+/-- For valid `self`: the result is valid and its `toPoint` is `-self.toPoint`. -/
 @[step]
 theorem neg_spec
     (self : ProjectiveNielsPoint) (h_self : self.IsValid) :
@@ -60,7 +42,7 @@ theorem neg_spec
   -- step* exposes:
   --   fe_post : Field51_as_Nat self.T2d + Field51_as_Nat fe ≡ 0 [MOD p]
   --   fe_post1 : ∀ i < 5, fe[i]!.val < 2 ^ 52
-  -- Lift fe_post1 from Nat mod to CurveField: fe.toField = -self.T2d.toField.
+  -- Lift fe_post from Nat mod to CurveField: fe.toField = -self.T2d.toField.
   simp only [Edwards.lift_mod_eq_iff, Nat.cast_add, Nat.cast_zero] at fe_post
   rw [← FieldElement51.toField, ← FieldElement51.toField] at fe_post
   have fe_neg : fe.toField = -self.T2d.toField := by grind
@@ -107,18 +89,8 @@ end curve25519_dalek.Shared0ProjectiveNielsPoint.Insts.CoreOpsArithNegProjective
 namespace curve25519_dalek.backend.serial.curve_models.ProjectiveNielsPoint.Insts
 namespace CoreOpsArithNegProjectiveNielsPoint
 
-/-- **Spec theorem**
-
-Specification for
-`curve25519_dalek::backend::serial::curve_models::ProjectiveNielsPoint::neg`.
-• No panic (always returns successfully) given `self.IsValid`
-• The output is a valid `ProjectiveNielsPoint`
-• It represents `-self.toPoint` on Ed25519
-
-Mirrors the shared-reference `Shared0…neg_spec`; the owned `neg` is just a
-one-step delegation to it (Rust source: `-&self`). Needed so that `let*`
-in downstream proofs (e.g., `LookupTable.select_spec`) matches the binding
-that type-class resolution produces. -/
+/-- Owned-value form of the shared-reference `neg_spec`, with the same statement. It lets
+`let*` match the `neg` instance that type-class resolution picks. -/
 @[step]
 theorem neg_spec (self : ProjectiveNielsPoint) (h_self : self.IsValid) :
     neg self ⦃ (result : ProjectiveNielsPoint) =>

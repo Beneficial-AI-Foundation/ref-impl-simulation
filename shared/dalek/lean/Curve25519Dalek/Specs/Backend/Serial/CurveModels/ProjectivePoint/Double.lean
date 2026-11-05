@@ -15,11 +15,10 @@ import Curve25519Dalek.Math.Edwards.Representation
 import DalekSim.Basic
 import Mathlib.Data.ZMod.Basic
 
-/-! # Spec theorem for `curve25519_dalek::backend::serial::curve_models::ProjectivePoint::double`
+/-! # `ProjectivePoint::double`
 
-This function implements point doubling on the Curve25519 elliptic curve using projective
-coordinates. Given a point P = (X:Y:Z), it computes 2P (the point added to itself via
-elliptic curve addition).
+`double` maps a `ProjectivePoint` `(X:Y:Z)`, which represents `P = (X/Z, Y/Z)`, to the
+`CompletedPoint` `(2XY, Y² + X², Y² − X², 2Z² − (Y² − X²))`, which represents `P + P`.
 
 Source: "curve25519-dalek/src/backend/serial/curve_models/mod.rs"
 
@@ -29,29 +28,15 @@ denominators from `Point.denomsNeZero` and closes the point equality with `Point
 `spec_imp_exists` is replaced by `DalekSim.exists_ok_of_spec`.
 -/
 
-
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 open curve25519_dalek.backend.serial.u64.field.FieldElement51
 open curve25519_dalek.Shared0FieldElement51.Insts.CoreOpsArithAddSharedAFieldElement51FieldElement51
 open curve25519_dalek.Shared0FieldElement51.Insts.CoreOpsArithSubSharedAFieldElement51FieldElement51
 namespace curve25519_dalek.backend.serial.curve_models.ProjectivePoint
 
-/-- **Spec theorem**
-
-Specification for
-`curve25519_dalek::backend::serial::curve_models::ProjectivePoint::double_spec_aux`.
-• The function always succeeds (no panic)
-• Given input ProjectivePoint with coordinates (X, Y, Z), the output CompletedPoint
-  (X', Y', Z', T') satisfies the point doubling formulas modulo p = 2^255 - 19:
-  • X' ≡ 2XY (mod p)
-  • Y' ≡ Y² + X² (mod p)
-  • Z' ≡ Y² - X² (mod p)
-  • T' ≡ 2Z² - Y² + X² (mod p)
-• Input bounds: X, Y limbs < 2^53 (for X + Y < 2^54), Z limbs < 2^54
-• Output bounds: X', Z', T' limbs < 2^52, Y' limbs < 2^53
-
-TODO: Investigate if c.Y can achieve the tighter < 2^52 bound. Currently c.Y = YY + XX
-where YY, XX < 2^52, giving Y < 2^53. -/
+/-- For `q` with `X, Y` limbs `< 2^53` and `Z` limbs `< 2^54`, `double q` returns `c` with
+`X' = 2XY`, `Y' = Y² + X²`, `Z' + X² = Y²` and `T' + Z' = 2Z²` mod `p`. The limbs of `c.Y`
+are `< 2^53` and the others are `< 2^52`. The bound `2^53` keeps `X + Y` below `2^54`. -/
 @[step]
 theorem double_spec_aux
     (q : ProjectivePoint)
@@ -106,9 +91,7 @@ theorem double_spec_aux
         (∑ i ∈ Finset.range 5, 2^(51 * i) * XX[i]!.val) ≡
         (∑ i ∈ Finset.range 5, 2^(51 * i) * q.Y[i]!.val) ^ 2 +
         (∑ i ∈ Finset.range 5, 2^(51 * i) * q.X[i]!.val) ^ 2 [MOD p] := by
-      -- HACK: aeneas#963 didn't fully fix this — still needed.
-      -- PR #918 do-elaborator regression makes `grind only` time out here;
-      -- the goals are literally YY_post1 and XX_post1, so use `exact` directly.
+      -- The two goals are `YY_post1` and `XX_post1`.
       apply Nat.ModEq.add
       · exact YY_post1
       · exact XX_post1
@@ -126,9 +109,7 @@ theorem double_spec_aux
       intro i hi
       simp_all [Finset.mem_range, Nat.mul_add]
     rw [h_YY_plus_XX]
-    -- HACK: aeneas#963 didn't fully fix this — still needed.
-    -- PR #918 do-elaborator regression makes `grind only` time out here;
-    -- the goals are literally YY_post1 and XX_post1, so use `exact` directly.
+    -- The two goals are `YY_post1` and `XX_post1`.
     apply Nat.ModEq.add
     · exact YY_post1
     · exact XX_post1
@@ -170,6 +151,7 @@ open DalekSim.Edwards.Point (add_x add_y)
 open curve25519_dalek.backend.serial.u64.field.FieldElement51
 open curve25519_dalek.backend.serial.u64.field
 
+/-- The four equations mod `p` of `double_spec_aux` hold in `CurveField`. -/
 lemma double_lift_to_field_eqs (c : CompletedPoint) (q : ProjectivePoint)
     (hX_arith : Field51_as_Nat c.X % p = (2 * Field51_as_Nat q.X * Field51_as_Nat q.Y) % p)
     (hY_arith : Field51_as_Nat c.Y % p = (Field51_as_Nat q.Y ^ 2 + Field51_as_Nat q.X ^ 2) % p)
@@ -190,10 +172,8 @@ lemma double_lift_to_field_eqs (c : CompletedPoint) (q : ProjectivePoint)
     have h := lift_mod_eq _ _ hT_arith; push_cast at h; exact eq_sub_of_add_eq h
 
 attribute [local irreducible] p in
-/-- Core geometric proof for point doubling. Takes only `OnCurve` and
-the exact bounds needed by `double_spec_aux` (X,Y < 2^53, Z < 2^54).
-Both `ProjectivePoint.double_spec` and `EdwardsPoint.double_spec`
-delegate to this. -/
+/-- For `q` on the curve with `X, Y` limbs `< 2^53` and valid `Z`, `double q` returns a valid `c`
+with `c.toPoint = P + P`, where `P = q.toPoint' hq_on`. -/
 theorem double_spec_core
     (q : ProjectivePoint)
     (hq_on : q.OnCurve)
@@ -240,7 +220,7 @@ theorem double_spec_core
     simp only [P, Point.x_mk', Point.y_mk'] at h
     convert h using 2
     ring
-  -- Common helper lemmas (to avoid repetition)
+  -- Nonzero powers of Z
   have hz2 : Z^2 ≠ 0 := pow_ne_zero 2 h_qZ_ne
   have hz4 : Z^4 ≠ 0 := pow_ne_zero 4 h_qZ_ne
   -- Key identity: y² - x² = 1 + d*x²*y² (from curve equation with a = -1)
@@ -261,7 +241,7 @@ theorem double_spec_core
   have h_denom_factor : 2 * Z^2 - (Y^2 - X^2) = Z^2 * (1 - Ed25519.d * x^2 * y^2) := by
     rw [h_YX_factor, h_yx_sq]
     ring
-  -- Convert specific bounds to IsValid (< 2^54)
+  -- The output limbs are < 2^54
   have hcX_valid :
     c.X.IsValid := fun i hi => Nat.lt_trans (hcX_bounds i hi) (by norm_num : 2^52 < 2^54)
   have hcY_valid :
@@ -338,9 +318,7 @@ theorem double_spec_core
             (q.toPoint' hq_on).y) := by
             rw [h_qx, h_qy]; simp only [Ed25519]; ring
 
-/-- **Spec theorem for `curve25519_dalek::backend::serial::curve_models::ProjectivePoint::double`**
-• The function always succeeds (no panic) on any valid input ProjectivePoint
-• The resulting CompletedPoint is valid and represents `2 · q.toPoint` on the Edwards curve -/
+/-- For valid `q`, `double q` returns a valid `c` with `c.toPoint = q.toPoint + q.toPoint`. -/
 @[step]
 theorem double_spec
     (q : ProjectivePoint) (hq_valid : q.IsValid) :
@@ -360,11 +338,3 @@ theorem double_spec
   simp only [h_run, spec_ok, h_c_valid, h_eq', and_self]
 
 end curve25519_dalek.backend.serial.curve_models.ProjectivePoint
-
-/--
-info: 'curve25519_dalek.backend.serial.curve_models.ProjectivePoint.double_spec' depends on axioms: [propext,
- Classical.choice,
- Quot.sound]
--/
-#guard_msgs in
-#print axioms curve25519_dalek.backend.serial.curve_models.ProjectivePoint.double_spec

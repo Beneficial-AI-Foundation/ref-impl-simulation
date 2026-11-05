@@ -14,55 +14,45 @@ import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.ToBytes
 import Curve25519Dalek.Math.Edwards.Representation
 
 /-!
-# Spec theorem for `curve25519_dalek::edwards::EdwardsPoint::to_montgomery`
+# `EdwardsPoint::to_montgomery`
 
-This function converts an EdwardsPoint from extended twisted Edwards coordinates
-`(X, Y, Z, T)` to a MontgomeryPoint (u-coordinate only) on the Montgomery curve,
-using the birational map
-
-  u ≡ (1 + y) / (1 - y) ≡ (Z + Y) / (Z - Y)  (mod p),  where p = 2 ^ 255 - 19.
-
-Special case: when `Y = Z` (affine `y = 1`, the identity point on the Edwards
-curve), the denominator is zero. Since `0.invert() = 0` in this implementation,
-the result is `u = 0`. The output `u` is represented as a `U8x32` array (a type
-alias for `MontgomeryPoint`).
+`to_montgomery` returns the bytes of `u = (Z + Y) / (Z - Y)` mod `p`, and `u = 0` if `Z ≡ Y`,
+because `invert 0 = 0`. This file states `u` mod `p`. It does not prove that `u` is the
+u-coordinate of a point on the Montgomery curve.
 
 Source: "curve25519-dalek/src/edwards.rs"
 
 Port note (ref-impl-simulation, Aeneas d119a474): only the coordinate part of the spec is
-ported. The statement keeps the hypotheses and the equations for `u`. It drops the parts with
+ported. The statement keeps the equations for `u`. It drops the parts with
 `fromEdwards`, `abs_montgomery` and `MontgomeryPoint.mkPoint`, and their helper lemmas, because
 they need `Math/Montgomery/Representation.lean`, which is not ported. `step*` on this pin names
 the postconditions of a call `x_post`, `x_post1`, ... instead of `x_post1`, `x_post2`, ..., so
-the proof uses the new names.
+the proof uses the new names. The hypotheses `Y, Z < 2^53` are dropped, because `IsValid`
+gives them, and the postcondition adds `u < p`, from `to_bytes_spec`.
 -/
 
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 namespace curve25519_dalek.edwards.EdwardsPoint
 
-/-- **Spec theorem for `curve25519_dalek::edwards::EdwardsPoint::to_montgomery`**
-• The function always succeeds (no panic) for any valid input Edwards point
-• In the degenerate case `Z ≡ Y (mod p)`, the output u-coordinate satisfies
-  `u ≡ 0 (mod p)`
-• In the generic case `Z ≢ Y (mod p)`, the output u-coordinate satisfies
-  `u * Z ≡ u * Y + (Z + Y) (mod p)`, equivalently `u ≡ (Z + Y) / (Z - Y) (mod p)`
--/
+/-- For a valid `self`, `to_montgomery self` returns bytes `u < p` with `u ≡ 0` if `Z ≡ Y`,
+and `u Z ≡ u Y + (Z + Y)` otherwise (mod `p`). -/
 @[step]
-theorem to_montgomery_spec (self : EdwardsPoint)
-    (hvalid : self.IsValid)
-    (h_Y_bounds : ∀ i < 5, self.Y[i]!.val < 2 ^ 53)
-    (h_Z_bounds : ∀ i < 5, self.Z[i]!.val < 2 ^ 53) :
+theorem to_montgomery_spec (self : EdwardsPoint) (hvalid : self.IsValid) :
     to_montgomery self ⦃ (mp : montgomery.MontgomeryPoint) =>
       let Y := Field51_as_Nat self.Y
       let Z := Field51_as_Nat self.Z
       let u := U8x32_as_Nat mp
+      u < p ∧
       if Z % p = Y % p then
         u % p = 0
       else
         (u * Z) % p = (u * Y + (Z + Y)) % p ⦄ := by
+  have h_Y_bounds := hvalid.Y_bounds
+  have h_Z_bounds := hvalid.Z_bounds
   unfold to_montgomery
   (step*; try grind)
-  · split_ifs
+  · refine ⟨by assumption, ?_⟩
+    split_ifs
     · rename_i h_zy
       have h_W_zero : Field51_as_Nat W % p = 0 := by
         rw [h_zy, ← Nat.ModEq] at W_post1

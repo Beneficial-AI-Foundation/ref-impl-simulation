@@ -6,10 +6,9 @@ Authors: Markus Dablander
 import Curve25519Dalek.Funs
 import Curve25519Dalek.Math.Basic
 
-/-! # Spec theorem for `curve25519_dalek::backend::serial::u64::constants::EDWARDS_D2`
+/-! # `constants::EDWARDS_D2`
 
-This constant represents `2 * d (mod p)`, where `d` is the twisted Edwards curve parameter
-for Curve25519 and `p = 2^255 - 19`. It is encoded as a 5-limb 52-bit `FieldElement51`.
+The constant `2d mod p`, where `d` is the Edwards curve parameter and `p = 2^255 - 19`.
 
 Source: "curve25519-dalek/src/backend/serial/u64/constants.rs"
 -/
@@ -17,11 +16,7 @@ Source: "curve25519-dalek/src/backend/serial/u64/constants.rs"
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 namespace curve25519_dalek.backend.serial.u64.constants
 
-/-- **Spec theorem for `curve25519_dalek::backend::serial::u64::constants::EDWARDS_D2`**
-• The function always succeeds (no panic)
-• `Field51_as_Nat EDWARDS_D2 = (2 * d) % p`, the canonical reduced representation
-• Every limb is bounded by `2 ^ 52`
--/
+/-- `EDWARDS_D2` is `2d` mod `p`, with limbs `< 2^52`. -/
 @[step]
 theorem EDWARDS_D2_spec :
     EDWARDS_D2 ⦃ (result : field.FieldElement51) =>

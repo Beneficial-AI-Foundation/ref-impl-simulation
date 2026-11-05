@@ -7,34 +7,22 @@ import Curve25519Dalek.Funs
 import Curve25519Dalek.Math.Basic
 import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.ConditionalSelect
 
-/-!
-# Spec theorem
+/-! # `AffineNielsPoint::conditional_select`
 
-Specification for
-`curve25519_dalek::backend::serial::curve_models::AffineNielsPoint::conditional_select`.
-
-This function conditionally selects between two AffineNielsPoint values
-based on a Choice flag. It is implemented by applying
-`FieldElement51::conditional_select` component-wise to the coordinates
-(y_plus_x, y_minus_x, xy2d), returning `b` when choice = 1 and `a` when
-choice = 0, in constant time.
+Returns `b` if `choice = 1` and `a` otherwise. It applies `FieldElement51::conditional_select`
+to each coordinate.
 
 Source: "curve25519-dalek/src/backend/serial/curve_models/mod.rs"
+
+Port note (ref-impl-simulation, Aeneas d119a474): the proof closes the limb goals with
+`simp only [*, apply_ite UScalar.val]` in place of `split_ifs <;> simp_all`.
 -/
 
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 namespace curve25519_dalek.backend.serial.curve_models.AffineNielsPoint.Insts
 namespace SubtleConditionallySelectable
 
-/-- **Spec theorem**
-
-Specification for
-`curve25519_dalek::backend::serial::curve_models::AffineNielsPoint::conditional_select`.
-• The function always succeeds (no panic) for AffineNielsPoints `a` and `b` and a Choice `choice`
-• The result is an AffineNielsPoint whose coordinates are selected component-wise:
-  - If choice = 1, each coordinate equals the corresponding one of `b`
-  - If choice = 0, each coordinate equals the corresponding one of `a`
-• The operation is constant-time (does not branch on choice) -/
+/-- Each limb of each coordinate is `b`'s if `choice = 1`, else `a`'s. -/
 @[step]
 theorem conditional_select_spec
     (a b : backend.serial.curve_models.AffineNielsPoint)
@@ -48,7 +36,7 @@ theorem conditional_select_spec
         if choice.val = 1#u8 then b.xy2d[i]!.val else a.xy2d[i]!.val) ⦄ := by
   unfold conditional_select
   step*
-  refine ⟨?_, ?_, ?_⟩ <;> intro i hi <;> split_ifs <;> simp_all
+  refine ⟨?_, ?_, ?_⟩ <;> intro i hi <;> simp only [*, apply_ite UScalar.val]
 
 end SubtleConditionallySelectable
 end curve25519_dalek.backend.serial.curve_models.AffineNielsPoint.Insts

@@ -9,15 +9,10 @@ import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.Mul
 import Curve25519Dalek.Math.Edwards.Representation
 
 /-!
-# Spec theorem
+# `CompletedPoint::as_projective`
 
-Specification for `curve25519_dalek::backend::serial::curve_models::CompletedPoint::as_projective`.
-
-This function implements point conversion from completed coordinates (ℙ¹ × ℙ¹) to projective
-coordinates (ℙ²) on the Curve25519 elliptic curve. Given a point P = (X:Y:Z:T) in
-completed coordinates (i.e., with affine coordinates given via X/Z = x and Y/T = y),
-it computes an equivalent representation (X':Y':Z') in projective
-coordinates (i.e., with X'/Z' = x and Y'/Z' = y).
+`as_projective` maps a `CompletedPoint` `(X, Y, Z, T)`, which represents `(X/Z, Y/T)`, to the
+`ProjectivePoint` `(X·T, Y·Z, Z·T)`, which represents the same point.
 
 Source: "curve25519-dalek/src/backend/serial/curve_models/mod.rs"
 
@@ -28,17 +23,8 @@ Port note (ref-impl-simulation, Aeneas d119a474): the point equality uses
 
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 namespace curve25519_dalek.backend.serial.curve_models.CompletedPoint
-/-- **Auxiliary spec for `as_projective`** proving arithmetic correctness.
-
-• The function always succeeds (no panic) for an input completed point (X, Y, Z, T) with all
-coordinates < 2^54
-• The output ProjectivePoint (X', Y', Z') satisfies:
-  • X' ≡ X·T (mod p) where p = 2^255 - 19
-  • Y' ≡ Y·Z (mod p)
-  • Z' ≡ Z·T (mod p)
-
-The point-level `as_projective_spec` (WP form, takes `IsValid` and
-returns `IsValid ∧ toPoint = toPoint`) is the canonical chain target. -/
+/-- For `q` with limbs `< 2^54`, `as_projective q` returns `(X·T, Y·Z, Z·T)` mod `p` with
+limbs `< 2^52`. -/
 theorem as_projective_spec_aux (q : CompletedPoint)
     (h_qX_bounds : ∀ i < 5, (q.X[i]!).val < 2 ^ 54)
     (h_qY_bounds : ∀ i < 5, (q.Y[i]!).val < 2 ^ 54)
@@ -66,28 +52,14 @@ theorem as_projective_spec_aux (q : CompletedPoint)
 
 end curve25519_dalek.backend.serial.curve_models.CompletedPoint
 
-/-! ## High-level spec using validity predicates
-
-This section proves that `as_projective` preserves validity and the represented point.
--/
+/-! ## Spec with validity predicates -/
 
 namespace curve25519_dalek.backend.serial.curve_models.CompletedPoint
 
 open Edwards
 open curve25519_dalek.backend.serial.u64.field.FieldElement51
 
-/-! ## Independent sub-lemmas for `as_projective_spec`
-
-These lemmas factor out the key proof steps used in the main theorem:
-1. `as_projective_lift_to_field_eqs`: Lift modular arithmetic to field equalities
-2. `as_projective_on_curve`: Prove the projective on-curve equation from the
-   completed on-curve equation
-3. `as_projective_isValid_and_toPoint`: Combined validity and point equality proof
--/
-
-/-- Lift the three modular arithmetic results from `as_projective_spec_aux` to
-    field equalities in `CurveField`. Each modular relation `a % p = b % p`
-    is lifted via `lift_mod_eq` and then simplified via `push_cast`. -/
+/-- The three equations mod `p` of `as_projective_spec_aux` hold in `CurveField`. -/
 private lemma as_projective_lift_to_field_eqs
     (proj : ProjectivePoint)
     (q : CompletedPoint)
@@ -112,12 +84,8 @@ private lemma as_projective_lift_to_field_eqs
     push_cast at h
     exact h
 
-/-- Prove the projective on-curve equation from the completed on-curve equation.
-    Given that `proj.X = q.X * q.T`, `proj.Y = q.Y * q.Z`, `proj.Z = q.Z * q.T`,
-    the projective curve equation `a * X'² * Z'² + Y'² * Z'² = Z'⁴ + d * X'² * Y'²`
-    follows from the completed curve equation
-    `a * X² * T² + Y² * Z² = Z² * T² + d * X² * Y²`
-    by scaling both sides by `(Z * T)²`. -/
+/-- If `(qX, qY, qZ, qT)` satisfies the completed curve equation, then
+`(pX, pY, pZ) = (qX·qT, qY·qZ, qZ·qT)` satisfies the projective curve equation. -/
 private lemma as_projective_on_curve
     (pX pY pZ qX qY qZ qT : Edwards.CurveField)
     (hX_F : pX = qX * qT)
@@ -131,10 +99,8 @@ private lemma as_projective_on_curve
   simp only [Ed25519] at h_curve ⊢
   linear_combination (qZ ^ 2 * qT ^ 2) * h_curve
 
-/-- Combined proof of validity and point equality for `as_projective`.
-    Given the field equalities, bounds, and the input's validity, this lemma proves
-    that the output `ProjectivePoint` is valid and represents the same affine point
-    as the input `CompletedPoint`. -/
+/-- For valid `q` and `proj = (q.X·q.T, q.Y·q.Z, q.Z·q.T)` in `CurveField` with limbs `< 2^52`,
+`proj` is valid and `proj.toPoint = q.toPoint`. -/
 private lemma as_projective_isValid_and_toPoint
     (proj : ProjectivePoint)
     (q : CompletedPoint) (hq_valid : q.IsValid)
@@ -177,12 +143,7 @@ private lemma as_projective_isValid_and_toPoint
       rw [h_py, hY_F, hZ_F, h_qy]
       field_simp [hq_valid.Z_ne_zero, hq_valid.T_ne_zero]
 
-/-- **Spec theorem**
-
-For `curve25519_dalek::backend::serial::curve_models::CompletedPoint::as_projective`.
-• Always succeeds for a valid CompletedPoint
-• Produces a valid ProjectivePoint
-• Preserves the represented affine point (`proj.toPoint = q.toPoint`) -/
+/-- For valid `q`, `as_projective q` returns a valid `proj` with `proj.toPoint = q.toPoint`. -/
 @[step]
 theorem as_projective_spec
     (q : CompletedPoint) (hq_valid : q.IsValid) :

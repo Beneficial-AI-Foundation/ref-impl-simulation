@@ -7,48 +7,33 @@ import Curve25519Dalek.Funs
 import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.ConditionalSelect
 import Mathlib.Tactic
 
-/-! # Spec theorem
+/-! # `FieldElement51::conditional_assign`
 
-Specification for
-`curve25519_dalek::backend::serial::u64::field::FieldElement51::conditional_assign`.
-
-This function conditionally assigns the limbs from `other` into `self` depending on the
-constant-time `Choice` flag. At the limb level it uses `u64`'s
-`ConditionallySelectable::conditional_assign`, which is simply a conditional select returning
-the second operand when `choice = 1` and the first when `choice = 0`.
+Sets each limb of `self` to the limb of `other` if `choice = 1` and leaves it unchanged
+otherwise.
 
 Source: "curve25519-dalek/src/backend/serial/u64/field.rs#L250-L256"
+
+Port note (ref-impl-simulation, Aeneas d119a474): the proof steps through the `u64` spec
+`U64.Insts.SubtleConditionallySelectable.conditional_assign_spec` of `Specs/Subtle.lean`, in place
+of unfolding the `u64` function and splitting on `choice`.
 -/
 
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 namespace curve25519_dalek.backend.serial.u64.field.FieldElement51.Insts
 namespace SubtleConditionallySelectable
 
-/-- **Spec theorem**
-
-Specification for
-`curve25519_dalek::backend::serial::u64::field::FieldElement51::conditional_assign`.
-• The function always succeeds (no panic)
-• For each limb `i`, the result limb equals `other[i]` when `choice = 1`, and `self[i]`
-  when `choice = 0` (constant-time conditional select)
-• Consequently, when `choice = Choice.one`, the whole result equals `other`;
-  when `choice = Choice.zero`, the result equals `self`.
--/
+/-- Each limb is `other`'s if `choice = 1`, else `self`'s. -/
 @[step]
 theorem conditional_assign_spec (self other : backend.serial.u64.field.FieldElement51)
     (choice : subtle.Choice) :
     conditional_assign self other choice ⦃ (res : FieldElement51) =>
       (∀ i < 5, res[i]! = (if choice.val = 1#u8 then other[i]! else self[i]!)) ⦄ := by
   unfold conditional_assign
-  unfold U64.Insts.SubtleConditionallySelectable.conditional_assign
-  by_cases hc : choice.val = 1#u8
-  · simp only [hc, reduceIte]
-    step*
-    intro i _
-    interval_cases i <;> simp [*]
-  · simp only [hc, reduceIte]
-    step*
-    simp [*]
+  step*
+  intro i hi
+  subst_vars
+  interval_cases i <;> simp [*]
 
 end SubtleConditionallySelectable
 end curve25519_dalek.backend.serial.u64.field.FieldElement51.Insts

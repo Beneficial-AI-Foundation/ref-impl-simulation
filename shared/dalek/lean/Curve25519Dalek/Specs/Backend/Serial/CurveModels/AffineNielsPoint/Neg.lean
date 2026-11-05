@@ -8,17 +8,10 @@ import Curve25519Dalek.Math.Basic
 import Curve25519Dalek.Math.Edwards.Representation
 import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.Neg
 
-/-! # Spec theorem for `curve25519_dalek::backend::serial::curve_models::AffineNielsPoint::neg`
+/-! # `AffineNielsPoint::neg`
 
-This function implements the negation of a point in affine Niels coordinates.
-Given an AffineNielsPoint N = (y+x, y−x, 2dxy), it computes -N by:
-- Swapping y_plus_x and y_minus_x
-- Negating xy2d
-
-The concrete formulas are:
-- y_plus_x'  = y_minus_x
-- y_minus_x' = y_plus_x
-- xy2d'      = -xy2d
+Negates an affine Niels point `(y+x, y−x, 2dxy)`. It swaps `y_plus_x` and `y_minus_x` and
+negates `xy2d`.
 
 Source: "curve25519-dalek/src/backend/serial/curve_models/mod.rs"
 -/
@@ -27,13 +20,8 @@ open Aeneas Aeneas.Std Result Aeneas.Std.WP
 open curve25519_dalek.backend.serial.curve_models
 namespace curve25519_dalek.Shared0AffineNielsPoint.Insts.CoreOpsArithNegAffineNielsPoint
 
-/-- **Spec theorem for `curve25519_dalek::backend::serial::curve_models::AffineNielsPoint::neg`**
-• The function always succeeds (no panic) for an AffineNielsPoint `self` with coordinates
-(y_plus_x, y_minus_x, xy2d)
-• The output AffineNielsPoint computed by `neg self` has coordinates (y_plus_x', y_minus_x', xy2d')
-  • y_plus_x' = y_minus_x (the coordinates are swapped)
-  • y_minus_x' = y_plus_x (the coordinates are swapped)
-  • `xy2d' ≡ -xy2d (mod p)` (the xy2d coordinate is negated modulo p = 2^255 - 19) -/
+/-- For `xy2d` limbs `< 2^54`: `y_plus_x` and `y_minus_x` are swapped, and
+`self.xy2d + result.xy2d ≡ 0 (mod p)`. -/
 @[step]
 theorem neg_spec
     (self : backend.serial.curve_models.AffineNielsPoint)
@@ -51,19 +39,7 @@ end curve25519_dalek.Shared0AffineNielsPoint.Insts.CoreOpsArithNegAffineNielsPoi
 namespace curve25519_dalek.backend.serial.curve_models.AffineNielsPoint.Insts
 namespace CoreOpsArithNegAffineNielsPoint
 
-/-- **Spec theorem for `curve25519_dalek::backend::serial::curve_models::AffineNielsPoint::neg`**
-
-Specification for the owned-value
-`curve25519_dalek::backend::serial::curve_models::AffineNielsPoint::neg`.
-• The function always succeeds (no panic) for an AffineNielsPoint `self` with coordinates
-  (y_plus_x, y_minus_x, xy2d) satisfying the limb bound `self.xy2d[i] < 2^54`
-• The output AffineNielsPoint computed by `neg self` has coordinates (y_plus_x', y_minus_x', xy2d')
-  • y_plus_x' = y_minus_x (the coordinates are swapped)
-  • y_minus_x' = y_plus_x (the coordinates are swapped)
-  • `xy2d' ≡ -xy2d (mod p)` (the xy2d coordinate is negated modulo p = 2^255 - 19)
-
-Mirrors the shared-reference `Shared0…neg_spec`; the owned `neg` is just a
-one-step delegation to it (Rust source: `-&self`). -/
+/-- Owned-value form of the shared-reference `neg_spec`, with the same statement. -/
 @[step]
 theorem neg_spec
     (self : backend.serial.curve_models.AffineNielsPoint)

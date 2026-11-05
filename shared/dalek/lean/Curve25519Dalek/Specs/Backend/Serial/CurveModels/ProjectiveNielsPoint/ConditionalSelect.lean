@@ -7,19 +7,15 @@ import Curve25519Dalek.Funs
 import Curve25519Dalek.Math.Basic
 import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.ConditionalSelect
 
-/-!
-# Spec theorem
+/-! # `ProjectiveNielsPoint::conditional_select`
 
-Specification for
-`curve25519_dalek::backend::serial::curve_models::ProjectiveNielsPoint::conditional_select`.
-
-This function conditionally selects between two ProjectiveNielsPoint values
-based on a Choice flag. It is implemented by applying
-`FieldElement51::conditional_select` component-wise to the coordinates
-(Y_plus_X, Y_minus_X, Z, T2d), returning `b` when choice = 1 and `a` when
-choice = 0, in constant time.
+Returns `b` if `choice = 1` and `a` otherwise. It applies `FieldElement51::conditional_select`
+to each coordinate.
 
 Source: "curve25519-dalek/src/backend/serial/curve_models/mod.rs, lines 297:4-304:5"
+
+Port note (ref-impl-simulation, Aeneas d119a474): the proof closes the limb goals with
+`simp only [*, apply_ite UScalar.val]` in place of `split_ifs <;> simp_all`.
 -/
 
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
@@ -27,19 +23,7 @@ open curve25519_dalek.backend.serial.curve_models
 namespace curve25519_dalek.backend.serial.curve_models.ProjectiveNielsPoint.Insts
 namespace SubtleConditionallySelectable
 
-/-- **Spec theorem**
-
-Specification for
-`curve25519_dalek::backend::serial::curve_models::ProjectiveNielsPoint::conditional_select`.
-• No panic (always returns successfully)
-• Given inputs:
-  • ProjectiveNielsPoint `a` with coordinates (Y_plus_X, Y_minus_X, Z, T2d),
-  • ProjectiveNielsPoint `b` with coordinates (Y_plus_X', Y_minus_X', Z', T2d'),
-  • a Choice `choice`,
-  the output ProjectiveNielsPoint has coordinates selected component-wise:
-  • If choice = 1, each coordinate equals the corresponding one of `b`
-  • If choice = 0, each coordinate equals the corresponding one of `a`
-  • The operation is constant-time (does not branch on choice) -/
+/-- Each limb of each coordinate is `b`'s if `choice = 1`, else `a`'s. -/
 @[step]
 theorem conditional_select_spec
     (a b : backend.serial.curve_models.ProjectiveNielsPoint)
@@ -55,7 +39,7 @@ theorem conditional_select_spec
         if choice.val = 1#u8 then b.T2d[i]!.val else a.T2d[i]!.val) ⦄ := by
   unfold conditional_select
   step*
-  refine ⟨?_, ?_, ?_, ?_⟩ <;> intro i hi <;> split_ifs <;> simp_all
+  refine ⟨?_, ?_, ?_, ?_⟩ <;> intro i hi <;> simp only [*, apply_ite UScalar.val]
 
 end SubtleConditionallySelectable
 end curve25519_dalek.backend.serial.curve_models.ProjectiveNielsPoint.Insts

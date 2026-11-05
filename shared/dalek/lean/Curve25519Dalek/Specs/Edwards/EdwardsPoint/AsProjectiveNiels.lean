@@ -13,15 +13,10 @@ import Curve25519Dalek.Specs.Backend.Serial.U64.Constants.EdwardsD2
 import Curve25519Dalek.Auxiliary
 
 /-!
-# Spec theorem for `curve25519_dalek::edwards::EdwardsPoint::as_projective_niels`
+# `EdwardsPoint::as_projective_niels`
 
-Convert an EdwardsPoint from extended twisted Edwards coordinates `(X, Y, Z, T)` to
-ProjectiveNiels coordinates `(A, B, Z', C)`, a representation optimized for point
-addition operations. Working modulo `p = 2^255 - 19`, the formulas are:
-- `A ≡ Y + X (mod p)`
-- `B ≡ Y - X (mod p)`
-- `Z' = Z` (unchanged)
-- `C ≡ T · 2 · d (mod p)`
+`as_projective_niels` maps extended coordinates `(X, Y, Z, T)` to projective Niels
+coordinates `(Y + X, Y - X, Z, T · 2d)` modulo `p`.
 
 Source: "curve25519-dalek/src/edwards.rs"
 
@@ -37,16 +32,9 @@ open curve25519_dalek.backend.serial.u64.field.FieldElement51
   curve25519_dalek.montgomery
 namespace curve25519_dalek.edwards.EdwardsPoint
 
-/-- **Spec theorem for `curve25519_dalek::edwards::EdwardsPoint::as_projective_niels`**
-• The function always succeeds (no panic) for valid input EdwardsPoints
-• The resulting `Y_plus_X` limb representation `A` satisfies `A ≡ Y + X (mod p)`
-• The resulting `Y_minus_X` limb representation `B` satisfies `B + X ≡ Y (mod p)`
-• The resulting `Z` limb representation `Z'` satisfies `Z' ≡ Z (mod p)`
-• The resulting `T2d` limb representation `C` satisfies `C ≡ T · (2 · d) (mod p)`
-• Limb bounds: `Y_plus_X` < 2^54, `Y_minus_X` < 2^52, `Z` < 2^53, `T2d` < 2^52
-• The result is a valid `ProjectiveNielsPoint`
-• The result represents the same elliptic curve point as the input
--/
+/-- For a valid `self`, `as_projective_niels self` is valid and represents the same point. Its
+coordinates satisfy `Y_plus_X ≡ Y + X`, `Y_minus_X + X ≡ Y`, `Z ≡ Z` and `T2d ≡ T · (2 · d)`
+mod `p`. -/
 @[step]
 theorem as_projective_niels_spec
     (self : EdwardsPoint)
@@ -131,13 +119,5 @@ theorem as_projective_niels_spec
         field_simp
         -- mathlib v4.30 drift: grind can't close; use congr+push_cast+field_simp+ring
         congr 1 <;> push_cast <;> field_simp <;> ring
-
-/--
-info: 'curve25519_dalek.edwards.EdwardsPoint.as_projective_niels_spec' depends on axioms: [propext,
- Classical.choice,
- Quot.sound]
--/
-#guard_msgs in
-#print axioms as_projective_niels_spec
 
 end curve25519_dalek.edwards.EdwardsPoint

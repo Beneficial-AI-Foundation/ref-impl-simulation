@@ -7,45 +7,22 @@ import Curve25519Dalek.Funs
 import Curve25519Dalek.Math.Basic
 import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.ConditionalAssign
 
-/-!
-# Spec theorem
+/-! # `AffineNielsPoint::conditional_assign`
 
-Specification for
-`curve25519_dalek::backend::serial::curve_models::AffineNielsPoint::conditional_assign`.
+Sets `self` to `other` if `choice = 1` and leaves it unchanged otherwise, coordinate by
+coordinate.
 
-This function conditionally assigns the value of another AffineNielsPoint
-to self based on a Choice value. It is a constant-time operation used in
-cryptographic implementations to avoid timing side-channels.
+Source: "curve25519-dalek/src/backend/serial/curve_models/mod.rs, lines 323:4-327:5"
 
-Given:
-- an AffineNielsPoint `self` with coordinates (y_plus_x, y_minus_x, xy2d),
-- an AffineNielsPoint `other` with coordinates (y_plus_x', y_minus_x', xy2d'),
-- a Choice `choice` (which is either 0 or 1),
-
-it updates `self` such that:
-- if choice == 1: self = other (all coordinates are replaced)
-- if choice == 0: self remains unchanged
-
-Source: "curve25519-dalek/src/backend/serial/curve_models/mod.rs, lines 322:4-326:5"
+Port note (ref-impl-simulation, Aeneas d119a474): the proof closes the limb goals with
+`simp only [*, apply_ite UScalar.val]` in place of `split_ifs <;> simp_all`.
 -/
 
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 namespace curve25519_dalek.backend.serial.curve_models.AffineNielsPoint.Insts
 namespace SubtleConditionallySelectable
 
-/-- **Spec theorem**
-
-Specification for
-`curve25519_dalek::backend::serial::curve_models::AffineNielsPoint::conditional_assign`.
-• No panic (always returns successfully)
-• Given inputs:
-  • an AffineNielsPoint `self` with coordinates (y_plus_x, y_minus_x, xy2d),
-  • an AffineNielsPoint `other` with coordinates (y_plus_x', y_minus_x', xy2d'),
-  • a Choice `choice`,
-the output AffineNielsPoint computed by `conditional_assign self other choice` satisfies:
-• Each coordinate is conditionally selected: if choice is 1, output = other;
-  if choice is 0, output = self
-• The operation is performed in constant time for all field elements -/
+/-- Each limb of each coordinate is `other`'s if `choice = 1`, else `self`'s. -/
 @[step]
 theorem conditional_assign_spec
     (self other : backend.serial.curve_models.AffineNielsPoint)
@@ -60,8 +37,7 @@ theorem conditional_assign_spec
         if choice.val = 1#u8 then other.xy2d[i]!.val else self.xy2d[i]!.val) ⦄ := by
   unfold conditional_assign
   step*
-  -- HACK: aeneas#963 didn't fully fix this — still needed.
-  refine ⟨?_, ?_, ?_⟩ <;> intro i hi <;> split_ifs <;> simp_all
+  refine ⟨?_, ?_, ?_⟩ <;> intro i hi <;> simp only [*, apply_ite UScalar.val]
 
 end SubtleConditionallySelectable
 end curve25519_dalek.backend.serial.curve_models.AffineNielsPoint.Insts

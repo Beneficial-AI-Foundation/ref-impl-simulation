@@ -7,26 +7,10 @@ import Curve25519Dalek.Funs
 import Curve25519Dalek.Math.Basic
 import Curve25519Dalek.Specs.Backend.Serial.CurveModels.CompletedPoint.Add
 
-/-! # Spec theorem for `curve25519_dalek::backend::serial::curve_models::AffineNielsPoint::add`
+/-! # `AffineNielsPoint::add`
 
-This function implements the mixed addition of an AffineNielsPoint to an
-Edwards point in extended coordinates, returning the result in completed
-coordinates (ℙ¹ × ℙ¹). Given
-- an EdwardsPoint P = (X:Y:Z:T) in extended ℙ³ coordinates (with X/Z = x, Y/Z = y, and T = XY/Z),
-- an AffineNielsPoint N = (Y+X, Y−X, 2dXY),
-it computes a CompletedPoint C = (X':Y':Z':T') corresponding to P + N.
-
-The concrete formulas are:
-- Y_plus_X  = Y + X
-- Y_minus_X = Y − X
-- PP        = Y_plus_X  · N.y_plus_x
-- MM        = Y_minus_X · N.y_minus_x
-- Txy2d     = T · N.xy2d
-- Z2        = Z + Z
-- X'        = PP − MM
-- Y'        = PP + MM
-- Z'        = Z2 + Txy2d
-- T'        = Z2 − Txy2d
+Mixed addition of an extended point `P = (X:Y:Z:T)` and an affine Niels point
+`N = (y+x, y−x, 2dxy)`. The result is the completed point `P + N`.
 
 Source: "curve25519-dalek/src/backend/serial/curve_models/mod.rs"
 -/
@@ -36,16 +20,9 @@ open curve25519_dalek.backend.serial.curve_models
 namespace curve25519_dalek.Shared0EdwardsPoint.Insts
 namespace CoreOpsArithAddSharedAAffineNielsPointCompletedPoint
 
-/-- **Spec theorem**
-
-Sepcification for `curve25519_dalek::backend::serial::curve_models::AffineNielsPoint::add`.
-• The function always succeeds (no panic)
-• Given inputs P = (X, Y, Z, T) and N = (Y+X, Y−X, 2dXY), the output C = (X', Y', Z', T')
-  satisfies modulo p:
-  - X' ≡ ( (Y+X)·N.y_plus_x − (Y−X)·N.y_minus_x ) (mod p)
-  - Y' ≡ ( (Y+X)·N.y_plus_x + (Y−X)·N.y_minus_x ) (mod p)
-  - Z' ≡ ( 2·Z + T·N.xy2d ) (mod p)
-  - T' ≡ ( 2·Z − T·N.xy2d ) (mod p) -/
+/-- For limbs `< 2^53`, with `N = (YpX, YmX, XY2D)`: `X' ≡ (Y+X)·YpX − (Y−X)·YmX`,
+`Y' ≡ (Y+X)·YpX + (Y−X)·YmX`, `Z' ≡ 2Z + T·XY2D` and `T' ≡ 2Z − T·XY2D` (mod p).
+The subtractions are moved to the left side so that the statement stays in `ℕ`. -/
 @[step]
 theorem add_spec
     (self : edwards.EdwardsPoint)

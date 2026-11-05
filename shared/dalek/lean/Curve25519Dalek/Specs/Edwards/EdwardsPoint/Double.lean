@@ -10,9 +10,9 @@ import Curve25519Dalek.Specs.Backend.Serial.CurveModels.ProjectivePoint.Double
 import Curve25519Dalek.Specs.Backend.Serial.CurveModels.CompletedPoint.AsExtended
 
 /-!
-# Spec theorem for `curve25519_dalek::edwards::EdwardsPoint::double`
+# `EdwardsPoint::double`
 
-Doubles an Edwards point (computes 2P = P + P) using elliptic curve point addition.
+`double` computes `P + P` for an Edwards point `P`.
 
 Source: "curve25519-dalek/src/edwards.rs"
 
@@ -30,11 +30,7 @@ namespace curve25519_dalek.edwards.EdwardsPoint
 -- Mark `p` as irreducible locally so that algebraic reasoning about the
 -- curve equation does not unfold the prime modulus.
 attribute [local irreducible] p in
-/-- **Spec theorem for `curve25519_dalek::edwards::EdwardsPoint::double`**
-• The function always succeeds (no panic) for valid input EdwardsPoints
-• The result is a valid Edwards point
-• The result represents the doubled input point 2P (= P + P) under elliptic curve addition
--/
+/-- `double` of a valid point is valid and represents `P + P`. -/
 @[step]
 theorem double_spec (self : EdwardsPoint) (hself : self.IsValid) :
     double self ⦃ (result : EdwardsPoint) =>
@@ -75,9 +71,3 @@ theorem double_spec (self : EdwardsPoint) (hself : self.IsValid) :
         EdwardsPoint.toPoint']⟩
 
 end curve25519_dalek.edwards.EdwardsPoint
-
-/--
-info: 'curve25519_dalek.edwards.EdwardsPoint.double_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
--/
-#guard_msgs in
-#print axioms curve25519_dalek.edwards.EdwardsPoint.double_spec

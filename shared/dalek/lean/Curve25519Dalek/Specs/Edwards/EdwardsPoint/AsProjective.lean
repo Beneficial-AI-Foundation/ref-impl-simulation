@@ -7,10 +7,10 @@ import Curve25519Dalek.Funs
 import Curve25519Dalek.Math.Basic
 
 /-!
-# Spec theorem for `curve25519_dalek::edwards::EdwardsPoint::as_projective`
+# `EdwardsPoint::as_projective`
 
-Convert an EdwardsPoint from extended twisted Edwards coordinates `(X, Y, Z, T)` to
-projective coordinates `(X, Y, Z)` by dropping the auxiliary coordinate `T`.
+`as_projective` maps extended coordinates `(X, Y, Z, T)` to projective coordinates `(X, Y, Z)`.
+It drops `T`.
 
 Source: "curve25519-dalek/src/edwards.rs"
 -/
@@ -18,10 +18,7 @@ Source: "curve25519-dalek/src/edwards.rs"
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 namespace curve25519_dalek.edwards.EdwardsPoint
 
-/-- **Spec theorem for `curve25519_dalek::edwards::EdwardsPoint::as_projective`**
-• The function always succeeds (no panic)
-• The resulting `ProjectivePoint` has the same `X`, `Y`, `Z` coordinates as the input
--/
+/-- `as_projective self` has the same `X`, `Y` and `Z` as `self`. -/
 @[step]
 theorem as_projective_spec (self : EdwardsPoint) :
     as_projective self ⦃ (result : backend.serial.curve_models.ProjectivePoint) =>
