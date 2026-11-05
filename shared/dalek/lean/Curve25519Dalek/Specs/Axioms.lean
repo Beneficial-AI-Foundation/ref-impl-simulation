@@ -34,11 +34,11 @@ import Curve25519Dalek.Specs.Window.LookupTable.Select
 /-!
 # Axioms of the ported specs
 
-Each public spec theorem of the files ported from curve25519-dalek-lean-verify, and of
+Each of the 41 top-level specs of the files ported from curve25519-dalek-lean-verify, and of
 `Subtle.lean` and `Window/Basic.lean`, depends only on the standard axioms `propext`,
 `Classical.choice` and `Quot.sound`. `#guard_msgs` checks this, so the build fails if a
 spec depends on another axiom, for example on the `sorry` in the associativity of the
-upstream point group.
+upstream point group. The helper lemmas that a spec uses are covered through that spec.
 -/
 
 /-- info: 'curve25519_dalek.Shared0EdwardsPoint.Insts.CoreOpsArithAddSharedAAffineNielsPointCompletedPoint.add_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/

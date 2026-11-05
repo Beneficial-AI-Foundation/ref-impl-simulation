@@ -19,8 +19,8 @@ structure `Point Ed25519` and its group law in this file. Its associativity is a
 port keeps `EdwardsCurve` and `Ed25519` and drops the rest. The specs use the group
 `DalekSim.Edwards.Point dEd`, which has the same addition formula and a proof of associativity
 with the standard axioms. The section `Point` gives that type the interface of the old one:
-`x`, `y`, `on_curve`, `mk'`, `ext_xy`, `mk'_inj`, and the lemmas `add_x`, `add_y`, `zero_x`, `zero_y`,
-`neg_x`, `neg_y` and `denomsNeZero` with the same statements.
+`x`, `y`, `on_curve`, `mk'`, `ext_xy`, `mk'_inj`, and the lemmas `add_x`, `add_y`, `zero_x`,
+`zero_y`, `neg_x`, `neg_y` and `denomsNeZero` with the same statements.
 -/
 
 namespace Edwards
@@ -44,7 +44,7 @@ theorem Ed25519_a : Ed25519.a = -1 := rfl
 
 theorem Ed25519_d : Ed25519.d = DalekSim.dEd := rfl
 
-/-- `(a : CurveField) ≡ (b : CurveField)` iff `a ≡ b [MOD p]`. -/
+/-- `a ≡ b [MOD p]` iff `(a : CurveField) = (b : CurveField)`. -/
 theorem lift_mod_eq_iff (a b : ℕ) : (a ≡ b [MOD p]) ↔ (a : CurveField) = (b : CurveField) := by
   rw [Nat.ModEq]
   exact (ZMod.natCast_eq_natCast_iff a b p).symm

@@ -89,8 +89,8 @@ end curve25519_dalek.Shared0ProjectiveNielsPoint.Insts.CoreOpsArithNegProjective
 namespace curve25519_dalek.backend.serial.curve_models.ProjectiveNielsPoint.Insts
 namespace CoreOpsArithNegProjectiveNielsPoint
 
-/-- Owned-value form of the shared-reference `neg_spec`, with the same statement. It lets
-`let*` match the `neg` instance that type-class resolution picks. -/
+/-- Owned-value form of the shared-reference `neg_spec`, with the same statement. `select_spec`
+steps through it, because the `Neg` instance that `select` receives calls the owned `neg`. -/
 @[step]
 theorem neg_spec (self : ProjectiveNielsPoint) (h_self : self.IsValid) :
     neg self ⦃ (result : ProjectiveNielsPoint) =>

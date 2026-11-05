@@ -22,11 +22,13 @@ stores `(Y+X, Y−X, Z, 2d·T)` of a second point. It returns the `CompletedPoin
 
 Source: "curve25519-dalek/src/backend/serial/curve_models/mod.rs"
 
-Port note (ref-impl-simulation, Aeneas d119a474): points are in `DalekSim.Edwards.Point dEd`.
-The proof builds them with `Point.mk'`, compares them with `Point.ext_xy` and takes the
-denominators from `Point.denomsNeZero`. `spec_imp_exists` and `exists_imp_spec` are
-local, because this Aeneas pin does not have them. `add_assign_spec'` closes its goals from
-the loop spec with `omega` instead of `grind`. The unused lemmas `add_spec_52_52`, `add_spec_53_52`, `add_assign_spec_52_52`, `add_assign_spec_53_52` and `zz2_tight_bounds`, and three unused parameters of `add_completed_toPoint_eq_sum`, are dropped.
+Port note (ref-impl-simulation, Aeneas d119a474): points are in `DalekSim.Edwards.Point dEd`. The
+proof builds them with `Point.mk'`, compares them with `Point.ext_xy` and takes the denominators
+from `Point.denomsNeZero`. `spec_imp_exists` and `exists_imp_spec` are local, because this Aeneas
+pin does not have them. `add_assign_spec'` closes its goals from the loop spec with `omega` instead
+of `grind`. The unused lemmas `add_spec_52_52`, `add_spec_53_52`, `add_assign_spec_52_52`,
+`add_assign_spec_53_52` and `zz2_tight_bounds`, and three unused parameters of
+`add_completed_toPoint_eq_sum`, are dropped.
 -/
 
 open Aeneas Aeneas.Std Result Aeneas.Std.WP

@@ -22,7 +22,8 @@ Source: "curve25519-dalek/src/window.rs"
 
 Port note (ref-impl-simulation, Aeneas d119a474): the points are in `DalekSim.Edwards.Point dEd`.
 `next_spec` and the `Inhabited` instance of `ProjectiveNielsPoint` come from `Window/Basic.lean`,
-which `Select.lean` also imports, so the three local `Inhabited` instances are removed. Array
+which `Select.lean` also imports. The local `Inhabited` instance of `ProjectiveNielsPoint` moves
+there, and the instances for `Array U64 5` and `FieldElement51` are dropped. Array
 lengths come from `Array.property`, because an array is no longer a pair. `bind_tc_ok` becomes
 `Std.bind_ok`. The empty-range case closes with `spec_ok`, because `simp` does not reduce the
 `let` of the pair on this pin.

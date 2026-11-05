@@ -32,8 +32,8 @@ open DalekSim.Edwards (Point)
 namespace curve25519_dalek.edwards.EdwardsPoint
 
 /-- Loop of `mul_by_pow_2`: for `k > 0` and `i ≤ k - 1`, if `s` represents `2^i • P₀`, the
-result represents `2^(k-1) • P₀`. The invariant uses limb bounds `< 2^53` for `X` and `Y`,
-because the input of the loop comes from `as_projective`. -/
+result represents `2^(k-1) • P₀`. The invariant bounds the limbs of `X` and `Y` by `2^53`, which
+`double` needs. The input from `as_projective` meets it, and each iteration gives `2^52`. -/
 @[step]
 theorem mul_by_pow_2_loop_spec
     (k : U32) (s : ProjectivePoint) (i : U32)

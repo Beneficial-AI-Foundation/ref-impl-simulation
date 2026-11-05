@@ -25,10 +25,11 @@ Source: "curve25519-dalek/src/window.rs"
 Port note (ref-impl-simulation, Aeneas d119a474): the points are in `DalekSim.Edwards.Point dEd`.
 The file imports `Specs/Window/Basic.lean` for `next_spec` and the `Inhabited` instance, not
 `From.lean`. The proof of `i16_shiftRight_7` is new. It applies the Aeneas lemma
-`I16.ShiftRight_IScalar_spec`, because the old proof unfolded the shift into a goal that the
-new `⦃ ⦄` notation does not have. In `select_loop_spec`, `bind_tc_ok` is `Std.bind_ok`, the
-base case first simplifies with `step_simps`, and the array length comes from
-`Array.property`. The lemmas `aux_xmask_bv_neg1` and `aux_xmask_bv_zero` move up, so that `hxabs_val` uses them in place of two inline copies.
+`I16.ShiftRight_IScalar_spec`, because the old proof unfolded the shift into a goal that the new `⦃
+⦄` notation does not have. In `select_loop_spec`, `bind_tc_ok` is `Std.bind_ok`, the base case first
+simplifies with `step_simps`, and the array length comes from `Array.property`. The lemmas
+`aux_xmask_bv_neg1` and `aux_xmask_bv_zero` move up, so that `hxabs_val` uses them in place of two
+inline copies.
 -/
 
 open Aeneas Aeneas.Std Result Aeneas.Std.WP

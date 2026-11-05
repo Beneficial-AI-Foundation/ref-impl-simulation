@@ -33,7 +33,7 @@ open curve25519_dalek.backend.serial.u64.field.FieldElement51
 namespace curve25519_dalek.edwards.EdwardsPoint
 
 /-- For a valid `self`, `as_projective_niels self` is valid and represents the same point. Its
-coordinates satisfy `Y_plus_X ≡ Y + X`, `Y_minus_X + X ≡ Y`, `Z ≡ Z` and `T2d ≡ T · (2 · d)`
+coordinates satisfy `Y_plus_X ≡ Y + X`, `Y_minus_X + X ≡ Y`, `pn.Z ≡ Z` and `T2d ≡ T · (2 · d)`
 mod `p`. -/
 @[step]
 theorem as_projective_niels_spec

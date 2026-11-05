@@ -152,8 +152,8 @@ instance ProjectivePoint.instDecidableOnCurve (pp : ProjectivePoint) : Decidable
   decidable_of_iff _ (onCurve_iff pp).symm
 
 open curve25519_dalek.backend.serial.u64.field in
-/-- `OnCurve` with all limbs `< 2^52`. The point represents `(X/Z, Y/Z)`. The bound implies the
-bound `X, Y < 2^53` that `double` needs. -/
+/-- `OnCurve` with all limbs `< 2^52`, the output bound of `as_projective`. The point represents
+`(X/Z, Y/Z)`. `double` needs only `X, Y < 2^53` and `Z < 2^54`. -/
 @[mk_iff]
 structure ProjectivePoint.IsValid (pp : ProjectivePoint) : Prop
     extends ProjectivePoint.OnCurve pp where
@@ -266,9 +266,9 @@ instance ProjectiveNielsPoint.instDecidableOnCurve (pn : ProjectiveNielsPoint) :
     Decidable pn.OnCurve :=
   decidable_of_iff _ (onCurve_iff pn).symm
 
-/-- `OnCurve` with limbs `Y_plus_X, Y_minus_X < 2^54`, `Z < 2^53` and `T2d < 2^52`. These bounds
-cover the output of `as_projective_niels` and of `neg`, which swaps `Y_plus_X` and `Y_minus_X`.
-So `IsValid` is closed under `neg` and `conditional_assign`. -/
+/-- `OnCurve` with limbs `Y_plus_X, Y_minus_X < 2^54`, `Z < 2^53` and `T2d < 2^52`. The output
+of `as_projective_niels` meets these bounds. `neg` (`neg_spec`) and `conditional_assign`
+(`conditional_assign_point`) keep `IsValid`. -/
 @[mk_iff]
 structure ProjectiveNielsPoint.IsValid (pn : ProjectiveNielsPoint) : Prop
     extends ProjectiveNielsPoint.OnCurve pn where
@@ -285,8 +285,7 @@ instance ProjectiveNielsPoint.instDecidableIsValid (pn : ProjectiveNielsPoint) :
     Decidable pn.IsValid :=
   decidable_of_iff _ (isValid_iff pn).symm
 
-/-- Limb bounds `Y_plus_X < ypxMax`, `Y_minus_X < ymxMax`, `Z < zMax` and `T2d < t2dMax`. It
-states bounds sharper than `IsValid`. -/
+/-- Limb bounds `Y_plus_X < ypxMax`, `Y_minus_X < ymxMax`, `Z < zMax` and `T2d < t2dMax`. -/
 structure ProjectiveNielsPoint.InBounds
     (pn : ProjectiveNielsPoint) (ypxMax ymxMax zMax t2dMax : ℕ) : Prop where
   Y_plus_X_bounds  : ∀ i < 5, pn.Y_plus_X[i]!.val  < ypxMax
