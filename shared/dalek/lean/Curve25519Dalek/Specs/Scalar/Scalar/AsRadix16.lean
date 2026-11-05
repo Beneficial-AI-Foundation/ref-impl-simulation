@@ -8,50 +8,51 @@ import Curve25519Dalek.Math.Basic
 import Curve25519Dalek.Auxiliary
 
 /-!
-# Spec theorem for `curve25519_dalek::scalar::Scalar::as_radix_16`: loop 0
+# Spec of `curve25519_dalek::scalar::Scalar::as_radix_16`
 
-Converts the 32-byte little-endian representation of a scalar into a
-64-element signed nibble array in radix 16, filling entries in pairs.
+`as_radix_16` recodes a scalar `s = ∑ i < 32, 256^i · b_i` into 64 signed digits `d_i` with
+`s = ∑ i < 64, 16^i · d_i`, in three steps.
 
-The loop runs for `i` from a starting index up to 32. In iteration `i`:
-  - `output[2*i]     ← UScalar.hcast .I8 (bot_half(self.bytes[i]))`
-    where `bot_half(b) = (b >> 0) & 15 = b.val % 16` ∈ `[0, 15]`
-  - `output[2*i + 1] ← UScalar.hcast .I8 (top_half(self.bytes[i]))`
-    where `top_half(b) = (b >> 4) & 15 = b.val / 16` ∈ `[0, 15]`
+1. `massert (self[31] ≤ 127)` checks that `s < 2^255`.
+2. Loop 0 (`as_radix_16_loop0`) sets `d_(2i) = b_i % 16` and `d_(2i+1) = b_i / 16` for `i < 32`.
+   Each byte keeps its value, because `(b % 16) · 16^(2i) + (b / 16) · 16^(2i+1) = b · 256^i`.
+   All digits are then in `[0, 15]`.
+3. Loop 1 (`as_radix_16_loop1`) sets, for `i < 63`, `c = (d_i + 8) >> 4`, `d_i ← d_i - 16 c` and
+   `d_(i+1) ← d_(i+1) + c`. Then `c ∈ {0, 1}` and `d_i ∈ [-8, 7]`. The value does not change,
+   because `(d - 16 c) · 16^i + (d' + c) · 16^(i+1) = d · 16^i + d' · 16^(i+1)`.
 
-Both casts succeed because nibble values lie in `[0, 15] ⊆ [0, 127]`, which fits
-in an `i8`.  The two-nibble identity
-  `(b % 16) · 16^(2·i) + (b / 16) · 16^(2·i+1) = b · 256^i`
-ensures that each iteration preserves `I8x64_as_Radix16`.  Summing over all
-`i < 32` yields
-  `I8x64_as_Radix16 result = ↑(U8x32_as_Nat self.bytes)`
-after the loop completes.
+Loop 1 gives `0 ≤ d_63 ≤ 16`. Because `s < 2^255 = 8 · 16^63`, the value equation gives
+`d_63 ≤ 8` (`digit_63_le_8`). `as_radix_16_spec` states the bound `8`.
 
 Source: "curve25519-dalek/src/scalar.rs"
 
-Port note (ref-impl-simulation, Aeneas d119a474): the extracted code of `as_radix_16` is the
-same as upstream. The statements did not change. The proofs changed in six places. The two exit
-cases of the loops rewrite with `WP.spec_ok` before they split the conjunction. In
-`isize_shiftRight_4_spec`, a `simp only` reduces the `if` on the shift amount, and `erw`
-replaces `rw` for `BitVec.toInt_ofInt`, because the width of `toInt` is `IScalarTy.I8.numBits`
-and not the literal `8`.
+## Port note
 
-The precondition `self.bytes[31] ≤ 127` is the `assert` of the Rust code, so every caller
-must meet it. A clamped scalar meets it, because `clamp_integer` clears bit 7 of byte 31.
+This file ports the file of curve25519-dalek-lean-verify `26d49052` to Aeneas `d119a474`.
+The extracted code of `as_radix_16` is the same as upstream.
+
+- `as_radix_16_spec` states `d_63 ≤ 8`. Upstream states `d_63 ≤ 16` and proves the bound `8` in
+  a caller. `digit_63_le_8` is upstream `scalar_digit_63_le_8` from `VariableBase/Mul.lean`, and
+  `U8x32_as_Nat_lt_pow255` comes from upstream `AsRadix2w.lean`.
+- The exit cases of the two loops rewrite with `WP.spec_ok` before they split the conjunction.
+- In `i8_shiftRight_4_spec`, a `simp only` reduces the `if` on the shift amount, and `erw`
+  replaces `rw` for `BitVec.toInt_ofInt`, because the width of `toInt` is
+  `IScalarTy.I8.numBits` and not the literal `8`. The lemma proves the value once and gets the
+  bounds from it. Upstream names it `isize_shiftRight_4_spec`.
+- The loop specs are the recursive theorems. Upstream proves private `_strong` theorems with the
+  same statements. The unused lemmas `carry_recenter_identity` and `lo_bounds_step` are removed.
+
+The precondition `self.bytes[31] ≤ 127` is the `debug_assert!` of the Rust code, which Aeneas
+extracts as `massert`. It is Invariant #1 of `Scalar`. A clamped scalar meets it, because
+`clamp_integer` clears bit 7 of byte 31. A canonical scalar meets it, because it is less than
+`ℓ < 2^253`.
 -/
 
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 attribute [-simp] Int.reducePow Nat.reducePow
 namespace curve25519_dalek.scalar.Scalar.as_radix_16
 
-/-- **Spec theorem for `curve25519_dalek::scalar::Scalar::as_radix_16::bot_half`**:
-• The function always succeeds (no panic) for any `u8` input.
-• The result is the lower nibble (low 4 bits) of `x`:
-  `result.val = x.val % 16`
-• The result is a valid nibble: `result.val ≤ 15`.
-• Together with `top_half`, the byte decomposes as:
-  `(bot_half x).val + 16 * (top_half x).val = x.val`
--/
+/-- `bot_half x` succeeds and returns `x % 16`, which is at most `15`. -/
 @[step]
 theorem bot_half_spec (x : U8) :
     bot_half x ⦃ (result : U8) =>
@@ -72,14 +73,7 @@ theorem bot_half_spec (x : U8) :
   simp [step_simps, UScalar.val_and, hi_eq, h15, hland]
   omega
 
-/-- **Spec theorem for `curve25519_dalek::scalar::Scalar::as_radix_16::top_half`**:
-• The function always succeeds (no panic) for any `u8` input.
-• The result is the upper nibble (high 4 bits) of `x`:
-  `result.val = x.val / 16`
-• The result is a valid nibble: `result.val ≤ 15`.
-• Together with `bot_half`, the byte decomposes as:
-  `(bot_half x).val + 16 * (top_half x).val = x.val`
--/
+/-- `top_half x` succeeds and returns `x / 16`, which is at most `15`. -/
 @[step]
 theorem top_half_spec (x : U8) :
     top_half x ⦃ (result : U8) =>
@@ -103,12 +97,11 @@ end curve25519_dalek.scalar.Scalar.as_radix_16
 
 namespace curve25519_dalek.scalar.Scalar
 
-/-- Interpret a 64-element `i8` array as a signed integer in base 16.
-    Each `digits[i]` contributes `digits[i].val * 16^i` to the sum, where
-    `.val` is the `ℤ`-valued (signed) lift of the `i8` entry.
-    This is the reference value that `as_radix_16` computes. -/
+/-- The integer `∑ i < 64, 16^i · digits[i]` of an array of signed radix-16 digits. -/
 def I8x64_as_Radix16 (digits : Array I8 64#usize) : ℤ :=
   ∑ i ∈ Finset.range 64, (16 : ℤ)^i * (digits[i]!).val
+
+/-! ## Loop 0 -/
 
 private lemma nibble_identity (b i : ℕ) :
     (↑(b % 16) : ℤ) * (16 : ℤ) ^ (2 * i) + (↑(b / 16) : ℤ) * (16 : ℤ) ^ (2 * i + 1) =
@@ -207,7 +200,11 @@ private lemma bounds_step
     · have hj_eq : j = 2 * i + 1 := by omega
       subst hj_eq; rw [ha_odd]; exact ⟨hi7_pos, hi7_le⟩
 
-private theorem as_radix_16_loop0_spec_strong
+/-- Loop 0 from index `i ≤ 32`. If the digits below `2 i` are in `[0, 15]` and have the value of
+the bytes below `i`, and the other digits are `0`, then the loop succeeds and returns digits in
+`[0, 15]` with the value of the scalar. -/
+@[step]
+theorem as_radix_16_loop0_spec
     (self : Scalar)
     (output : Array I8 64#usize)
     (i : Usize)
@@ -310,7 +307,7 @@ private theorem as_radix_16_loop0_spec_strong
       · exact ha_odd
       · exact ha_pref
       · exact h_bounds
-    exact as_radix_16_loop0_spec_strong self a i8 (by omega) h_inv' h_tail' h_bounds'
+    exact as_radix_16_loop0_spec self a i8 (by omega) h_inv' h_tail' h_bounds'
   case isFalse hge =>
     have hi_eq : i.val = 32 := by grind
     rw [WP.spec_ok]
@@ -325,64 +322,7 @@ private theorem as_radix_16_loop0_spec_strong
     simp only [hi8_val]
     omega
 
-/-- **Spec theorem for `curve25519_dalek::scalar::Scalar::as_radix_16_loop0`**:
-• The function always succeeds (no panic) for valid inputs.
-• The result satisfies `I8x64_as_Radix16 result = ↑(U8x32_as_Nat self.bytes)`.
-• Every nibble of the result lies in `[0, 15]`:
-  `∀ k < 64, 0 ≤ (result[k]!).val ∧ (result[k]!).val ≤ 15`
--/
-@[step]
-theorem as_radix_16_loop0_spec
-    (self : Scalar)
-    (output : Array I8 64#usize)
-    (i : Usize)
-    (hi : i.val ≤ 32)
-    (h_inv : ∑ j ∈ Finset.range (2 * i.val), (16 : ℤ) ^ j * (output[j]!).val =
-             ↑(∑ k ∈ Finset.range i.val, 2 ^ (8 * k) * (self.bytes[k]!).val))
-    (h_tail : ∀ j, 2 * i.val ≤ j → j < 64 → (output[j]! : I8).val = 0)
-    (h_bounds : ∀ j < 2 * i.val,
-        (0 : ℤ) ≤ (output[j]! : I8).val ∧ (output[j]! : I8).val ≤ 15) :
-    as_radix_16_loop0 self output i ⦃ (result : Array I8 64#usize) =>
-      I8x64_as_Radix16 result = ↑(U8x32_as_Nat self.bytes) ∧
-      ∀ k < 64, (0 : ℤ) ≤ (result[k]!).val ∧ (result[k]!).val ≤ 15 ⦄ :=
-  as_radix_16_loop0_spec_strong self output i hi h_inv h_tail
-    h_bounds
-
-/-!
-# Spec theorem for `curve25519_dalek::scalar::Scalar::as_radix_16`: loop 1
-
-Recenters a 64-element signed nibble array from the unsigned range `[0, 16)`
-into the signed range `[−8, 8)` by carry propagation.
-
-The loop runs for `i` from a starting index up to 63. In each iteration `i`:
-  - `carry      ← (output[i] + 8) >>> 4`    ∈ {0, 1}
-  - `output[i]  ← output[i] − carry <<< 4`  (recenters digit `i` to `[−8, 7]`)
-  - `output[i+1] ← output[i+1] + carry`     (propagates carry to the next digit)
-
-The carry step is value-preserving because
-  `(d − carry·16)·16^i + (d′ + carry)·16^(i+1) = d·16^i + d′·16^(i+1)`,
-which follows immediately by `ring`.
-
-The loop invariant maintains three properties simultaneously:
-1. **Value preservation** — `I8x64_as_Radix16 output = V` for a fixed integer `V`
-   (the value produced by loop 0).
-2. **Recentered prefix** — every digit at a position `j < i` lies in `[−8, 7]`.
-3. **Bounded tail** — digit `i` lies in `[0, 16]` (it may have received a carry
-   from the previous step), and every digit `j > i` still lies in `[0, 15]`
-   (untouched since loop 0).
-
-After the loop completes (all 63 iterations), every digit `j < 63` is recentered
-to `[−8, 7]`, and digit 63 is bounded in `[0, 16]`.  The precondition from the
-outer `as_radix_16` function (`self[31] ≤ 127`) ensures that after loop 0 digit 63
-is at most 7, and after at most one carry from digit 62 it is at most 8.
-
-Source: "curve25519-dalek/src/scalar.rs"
--/
-
-private lemma carry_recenter_identity (d d' c : ℤ) (i : ℕ) :
-    (d - c * 16) * (16 : ℤ) ^ i + (d' + c) * (16 : ℤ) ^ (i + 1) =
-    d * (16 : ℤ) ^ i + d' * (16 : ℤ) ^ (i + 1) := by
-  ring
+/-! ## Loop 1 -/
 
 private lemma carry_zero_or_one (d : ℤ) (hlo : 0 ≤ d) (hhi : d ≤ 16) :
     (d + 8) / 16 = 0 ∨ (d + 8) / 16 = 1 := by
@@ -398,8 +338,9 @@ private lemma next_digit_bounded (d' carry : ℤ)
     0 ≤ d' + carry ∧ d' + carry ≤ 16 := by
   omega
 
+/-- For `0 ≤ i ≤ 24`, `i >>> 4` succeeds and returns `i / 16`, which is `0` or `1`. -/
 @[step]
-private theorem isize_shiftRight_4_spec (i : I8) (h_lo : 0 ≤ i.val) (h_hi : i.val ≤ 24) :
+private theorem i8_shiftRight_4_spec (i : I8) (h_lo : 0 ≤ i.val) (h_hi : i.val ≤ 24) :
     i >>> 4#i32 ⦃ (r : I8) =>
       r.val = i.val / 16 ∧
       0 ≤ r.val ∧
@@ -409,39 +350,19 @@ private theorem isize_shiftRight_4_spec (i : I8) (h_lo : 0 ≤ i.val) (h_hi : i.
   norm_num
   simp only [IScalarTy.I32_numBits_eq, BitVec.reduceToInt, Nat.ofNat_nonneg, ↓reduceIte,
     Int.reduceLT, IScalarTy.I8_numBits_eq, Int.reduceToNat, spec_ok]
-  refine And.intro ?h1 (And.intro ?h2 ?h3)
-  · simp only [IScalar.val]
+  have h : (i.bv.sshiftRight 4).toInt = i.val / 16 := by
     rw [BitVec.sshiftRight_eq]
     erw [BitVec.toInt_ofInt]
     change (i.val >>> (4 : Nat)).bmod (2 ^ 8) = i.val / 16
-    have hmatch : i.val >>> (4 : Nat) = i.val / 16 := by
-      rw [Int.shiftRight_eq_div_pow]; norm_num
-    rw [hmatch]
+    rw [show i.val >>> (4 : Nat) = i.val / 16 by rw [Int.shiftRight_eq_div_pow]; norm_num]
     exact Aeneas.Arith.Int.bmod_pow2_eq_of_inBounds 7 (i.val / 16)
       (by norm_num; omega) (by norm_num; omega)
-  · simp only [IScalar.val]
-    rw [BitVec.sshiftRight_eq]
-    erw [BitVec.toInt_ofInt]
-    change 0 ≤ (i.val >>> (4 : Nat)).bmod (2 ^ 8)
-    have hmatch : i.val >>> (4 : Nat) = i.val / 16 := by
-      rw [Int.shiftRight_eq_div_pow]; norm_num
-    rw [hmatch]
-    have hbnd := Aeneas.Arith.Int.bmod_pow2_eq_of_inBounds 7 (i.val / 16)
-      (by norm_num; omega) (by norm_num; omega)
-    grind
-  · simp only [IScalar.val]
-    rw [BitVec.sshiftRight_eq]
-    erw [BitVec.toInt_ofInt]
-    change (i.val >>> (4 : Nat)).bmod (2 ^ 8) ≤ 1
-    have hmatch : i.val >>> (4 : Nat) = i.val / 16 := by
-      rw [Int.shiftRight_eq_div_pow]; norm_num
-    rw [hmatch]
-    have hbnd := Aeneas.Arith.Int.bmod_pow2_eq_of_inBounds 7 (i.val / 16)
-      (by norm_num; omega) (by norm_num; omega)
-    grind
+  simp only [IScalar.val] at h_lo h_hi h ⊢
+  refine ⟨h, ?_, ?_⟩ <;> erw [h] <;> omega
 
+/-- For `-8 ≤ i ≤ 7`, `i <<< 4` succeeds and returns `16 i`. -/
 @[step]
-private theorem isize_shiftLeft_4_spec (i : I8)
+private theorem i8_shiftLeft_4_spec (i : I8)
     (h_lo : -8 ≤ i.val) (h_hi : i.val ≤ 7) :
     i <<< 4#i32 ⦃ (r : I8) =>
       r.val = i.val * 16 ⦄ := by
@@ -497,13 +418,6 @@ private lemma inv_step_loop1
   rw [if_pos hi64, if_pos hi164]
   linarith [show -(carry * 16) * (16 : ℤ)^i + carry * (16 : ℤ)^(i + 1) = 0 from by ring]
 
-private lemma lo_bounds_step
-    (i4 : I8) (d : ℤ)
-    (hi4 : i4.val = d - (d + 8) / 16 * 16) :
-    -8 ≤ (i4 : I8).val ∧ (i4 : I8).val ≤ 7 := by
-  have h := recenter_in_range d
-  omega
-
 private lemma tail_step_loop1
     (output a : Array I8 64#usize) (i : ℕ)
     (ha_other : ∀ j, j ≠ i → j ≠ i + 1 → (a[j]! : I8).val = (output[j]!).val)
@@ -531,23 +445,12 @@ private lemma lo_bounds_prefix_step
   · rw [ha_curr]
     exact ⟨hi4_lo, by omega⟩
 
-/-! ## The Main Inductive Proof (Strong Form) -/
-
-
-/-- **Stronger loop 1 spec** tracking all invariant components together:
-
-    Invariants maintained at loop-counter `i`:
-    1. `I8x64_as_Radix16 output = V` (value preserved throughout).
-    2. `∀ j < i, −8 ≤ output[j].val ∧ output[j].val < 8` (recentered prefix).
-    3. `0 ≤ output[i].val ∧ output[i].val ≤ 16` (current digit; may have
-       received a carry from the previous step).
-    4. `∀ j, i < j → j < 64 → 0 ≤ output[j].val ∧ output[j].val ≤ 15`
-       (digits beyond `i` are still from loop 0).
-
-    On exit (i ≥ 63, so i = 63): the loop returns `output` with
-    - every digit `j < 63` recentered to `[−8, 7]`,
-    - digit 63 bounded in `[0, 16]`. -/
-private theorem as_radix_16_loop1_spec_strong
+/-- Loop 1 from index `i ≤ 63`. If the array has value `V`, the digits below `i` are in `[-8, 8)`,
+digit `i` is in `[0, 16]` and the digits above `i` are in `[0, 15]`, then the loop succeeds and
+returns an array of value `V` whose digits below `63` are in `[-8, 8)` and whose digit `63` is in
+`[0, 16]`. -/
+@[step]
+theorem as_radix_16_loop1_spec
     (output : Array I8 64#usize)
     (i : Usize)
     (V : ℤ)
@@ -574,14 +477,14 @@ private theorem as_radix_16_loop1_spec_strong
     have h_i1_lo : 0 ≤ i1.val := by rw [h_i1_val]; exact h_curr.1
     have h_i1_hi : i1.val ≤ 16   := by rw [h_i1_val]; exact h_curr.2
     step as ⟨i2, hi2⟩
-    step with isize_shiftRight_4_spec i2
+    step with i8_shiftRight_4_spec i2
       (by simp_all; omega) (by simp_all; omega) as ⟨carry, hcarry⟩
     have h_carry_val : carry.val = (i1.val + 8) / 16 := by
       simp[hcarry,hi2]
     have h_carry_01 : carry.val = 0 ∨ carry.val = 1 := by
       have h := carry_zero_or_one i1.val h_i1_lo h_i1_hi
       omega
-    step with isize_shiftLeft_4_spec carry (by omega) (by omega) as ⟨i3, hi3⟩
+    step with i8_shiftLeft_4_spec carry (by omega) (by omega) as ⟨i3, hi3⟩
     step as ⟨i4, hi4⟩
     step as ⟨output1, h_upd1⟩
     step as ⟨i5, hi5⟩
@@ -599,11 +502,6 @@ private theorem as_radix_16_loop1_spec_strong
       have hcle : carry.val ≤ 1 := by rcases h_carry_01 with hc | hc <;> omega
       scalar_tac
     step as ⟨a, h_upd2⟩
-    have h_carry_val : carry.val = (i1.val + 8) / 16 := by
-      simp_all
-    have h_carry_01 : carry.val = 0 ∨ carry.val = 1 := by
-      have h := carry_zero_or_one i1.val h_i1_lo h_i1_hi
-      omega
     have h_i4_val : i4.val = i1.val - carry.val * 16 := by
       simp_all
     have h_i7_val : i7.val = (output[i.val + 1]!).val + carry.val := by
@@ -654,7 +552,7 @@ private theorem as_radix_16_loop1_spec_strong
       · intro j hj1 hj2
         exact ha_other j hj1 (by rw [← hi5_val]; simp_all)
       · exact h_tail
-    exact as_radix_16_loop1_spec_strong a i5 V (by omega)
+    exact as_radix_16_loop1_spec a i5 V (by omega)
       h_val' h_lo' h_curr' h_tail'
   case isFalse hge =>
     have hi_eq : i.val = 63 := by scalar_tac
@@ -669,75 +567,83 @@ private theorem as_radix_16_loop1_spec_strong
     simp only [hi5_val]
     omega
 
-/-! ## The Published Spec Theorem -/
+/-! ## The spec -/
 
-/-- **Spec theorem for `curve25519_dalek::scalar::Scalar::as_radix_16_loop1`**:
-• The function always succeeds (no panic).
-• Value preservation: `I8x64_as_Radix16 result = V`.
-• All interior digits are recentered:
-  `∀ j < 63, −8 ≤ (result[j]!).val ∧ (result[j]!).val < 8`
-• The last digit is bounded: `0 ≤ (result[63]!).val ∧ (result[63]!).val ≤ 16`.
--/
-@[step]
-theorem as_radix_16_loop1_spec
-    (output : Array I8 64#usize)
-    (i : Usize)
-    (V : ℤ)
-    (hi : i.val ≤ 63)
-    (h_val : I8x64_as_Radix16 output = V)
-    (h_lo : ∀ j < i.val,
-        -8 ≤ (output[j]! : I8).val ∧ (output[j]! : I8).val < 8)
-    (h_curr : 0 ≤ (output[i.val]! : I8).val ∧
-              (output[i.val]! : I8).val ≤ 16)
-    (h_tail : ∀ j, i.val < j → j < 64 →
-        0 ≤ (output[j]! : I8).val ∧ (output[j]! : I8).val ≤ 15) :
-    as_radix_16_loop1 output i ⦃ (result : Array I8 64#usize) =>
-      I8x64_as_Radix16 result = V ∧
-      (∀ j < 63, -8 ≤ (result[j]!).val ∧ (result[j]!).val < 8) ∧
-      0 ≤ (result[63]!).val ∧ (result[63]!).val ≤ 16 ⦄ :=
-  as_radix_16_loop1_spec_strong output i V hi h_val h_lo h_curr h_tail
+/-- If byte 31 is at most `127`, the scalar is less than `2^255`. -/
+private lemma U8x32_as_Nat_lt_pow255 (self : Scalar)
+    (h_top : (self.bytes[31]!).val ≤ 127) :
+    U8x32_as_Nat self.bytes < 2 ^ 255 := by
+  simp only [U8x32_as_Nat]
+  have key : ∀ k, k ≤ 32 →
+      ∑ i ∈ Finset.range k, 2 ^ (8 * i) * (self.bytes[i]!).val < 2 ^ (8 * k) := by
+    intro k hk
+    induction k with
+    | zero => simp
+    | succ k ih =>
+      rw [Finset.sum_range_succ]
+      have hbnd : (self.bytes[k]!).val < 256 := by
+        have := (self.bytes[k]!).hBounds; scalar_tac
+      have ih' := ih (by omega)
+      have h8k : 2 ^ (8 * (k + 1)) = 2 ^ (8 * k) * 256 := by
+        rw [show 8 * (k + 1) = 8 * k + 8 from by ring, pow_add]; norm_num
+      nlinarith [Nat.two_pow_pos (8 * k)]
+  have h31 : ∑ i ∈ Finset.range 31, 2 ^ (8 * i) * (self.bytes[i]!).val < 2 ^ (8 * 31) :=
+    key 31 (by omega)
+  have hsplit : ∑ i ∈ Finset.range 32, 2 ^ (8 * i) * (self.bytes[i]!).val =
+      ∑ i ∈ Finset.range 31, 2 ^ (8 * i) * (self.bytes[i]!).val +
+      2 ^ (8 * 31) * (self.bytes[31]!).val :=
+    Finset.sum_range_succ (fun i => 2 ^ (8 * i) * (self.bytes[i]!).val) 31
+  rw [hsplit]
+  nlinarith [show (2 : ℕ) ^ (8 * 31) * 128 = 2 ^ 255 from by norm_num,
+             Nat.mul_le_mul_left (2 ^ (8 * 31)) h_top]
 
-/-!
-# Spec theorem for `curve25519_dalek::scalar::Scalar::as_radix_16`
+/-- If the digits `d` have value `V < 2^255` and `-8 ≤ d_i` for `i < 63`, then `d_63 ≤ 8`, because
+`d_63 · 16^63 = V - ∑ i < 63, 16^i · d_i < 8 · 16^63 + 8 · (16^63 - 1) / 15`. -/
+private lemma digit_63_le_8
+    (digits : Array I8 64#usize)
+    (V : ℕ)
+    (h_val : I8x64_as_Radix16 digits = (V : ℤ))
+    (h_V_lt : V < 2 ^ 255)
+    (h_inner : ∀ i < 63, -8 ≤ (digits[i]!).val ∧ (digits[i]!).val < 8) :
+    (digits[63]!).val ≤ 8 := by
+  by_contra h_neg
+  push Not at h_neg
+  have h_s63_ge_9 : 9 ≤ (digits[63]!).val := h_neg
+  -- Split the full sum: s_63 * 16^63 + ∑_{i<63} 16^i * s_i = V.
+  have h_split : (digits[63]!).val * (16 : ℤ) ^ 63 +
+      ∑ i ∈ Finset.range 63, (16 : ℤ) ^ i * (digits[i]!).val = V := by
+    rw [← h_val]
+    unfold I8x64_as_Radix16
+    rw [Finset.sum_range_succ (fun i => (16 : ℤ) ^ i * (digits[i]!).val) 63]
+    ring
+  -- Lower bound the inner signed sum by -8 * ∑_{i<63} 16^i.
+  have h_inner_lb :
+      -8 * ∑ i ∈ Finset.range 63, (16 : ℤ) ^ i ≤
+        ∑ i ∈ Finset.range 63, (16 : ℤ) ^ i * (digits[i]!).val := by
+    rw [Finset.mul_sum]
+    apply Finset.sum_le_sum
+    intros i hi
+    have hi63 : i < 63 := Finset.mem_range.mp hi
+    have h_pow : (0 : ℤ) ≤ (16 : ℤ) ^ i := pow_nonneg (by norm_num) i
+    have := (h_inner i hi63).1
+    nlinarith
+  -- Geometric sum: (∑_{i<63} 16^i) * (16 - 1) = 16^63 - 1.
+  have h_geom : 15 * ∑ i ∈ Finset.range 63, (16 : ℤ) ^ i = (16 : ℤ) ^ 63 - 1 := by
+    have := geom_sum_mul (16 : ℤ) 63
+    linarith
+  -- 2^255 = 8 * 16^63.
+  have h_255_eq : (2 : ℤ) ^ 255 = 8 * (16 : ℤ) ^ 63 := by
+    rw [show (255 : ℕ) = 3 + 4 * 63 from by norm_num, pow_add, pow_mul]
+    norm_num
+  have h_V_Z : (V : ℤ) < (2 : ℤ) ^ 255 := by exact_mod_cast h_V_lt
+  have h_pow_pos : (0 : ℤ) < (16 : ℤ) ^ 63 := pow_pos (by norm_num) 63
+  -- Derive contradiction: if s_63 ≥ 9, then 9 * 16^63 ≤ s_63 * 16^63 = V - inner_sum ≤ V + 8 * S,
+  -- giving 135 * 16^63 ≤ 15V + 8(16^63 - 1) < 120 * 16^63 + 8 * 16^63 = 128 * 16^63. Contradiction.
+  nlinarith [h_split, h_inner_lb, h_geom, h_V_Z, h_255_eq, h_pow_pos, h_s63_ge_9,
+             mul_pos (show (0:ℤ) < 9 from by norm_num) h_pow_pos]
 
-Converts a 32-byte little-endian scalar into a 64-element signed radix-16 digit
-array with recentered coefficients in `[-8, 8)`.  The algorithm proceeds in three
-phases:
-
-1. **Assertion**: checks `self[31] ≤ 127` (top bit is clear, i.e., the scalar
-   value is strictly less than `2^255`), preventing `i8` overflow at digit 63
-   after carry propagation.
-2. **Loop 0** (`as_radix_16_loop0`, 32 iterations): splits each byte into two
-   nibbles.  For each `i ∈ [0, 32)`:
-   - `output[2*i]     ← bot_half(self.bytes[i]) = (self.bytes[i] >> 0) & 15`
-   - `output[2*i + 1] ← top_half(self.bytes[i]) = (self.bytes[i] >> 4) & 15`
-   Every nibble value lies in `[0, 15]`, and the loop invariant maintains
-   `∑ j < 2*k, (16:ℤ)^j * output[j].val = ↑(∑ j < k, 2^(8*j) * self.bytes[j].val)`.
-3. **Loop 1** (`as_radix_16_loop1`, 63 iterations): recenters digits from
-   `[0, 16)` to `[-8, 8)` by carry propagation.  For each `i ∈ [0, 63)`:
-   - `carry      ← (output[i] + 8) >> 4` ∈ {0, 1}
-   - `output[i]  ← output[i] − carry · 16` ∈ [−8, 7]
-   - `output[i+1] ← output[i+1] + carry`
-   The value is preserved because
-     `(output[i] − carry·16)·16^i + (output[i+1] + carry)·16^(i+1)`
-     `= output[i]·16^i + output[i+1]·16^(i+1)`.
-   Digit 63 is not recentered; the precondition `self[31] ≤ 127` guarantees
-   `output[63] ≤ 7` after loop 0, and the final carry from digit 62 is at
-   most 1, so `output[63] ≤ 8` after loop 1.
-
-Source: "curve25519-dalek/src/scalar.rs"
--/
-
-/-- **Spec theorem for `curve25519_dalek::scalar::Scalar::as_radix_16`**:
-• The function succeeds (no panic) if and only if `self.bytes[31].val ≤ 127`.
-• The result represents the same integer as `self` in signed base 16:
-  `I8x64_as_Radix16 result = ↑(U8x32_as_Nat self.bytes)`
-• All interior digits are recentered:
-  `∀ i < 63, −8 ≤ (result[i]!).val ∧ (result[i]!).val < 8`
-• The last digit is bounded: `0 ≤ (result[63]!).val ∧ (result[63]!).val ≤ 16`.
--/
-@[step]
-theorem as_radix_16_spec (self : Scalar)
+/-- `as_radix_16_spec` with the bound `d_63 ≤ 16` of loop 1. -/
+private theorem as_radix_16_spec_le_16 (self : Scalar)
     (h_top : (self.bytes[31]!).val ≤ 127) :
     as_radix_16 self ⦃ (result : Array I8 64#usize) =>
       I8x64_as_Radix16 result = ↑(U8x32_as_Nat self.bytes) ∧
@@ -755,6 +661,19 @@ theorem as_radix_16_spec (self : Scalar)
   · intro j _ hj
     simp only [Array.getElem!_Nat_eq, Array.repeat_val]
     rw [List.getElem!_replicate] <;> first | rfl | scalar_tac
+
+/-- If `self.bytes[31] ≤ 127`, then `as_radix_16 self` succeeds and returns digits `d` with
+`I8x64_as_Radix16 d = U8x32_as_Nat self.bytes`, `-8 ≤ d_i < 8` for `i < 63` and
+`0 ≤ d_63 ≤ 8`. -/
+@[step]
+theorem as_radix_16_spec (self : Scalar) (h_top : (self.bytes[31]!).val ≤ 127) :
+    as_radix_16 self ⦃ (result : Array I8 64#usize) =>
+      I8x64_as_Radix16 result = ↑(U8x32_as_Nat self.bytes) ∧
+      (∀ i < 63, -8 ≤ (result[i]!).val ∧ (result[i]!).val < 8) ∧
+      0 ≤ (result[63]!).val ∧ (result[63]!).val ≤ 8 ⦄ := by
+  apply spec_mono (as_radix_16_spec_le_16 self h_top)
+  rintro r ⟨hv, hi, h0, -⟩
+  exact ⟨hv, hi, h0, digit_63_le_8 r _ hv (U8x32_as_Nat_lt_pow255 self h_top) hi⟩
 
 /--
 info: 'curve25519_dalek.scalar.Scalar.as_radix_16_spec' depends on axioms: [propext, Classical.choice, Quot.sound]
