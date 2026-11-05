@@ -190,7 +190,7 @@ agree.
 |---|---|
 | `tracks/<track>/README.md` | the full description of the track |
 | `tracks/<track>/lean/` | the Lake project: generated code, hand-written models, proofs in `Sim/` |
-| `shared/dalek/` | the curve25519-dalek extraction and Lean library that tracks B and D import, with the field specs and the point specs in `lean/Curve25519Dalek/Specs/` ([README](shared/dalek/README.md)). Most point specs state their results in the group of `DalekSim/Edwards.lean`. A `#guard_msgs` check shows that each of the 41 top-level specs uses the standard axioms only. It also extracts the basepoint table path of the X25519 public key and proves that entry `j` of row `i` of the table encodes `[(j + 1) 256^i] B` mod `p`, with every limb below `2^52` |
+| `shared/dalek/` | the curve25519-dalek extraction and Lean library that tracks B and D import, with the field specs, the point specs and the spec of `Scalar::as_radix_16` in `lean/Curve25519Dalek/Specs/` ([README](shared/dalek/README.md)). Most point specs state their results in the group of `DalekSim/Edwards.lean`. A `#guard_msgs` check shows that each of the 41 top-level specs uses the standard axioms only. It also extracts the basepoint table path of the X25519 public key and proves that entry `j` of row `i` of the table encodes `[(j + 1) 256^i] B` mod `p`, with every limb below `2^52` |
 | `tools/` | scripts that compute certificates and witness points for the proofs in `shared/dalek/lean/DalekSim/`. The proofs check them, so the scripts are not trusted |
 | `tracks/<track>/` other directories | work copies of the Rust sources and extraction scripts |
 | `scripts/fetch-upstreams.sh` | clones the upstream repositories at the recorded commits and prepares the Lean projects |
