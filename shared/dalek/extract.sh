@@ -23,8 +23,10 @@ aeneas_version="nightly-2026.10.12-d119a47"
 workspace="$root/tracks/x25519/real-dalek"
 # precomputed-tables gives the basepoint table path of EdwardsPoint::mul_base.
 features="alloc,zeroize,precomputed-tables"
-# The entry points. Track B uses the first four, track D the next two. The last two are the
-# public key path of X25519: mul_base_clamped multiplies the basepoint with the table.
+# The entry points. Track B uses the first four, track D the next two. The next two are the
+# public key path of X25519: mul_base_clamped multiplies the basepoint with the table. The
+# last three are the serial variable-base scalar multiplication and two point operations
+# that the specs of Curve25519Dalek/Specs/ cover.
 entry_points=(
   'crate::montgomery::differential_add_and_double'
   'crate::montgomery::MontgomeryPoint::mul_clamped'
@@ -34,6 +36,9 @@ entry_points=(
   'crate::ristretto::RistrettoPoint::compress'
   'crate::edwards::EdwardsPoint::mul_base_clamped'
   'crate::edwards::EdwardsPoint::to_montgomery'
+  'crate::backend::serial::scalar_mul::variable_base::mul'
+  'crate::edwards::EdwardsPoint::double'
+  'crate::edwards::EdwardsPoint::as_affine_niels'
 )
 # All generated files go to extract/. Funs.lean and Types.lean also go to lean/, after the
 # patches. lean/ has hand-written files for the items of the two templates.

@@ -89,6 +89,15 @@ structure backend.serial.curve_models.AffineNielsPoint where
   y_minus_x : backend.serial.u64.field.FieldElement51
   xy2d : backend.serial.u64.field.FieldElement51
 
+/-- [curve25519_dalek::backend::serial::curve_models::ProjectiveNielsPoint]
+    Source: 'curve25519-dalek/src/backend/serial/curve_models/mod.rs', lines 206:0-211:1
+    Visibility: public -/
+structure backend.serial.curve_models.ProjectiveNielsPoint where
+  Y_plus_X : backend.serial.u64.field.FieldElement51
+  Y_minus_X : backend.serial.u64.field.FieldElement51
+  Z : backend.serial.u64.field.FieldElement51
+  T2d : backend.serial.u64.field.FieldElement51
+
 /-- Trait declaration: [curve25519_dalek::traits::Identity]
     Source: 'curve25519-dalek/src/traits.rs', lines 26:0-30:1
     Visibility: public -/
@@ -110,6 +119,12 @@ structure edwards.EdwardsPoint where
 @[reducible]
 def window.LookupTable (T : Type) := Array T 8#usize
 
+/-- [curve25519_dalek::scalar::Scalar]
+    Source: 'curve25519-dalek/src/scalar.rs', lines 195:0-232:1
+    Visibility: public -/
+structure scalar.Scalar where
+  bytes : Array Std.U8 32#usize
+
 /-- [curve25519_dalek::edwards::EdwardsBasepointTable]
     Source: 'curve25519-dalek/src/edwards.rs', lines 1085:8-1085:68
     Visibility: public -/
@@ -123,12 +138,6 @@ def edwards.EdwardsBasepointTable :=
     Visibility: public -/
 @[reducible]
 def montgomery.MontgomeryPoint := Array Std.U8 32#usize
-
-/-- [curve25519_dalek::scalar::Scalar]
-    Source: 'curve25519-dalek/src/scalar.rs', lines 195:0-232:1
-    Visibility: public -/
-structure scalar.Scalar where
-  bytes : Array Std.U8 32#usize
 
 /-- [curve25519_dalek::edwards::{impl curve25519_dalek::traits::BasepointTable<curve25519_dalek::edwards::EdwardsPoint> for curve25519_dalek::edwards::EdwardsBasepointTable}::mul_base::{closure#1}]
     Source: 'curve25519-dalek/src/edwards.rs', lines 1164:43-1164:57 -/

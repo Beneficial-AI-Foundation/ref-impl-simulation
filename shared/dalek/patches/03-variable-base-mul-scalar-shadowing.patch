@@ -1,0 +1,17 @@
+Hand edit of the Aeneas output, the same as patch 01. In the serial
+`variable_base::mul`, the parameter `scalar` shadows the namespace `scalar`. Lean reads
+`scalar.Scalar.as_radix_16 scalar` as the projection `Scalar` of the parameter and fails.
+The edit calls the same function, `scalar.Scalar.as_radix_16`, with dot notation on the
+parameter.
+
+--- a/Funs.lean
++++ b/Funs.lean
+@@ -1383,7 +1383,7 @@
+   let lookup_table ←
+     window.LookupTableProjectiveNielsPoint.Insts.CoreConvertFromSharedAEdwardsPoint.from
+       point
+-  let scalar_digits ← scalar.Scalar.as_radix_16 scalar
++  let scalar_digits ← scalar.as_radix_16
+   let tmp3 ←
+     edwards.EdwardsPoint.Insts.Curve25519_dalekTraitsIdentity.identity
+   let i ← Array.index_usize scalar_digits 63#usize
