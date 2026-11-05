@@ -20,9 +20,11 @@ All paths are relative to `shared/dalek/`.
 | Aeneas | `nightly-2026.10.12-d119a47` |
 | Rust | `nightly-2026-09-17` (`../../tracks/x25519/real-dalek/rust-toolchain`) |
 
-Charon starts from eight functions. Track B uses the first four, and track D uses the next
-two. The last two are the path of the X25519 public key, which multiplies the basepoint with
-the precomputed table. No proof uses them yet:
+Charon starts from eleven functions. Track B uses the first four, and track D uses the next
+two. Entry points 7 and 8 are the path of the X25519 public key, which multiplies the
+basepoint with the precomputed table. Entry points 9 to 11 are the serial variable-base scalar
+multiplication and two point operations. The point specs of section 2 cover parts of the last
+five. No refinement proof uses them yet:
 
 1. `montgomery::differential_add_and_double`
 2. `montgomery::MontgomeryPoint::mul_clamped`
@@ -32,12 +34,19 @@ the precomputed table. No proof uses them yet:
 6. `ristretto::RistrettoPoint::compress`
 7. `edwards::EdwardsPoint::mul_base_clamped`
 8. `edwards::EdwardsPoint::to_montgomery`
+9. `backend::serial::scalar_mul::variable_base::mul`
+10. `edwards::EdwardsPoint::double`
+11. `edwards::EdwardsPoint::as_affine_niels`
+
+Charon cannot start from a method of a trait implementation with generic arguments. So
+`EdwardsPoint + EdwardsPoint` (`Add<&EdwardsPoint> for &EdwardsPoint`) is not in the output.
 
 The script writes the clean Aeneas output to `extract/`. It copies `Funs.lean` and
 `Types.lean` to `lean/Curve25519Dalek/` and applies three hand edits to the copies:
 
-1. `patches/01-mul-scalar-shadowing.patch` and `patches/02-mul-base-scalar-shadowing.patch`.
-   In `MontgomeryPoint::mul` and in `EdwardsBasepointTable::mul_base`, the parameter
+1. `patches/01-mul-scalar-shadowing.patch`, `patches/02-mul-base-scalar-shadowing.patch` and
+   `patches/03-variable-base-mul-scalar-shadowing.patch`. In `MontgomeryPoint::mul`, in
+   `EdwardsBasepointTable::mul_base` and in the serial `variable_base::mul`, the parameter
    `scalar` shadows the namespace `scalar`, and Lean does not elaborate the call. The
    headers of the patches give the details.
 2. `inline-table.py`. Aeneas writes the basepoint table
@@ -54,10 +63,11 @@ Lean does not check that the edited files are equal to the Aeneas output. The ed
 the trusted base (README section 3, part 5). `basepoint_table` holds for the table after
 `inline-table.py`.
 
-The output has 97 functions and constants, and 19 type and trait declarations. Two of the
-types are the closures of `mul_base`. The last two entry points and the feature
+The output has 112 functions and constants, and 20 type and trait declarations. Two of the
+types are the closures of `mul_base`. The last five entry points and the feature
 `precomputed-tables` do not change the text of any function, constant or type of the first
-six. Each of these items except `MontgomeryPoint::as_bytes` is also in the earlier
+six. Entry points 9 to 11 add 15 functions and constants and the type
+`ProjectiveNielsPoint`, and change no earlier item. They add no external function. Each of these items except `MontgomeryPoint::as_bytes` is also in the earlier
 extraction of track B or of track D, with the same text. `as_bytes` came later,
 for `SharedSecret::as_bytes` in track B. Its Lean body is `ok self`. The two templates list
 15 external functions and the external types `subtle.Choice` and
@@ -88,8 +98,8 @@ differ, it fails.
 | `Funs.lean`, `Types.lean` | `extract/`, with the hand edits of section 1 |
 | `FunsExternal.lean` | hand-written definitions of the 15 external functions: 5 of `subtle` and `zeroize` from track B, 6 of `subtle` from track D, plus the loop of the slice `ct_eq` from track D (the READMEs of the tracks, section 4), and 4 for the table path: `Iterator::filter`, `Filter::next` (a loop with `partial_fixpoint`, as `find` in `core`), `Rem` on `&usize` and `ConstantTimeEq` on `u16` |
 | `TypesExternal.lean` | the type `subtle.Choice`, from `curve25519-dalek-lean-verify`, and `Filter`, a structure of the inner iterator and the predicate, as in `core` |
-| `Math/`, `Auxiliary.lean` | `curve25519-dalek-lean-verify` `26d49052` |
-| `Specs/` | the field specs. Track B ported them to Aeneas `d119a474` (track B README, section 2). `Negate.lean` comes from track D and is unchanged from `curve25519-dalek-lean-verify` |
+| `Math/`, `Auxiliary.lean` | `curve25519-dalek-lean-verify` `26d49052`. `Math/Edwards/Curve.lean` keeps the curve parameters `Ed25519` of the upstream file and drops its point type, whose associativity is a `sorry`. In its place it gives the group `Point dEd` of `DalekSim/Edwards.lean` the accessors `x`, `y` and the lemmas `add_x`, `add_y` of the old type. `Math/Edwards/Representation.lean` is the upstream file without the parts on decompression, compression and `AffinePoint`. Its `toPoint` maps each point type into `Point dEd` |
+| `Specs/` | the field specs and the point specs. Track B ported the field specs to Aeneas `d119a474` (track B README, section 2). `Negate.lean` comes from track D and is unchanged from `curve25519-dalek-lean-verify`. The point specs are in `Specs/Backend/Serial/CurveModels/` (the `CompletedPoint`, `ProjectivePoint`, `ProjectiveNielsPoint` and `AffineNielsPoint` operations of entry points 7 to 11), `Specs/Edwards/EdwardsPoint/` (`identity`, `as_projective`, `as_projective_niels`, `as_affine_niels`, `double`, `mul_by_pow_2`, `to_montgomery`) and `Specs/Window/` (`LookupTable<ProjectiveNielsPoint>::from` and `select`). Each states its result over `Field51_as_Nat` mod `p`, or through `toPoint` in `Point dEd`. `Specs/Axioms.lean` checks with `#guard_msgs` that each spec with a `toPoint` result uses the standard axioms only. The spec of `to_montgomery` keeps the relation `u Z = u Y + (Z + Y)` mod `p` and drops the upstream link to the Montgomery curve. `Specs/Subtle.lean` holds the `subtle` lemmas that the upstream `FunsExternal.lean` has next to its definitions. The specs of `EdwardsPoint + EdwardsPoint` and of `ProjectiveNielsPoint` subtraction are not ported, because the extraction does not have these functions |
 
 No definition in `FunsExternal.lean` or `TypesExternal.lean` is an axiom. The library does
 not contain the relations to the reference programs or the refinement proofs. Those use

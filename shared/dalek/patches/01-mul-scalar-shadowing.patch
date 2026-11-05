@@ -5,7 +5,7 @@ the parameter and fails ("Invalid field `Scalar`"). The edit calls the same func
 
 --- a/Funs.lean
 +++ b/Funs.lean
-@@ -7138,7 +7138,7 @@
+@@ -7508,7 +7508,7 @@
    let affine_u ← backend.serial.u64.field.FieldElement51.from_bytes self
    let x0 ← IdentityMontgomeryProjectivePoint.identity
    let fe ← backend.serial.u64.field.FieldElement51.ONE

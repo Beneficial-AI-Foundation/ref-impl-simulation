@@ -6,7 +6,7 @@ parameter.
 
 --- a/Funs.lean
 +++ b/Funs.lean
-@@ -6765,7 +6765,7 @@
+@@ -7135,7 +7135,7 @@
    (self : edwards.EdwardsBasepointTable) (scalar : scalar.Scalar) :
    Result edwards.EdwardsPoint
    := do

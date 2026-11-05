@@ -1,0 +1,131 @@
+/-
+Copyright 2025 The Beneficial AI Foundation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Hoang Le Truong, Alessandro D'Angelo
+-/
+import Curve25519Dalek.Funs
+import Curve25519Dalek.Math.Basic
+import Curve25519Dalek.Math.Edwards.Representation
+import Curve25519Dalek.Specs.Backend.Serial.U64.Field.FieldElement51.Neg
+
+/-!
+# Spec theorem
+
+Specification for `curve25519_dalek::backend::serial::curve_models::ProjectiveNielsPoint::neg`.
+
+This function computes the negation of a ProjectiveNielsPoint. Given a point
+N = (Y+X, Y−X, Z, 2dXY), it returns −N by swapping Y_plus_X and Y_minus_X,
+keeping Z unchanged, and negating T2d.
+
+Ed25519 negation is `(x, y) ↦ (-x, y)` in affine form; since the PNP form gives
+`x ∝ (YpX - YmX)`, the `Y_plus_X ↔ Y_minus_X` swap flips the sign of `x`, while
+`y ∝ (YpX + YmX)` is symmetric and unchanged.
+
+Source: "curve25519-dalek/src/backend/serial/curve_models/mod.rs, lines 503:4-510:5"
+
+Port note (ref-impl-simulation, Aeneas d119a474): `step*` names the two posts of the field
+`neg` `fe_post` and `fe_post1`, so the proof uses these names. The point is in
+`DalekSim.Edwards.Point dEd`, so the last step uses `Point.ext_xy` and the lemmas `neg_x`,
+`neg_y`, `x_mk'` and `y_mk'` of that type.
+-/
+
+open Aeneas Aeneas.Std Result Aeneas.Std.WP
+open Edwards
+open curve25519_dalek.Shared0ProjectiveNielsPoint.Insts.CoreOpsArithNegProjectiveNielsPoint
+open curve25519_dalek.backend.serial.curve_models
+open curve25519_dalek.backend.serial.u64.field
+namespace curve25519_dalek.Shared0ProjectiveNielsPoint.Insts.CoreOpsArithNegProjectiveNielsPoint
+
+/-- **Spec theorem**
+
+For `curve25519_dalek::backend::serial::curve_models::ProjectiveNielsPoint::neg` (shared-reference)
+• No panic (always returns successfully) given `self.IsValid`
+• The output is a valid `ProjectiveNielsPoint`
+• It represents `-self.toPoint` on Ed25519
+
+Derived by lifting the Field51-level `FieldElement51.neg_spec` postconditions
+(`r.Y_plus_X = self.Y_minus_X`, `r.Y_minus_X = self.Y_plus_X`, `r.Z = self.Z`,
+`r.T2d ≡ -self.T2d [mod p]` with `r.T2d[i]!.val < 2^52`) through
+`ProjectiveNielsPoint.toPoint'`. -/
+@[step]
+theorem neg_spec
+    (self : ProjectiveNielsPoint) (h_self : self.IsValid) :
+    neg self ⦃ (result : ProjectiveNielsPoint) =>
+      result.IsValid ∧ result.toPoint = -self.toPoint ⦄ := by
+  -- Derive the `< 2^54` precondition for the Field51-level `neg_spec` from IsValid's `< 2^52`.
+  have h_T2d54 : ∀ i < 5, self.T2d[i]!.val < 2 ^ 54 := fun i hi => by
+    have := h_self.T2d_bounds i hi; omega
+  unfold neg
+  step*
+  -- step* exposes:
+  --   fe_post : Field51_as_Nat self.T2d + Field51_as_Nat fe ≡ 0 [MOD p]
+  --   fe_post1 : ∀ i < 5, fe[i]!.val < 2 ^ 52
+  -- Lift fe_post1 from Nat mod to CurveField: fe.toField = -self.T2d.toField.
+  simp only [Edwards.lift_mod_eq_iff, Nat.cast_add, Nat.cast_zero] at fe_post
+  rw [← FieldElement51.toField, ← FieldElement51.toField] at fe_post
+  have fe_neg : fe.toField = -self.T2d.toField := by grind
+  -- Build IsValid for the swapped-and-T2d-negated record.
+  have h_r_valid :
+      ({ self with Y_plus_X := self.Y_minus_X, Y_minus_X := self.Y_plus_X, T2d := fe } :
+        ProjectiveNielsPoint).IsValid := by
+    refine
+      { Z_ne_zero := ?_, T2d_relation := ?_, on_curve := ?_,
+        Y_plus_X_bounds := ?_, Y_minus_X_bounds := ?_,
+        Z_bounds := ?_, T2d_bounds := ?_ }
+    · exact h_self.Z_ne_zero
+    · -- T2d_relation: 2 * Z * T2d' = d * (YmX² - YpX²) with T2d' = -self.T2d.
+      simp only
+      rw [fe_neg]
+      have := h_self.T2d_relation
+      simp only at this
+      linear_combination -this
+    · -- on_curve: curve equation invariant under YpX ↔ YmX swap
+      -- (both (YpX - YmX)² and (YpX + YmX)² are swap-invariant).
+      simp only
+      have := h_self.on_curve
+      simp only at this
+      linear_combination this
+    · exact h_self.Y_minus_X_bounds
+    · exact h_self.Y_plus_X_bounds
+    · exact h_self.Z_bounds
+    · exact fe_post1
+  refine ⟨h_r_valid, ?_⟩
+  -- toPoint = -self.toPoint componentwise, via Point.ext.
+  unfold ProjectiveNielsPoint.toPoint
+  simp only [h_r_valid, ↓reduceDIte, h_self, ProjectiveNielsPoint.toPoint']
+  apply DalekSim.Edwards.Point.ext_xy
+  · -- x: (YmX - YpX) / (2Z) = -((YpX - YmX) / (2Z))
+    simp only [DalekSim.Edwards.Point.neg_x, DalekSim.Edwards.Point.x_mk']
+    field_simp
+    ring
+  · -- y: (YmX + YpX) / (2Z) = (YpX + YmX) / (2Z)
+    simp only [DalekSim.Edwards.Point.neg_y, DalekSim.Edwards.Point.y_mk']
+    ring
+
+end curve25519_dalek.Shared0ProjectiveNielsPoint.Insts.CoreOpsArithNegProjectiveNielsPoint
+
+namespace curve25519_dalek.backend.serial.curve_models.ProjectiveNielsPoint.Insts
+namespace CoreOpsArithNegProjectiveNielsPoint
+
+/-- **Spec theorem**
+
+Specification for
+`curve25519_dalek::backend::serial::curve_models::ProjectiveNielsPoint::neg`.
+• No panic (always returns successfully) given `self.IsValid`
+• The output is a valid `ProjectiveNielsPoint`
+• It represents `-self.toPoint` on Ed25519
+
+Mirrors the shared-reference `Shared0…neg_spec`; the owned `neg` is just a
+one-step delegation to it (Rust source: `-&self`). Needed so that `let*`
+in downstream proofs (e.g., `LookupTable.select_spec`) matches the binding
+that type-class resolution produces. -/
+@[step]
+theorem neg_spec (self : ProjectiveNielsPoint) (h_self : self.IsValid) :
+    neg self ⦃ (result : ProjectiveNielsPoint) =>
+      result.IsValid ∧ result.toPoint = -self.toPoint ⦄ := by
+  unfold neg
+  exact Shared0ProjectiveNielsPoint.Insts.CoreOpsArithNegProjectiveNielsPoint.neg_spec
+    self h_self
+
+end CoreOpsArithNegProjectiveNielsPoint
+end curve25519_dalek.backend.serial.curve_models.ProjectiveNielsPoint.Insts
