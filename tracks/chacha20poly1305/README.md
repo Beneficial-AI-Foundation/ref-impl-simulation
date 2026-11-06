@@ -231,7 +231,7 @@ Aeneas then writes the Lean files into the project. Each command overwrites one
 directory, but not the hand-written `FunsExternal.lean`:
 
 ```bash
-A=../../.aeneas/aeneas; F="-backend lean -split-files -loops-to-rec -no-progress-bar -dest lean"
+A=../../.aeneas/aeneas; F="-backend lean -split-files -loops-to-rec -max-heartbeats 200000 -no-progress-bar -dest lean"
 $A $F -subdir Ref -namespace Ref out/refhax1/chacha20_hax.llbc
 $A $F -subdir Real -namespace Real out/realc/libcrux_chacha20poly1305.llbc
 $A $F -subdir RealAead -namespace RealAead out/real5/libcrux_chacha20poly1305.llbc

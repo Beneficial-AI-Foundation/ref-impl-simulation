@@ -386,7 +386,7 @@ of `.aeneas/` on `PATH`:
 
 ```bash
 charon cargo --preset=aeneas --start-from crate::decode --start-from crate::encode --start-from crate::edwards::point_mul --opaque crate::field --opaque crate::scalar -- --offline
-aeneas -backend lean -split-files -loops-to-rec -namespace ristretto_ref -dest Ref ristretto_ref.llbc
+aeneas -backend lean -split-files -loops-to-rec -max-heartbeats 200000 -namespace ristretto_ref -dest Ref ristretto_ref.llbc
 ```
 
 `lean/RistrettoRef` holds a copy of `ref-plain/Ref` without hand edits, plus the

@@ -86,7 +86,7 @@ for e in "${entry_points[@]}"; do start+=(--start-from "$e"); done
   "${start[@]}" -- --locked --offline -p curve25519-dalek --no-default-features \
   --features "$features") > "$tmp/charon.log" 2>&1 \
   || { cat "$tmp/charon.log" >&2; exit 1; }
-(cd "$tmp" && aeneas -backend lean -loops-to-rec -split-files -dest out curve25519_dalek.llbc) \
+(cd "$tmp" && aeneas -backend lean -loops-to-rec -split-files -max-heartbeats 200000 -dest out curve25519_dalek.llbc) \
   > "$tmp/aeneas.log" 2>&1 || { cat "$tmp/aeneas.log" >&2; exit 1; }
 apply_patches "$tmp/out" "$tmp/patched"
 

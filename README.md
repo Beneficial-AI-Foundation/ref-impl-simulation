@@ -113,7 +113,9 @@ The shared library `shared/dalek/` adds a fifth part:
 
 Rules for the proofs. No `sorry`. No hand-written proof changes `maxHeartbeats`, so every
 proof fits the default limit of 200,000 heartbeats. A proof that does not fit is split
-into lemmas. The files that Aeneas generates set 1,000,000 for their own definitions.
+into lemmas. Aeneas writes a `maxHeartbeats` option at the top of each file it generates,
+1,000,000 by default. Every extraction command passes `-max-heartbeats 200000`, so the
+generated files also use the default limit.
 
 ## 4. Results
 

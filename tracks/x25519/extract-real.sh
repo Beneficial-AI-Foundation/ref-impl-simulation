@@ -64,7 +64,7 @@ for e in "${opaque[@]}"; do start+=(--opaque "$e"); done
   "${start[@]}" -- --locked --offline -p x25519-dalek --no-default-features \
   --features "$features" --config "build.rustflags=[\"--remap-path-prefix=$root/=\"]") \
   > "$tmp/charon.log" 2>&1 || { cat "$tmp/charon.log" >&2; exit 1; }
-(cd "$tmp" && aeneas -backend lean -loops-to-rec -split-files -dest X25519 x25519_dalek.llbc) \
+(cd "$tmp" && aeneas -backend lean -loops-to-rec -split-files -max-heartbeats 200000 -dest X25519 x25519_dalek.llbc) \
   > "$tmp/aeneas.log" 2>&1 || { cat "$tmp/aeneas.log" >&2; exit 1; }
 
 if [ "$mode" = --check ]; then
