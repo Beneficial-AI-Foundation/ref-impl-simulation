@@ -366,8 +366,9 @@ Weaknesses:
    on review and on the tests of section 6.
 3. The `subtle` definitions state the result of constant-time code. The theorem says
    nothing about constant time.
-4. For scalar multiplication, only the reference side is proved. No theorem relates it to
-   dalek's code.
+4. For scalar multiplication, only the reference side is proved. No theorem here relates it
+   to dalek's code. `tracks/fork/` (section 7 of its README) relates the same reference to
+   curve25519-dalek 5.0.0 through curve25519-dalek-fork.
 5. No theorem states that `encode (decode b) = b`. Only tests check it.
 
 ## 8. Reproduce

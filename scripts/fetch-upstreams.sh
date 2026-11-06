@@ -21,7 +21,8 @@ clone shared/dalek/lean/primecert  https://github.com/b-mehta/PrimeCert.git     
 # tracks/fork requires curve25519-dalek-fork as a Lake package, so `lake build` fetches it:
 # https://github.com/Beneficial-AI-Foundation/curve25519-dalek-fork.git at
 # 95b5831c63ff1c5f6287bd3a77569412a9afdbfb (tracks/fork/lean/lakefile.toml).
-# tracks/fork/extract-ref.sh needs the Aeneas release nightly-2026.10.30-de16f3c in .aeneas-fork/.
+# tracks/fork/extract-ref.sh and tracks/fork/extract-ristretto-ref.sh need the Aeneas release
+# nightly-2026.10.30-de16f3c in .aeneas-fork/.
 
 # Track C: hpke-spec has no license, so the patched tree is built here, not committed.
 tracks/hpke/make-ref-shim.sh

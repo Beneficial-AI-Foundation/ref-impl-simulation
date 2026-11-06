@@ -60,9 +60,13 @@ that satisfies the premises.
 which proves its Aeneas translation of curve25519-dalek 5.0.0 against Lean definitions
 written by hand. It proves the track B reference equal to the fork's `x25519`. Composed with
 the fork's specs, this gives `MontgomeryPoint::mul_base_clamped` and `mul_clamped` of that
-translation against the reference. The translation covers four builds with the `serial`
-backend, after the fork's translation patches. These theorems go through the fork's
-definitions, not through a lockstep simulation.
+translation against the reference. It also proves the track D reference `decode` and
+`encode` equal to the fork's `decodeRep` and `encodeRep`, and the reference `point_mul` equal
+to the scalar multiplication of the fork's group. Composed with the fork's specs, this gives
+`CompressedRistretto::decompress`, `RistrettoPoint::compress` and `Mul<&Scalar> for
+&RistrettoPoint` of 5.0.0 against the reference, and the three end to end. The translation
+covers four builds with the `serial` backend, after the fork's translation patches. These
+theorems go through the fork's definitions, not through a lockstep simulation.
 
 Each track README is self-contained. It gives the sources, the translation and its edits,
 and the exact theorem. It also gives the assumptions, the proof structure, the checks, and
@@ -84,7 +88,7 @@ it also lists the missing results:
 | [A](tracks/chacha20poly1305/README.md#the-unit-in-full-refinement) | `chacha20_encrypt` against `chacha20`, then the AEAD | the key setup, the message loop, and a Poly1305 reference |
 | [B](tracks/x25519/README.md#layers-of-the-full-refinement) | `x25519_dalek::x25519` and the three `diffie_hellman` methods against `x25519_scalarmult`, and `was_contributory` against our all-zero check | none for these pairs. `X25519Sim.x25519_refines`, `X25519Sim.static_diffie_hellman_as_bytes_refines` and the theorems for the other secret types and for `was_contributory` are proved. The two `From<[u8; 32]>` impls that libsignal uses, at key construction and in the agreement, are linked by review, not by proof. The other public functions are not covered ([list](tracks/x25519/README.md#gaps-rfc-7748-the-reference-and-x25519-dalek)) |
 | [C](tracks/hpke/README.md#the-unit-in-full-refinement) | `Hpke::seal` and `open` against `HpkeSeal` and `HpkeOpen` | extraction of the reference API, the KEM, and the context as a forward simulation |
-| [D](tracks/ristretto/README.md#3-statement) | `decompress` against `decode`, `compress` against `encode` | none for these pairs. `RistrettoSim.decompress_refines` and `RistrettoSim.compress_refines` are proved. For scalar multiplication, only the reference side is proved (`RistrettoSim.point_mul_spec`). The real side, the other group operations and `from_uniform_bytes` are not covered |
+| [D](tracks/ristretto/README.md#3-statement) | `decompress` against `decode`, `compress` against `encode` | none for these pairs. `RistrettoSim.decompress_refines` and `RistrettoSim.compress_refines` are proved. For scalar multiplication, only the reference side is proved (`RistrettoSim.point_mul_spec`). The real side is proved for curve25519-dalek 5.0.0 through the fork ([`tracks/fork/` section 7](tracks/fork/README.md#7-ristretto-track-d)). The other group operations and `from_uniform_bytes` are not covered |
 
 ## 3. Method
 
@@ -201,7 +205,7 @@ agree.
 | Path | Content |
 |---|---|
 | `tracks/<track>/README.md` | the full description of the track |
-| `tracks/<track>/lean/` | the Lake project: generated code, hand-written models, proofs in `Sim/` (`ForkSim/` in `tracks/fork/`) |
+| `tracks/<track>/lean/` | the Lake project: generated code, hand-written models, proofs in `Sim/` (`ForkSim/` and `ForkRistretto/` in `tracks/fork/`) |
 | `shared/dalek/` | the curve25519-dalek extraction and Lean library that tracks B and D import, with the field specs, the point specs and the spec of `Scalar::as_radix_16` in `lean/Curve25519Dalek/Specs/` ([README](shared/dalek/README.md)). Most point specs state their results in the group of `DalekSim/Edwards.lean`. A `#guard_msgs` check shows that each of the 41 top-level specs uses the standard axioms only. It also extracts the basepoint table path of the X25519 public key and proves that entry `j` of row `i` of the table encodes `[(j + 1) 256^i] B` mod `p`, with every limb below `2^52` |
 | `tools/` | scripts that compute certificates and witness points for the proofs in `shared/dalek/lean/DalekSim/`. The proofs check them, so the scripts are not trusted |
 | `tracks/<track>/` other directories | work copies of the Rust sources and extraction scripts |

@@ -1,6 +1,6 @@
 name = "fork-link"
 version = "0.1.0"
-defaultTargets = ["X25519Ref", "ForkSim", "Checks"]
+defaultTargets = ["X25519Ref", "ForkSim", "Checks", "RistrettoRef", "ForkRistretto"]
 
 [leanOptions]
 autoImplicit = false
@@ -27,3 +27,15 @@ globs = ["ForkSim.+"]
 [[lean_lib]]
 name = "Checks"
 globs = ["Checks.+"]
+
+# Reference: Aeneas output of tracks/ristretto/ref-plain plus the hand-written ZMod p field and
+# ZMod l scalars. Its root namespace `field` clashes with the one of X25519Ref, so no module
+# imports both libraries.
+[[lean_lib]]
+name = "RistrettoRef"
+globs = ["RistrettoRef.+"]
+
+# Proofs that link the Ristretto reference to the fork's definitions and specs.
+[[lean_lib]]
+name = "ForkRistretto"
+globs = ["ForkRistretto.+"]
