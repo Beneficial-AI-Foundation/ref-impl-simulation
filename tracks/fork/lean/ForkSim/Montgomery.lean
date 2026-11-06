@@ -1,7 +1,7 @@
 import ForkSim.X25519
 import Specs.Montgomery
 
-/-! # curve25519-dalek 5.0.0 against the translated reference
+/-! # The fork's translation of curve25519-dalek 5.0.0 against the translated reference
 
 The fork proves `MontgomeryPoint::mul_base_clamped` and `MontgomeryPoint::mul_clamped` equal
 to its `curve25519.x25519` (`Specs/Montgomery.lean`). `ForkSim.X25519` proves the translated

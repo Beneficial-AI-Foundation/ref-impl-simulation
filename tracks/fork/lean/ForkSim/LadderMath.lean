@@ -6,9 +6,10 @@ import Mathlib.Algebra.Field.Basic
 `b`: swap the two points if `b`, apply `pad x1`, swap back. `ladder x1 bits` folds `lstep` over
 `bits`, most significant first. `enc` is the affine u-coordinate `x / z` with `x / 0 = 0`.
 
-`ForkSim.RefSide` shows that the translated reference computes `ladder` over the 256 bits of the
-masked scalar. `ForkSim.toPair_ladderLoop` shows that the fork's ladder, which swaps lazily,
-computes the same `ladder` over its 255 bits.
+`ForkSim.montgomery_ladder_eq` shows that the translated reference ladder computes `ladder`
+over bits 255 to 0 of its scalar argument. `ForkSim.toPair_ladderLoop` shows that the fork's
+ladder, which swaps lazily, computes `ladder` over bits `t - 1` to 0 of its scalar when it
+runs `t` iterations.
 
 The definitions come from track B (`tracks/x25519/lean/Sim/LadderMath.lean`). -/
 

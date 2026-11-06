@@ -29,9 +29,6 @@ open MontgomeryModel (XZ)
 
 namespace ForkSim
 
-/-- `p` is not zero, for the lemmas on `ZMod.val`. -/
-instance : NeZero _root_.field.p := ⟨by norm_num [_root_.field.p]⟩
-
 /-- The reference prime is the fork's prime, so `ZMod (2 ^ 255 - 19)` is a field. -/
 instance : Fact (Nat.Prime _root_.field.p) :=
   ⟨by rw [show _root_.field.p = curve25519.p from curve25519.p_def.symm]; exact curve25519.p_prime⟩
@@ -145,7 +142,8 @@ theorem toPair_ladderLoop (x1 : K) (k : ℕ) :
   rw [XZ.ladderLoop_eq_foldl, ladder]
   exact (List.foldl_hom toPair fun s b => (toPair_ladderStep x1 s b).symm).symm
 
-/-- The fork's projective ladder result is the first point of the reference ladder. -/
+/-- `(U, W)` of the fork's projective ladder over bits `bits - 1, …, 0` of `k` is the first point
+of the reference ladder over the same bits, from `((1, 0), (u, 1))`. -/
 theorem ladderXZ_eq (bits k : ℕ) (u : K) :
     ((XZ.ladderXZ (121665 : K) bits k u).U, (XZ.ladderXZ (121665 : K) bits k u).W) =
       (ladder u ((List.range bits).reverse.map k.testBit) ((1, 0), (u, 1))).1 := by

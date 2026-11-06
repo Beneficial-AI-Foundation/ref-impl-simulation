@@ -56,7 +56,7 @@ that satisfies the premises.
 | [D](tracks/ristretto/README.md) | RFC 9496 (ristretto255) | [hacspec ristretto spec](https://github.com/hacspec/specs/blob/c511110d6f4bb4628da193a2c8e44c928d9555b8/ristretto/src/ristretto.rs) (`hacspec/specs`), ported to plain Rust | [curve25519-dalek 4.2.0](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-lean-verify/tree/26d49052347e52cb3923952ea225d28faf48fe72/curve25519-dalek), as modified by `curve25519-dalek-lean-verify` (the copy of track B) | `CompressedRistretto::decompress` against `decode`, and `RistrettoPoint::compress` against `encode` (full refinement for these pairs) |
 
 [`tracks/fork/`](tracks/fork/README.md) builds on
-[`curve25519-dalek-fork`](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-fork),
+[`curve25519-dalek-fork`](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-fork/tree/95b5831c63ff1c5f6287bd3a77569412a9afdbfb),
 which proves its Aeneas translation of curve25519-dalek 5.0.0 against Lean definitions
 written by hand. It proves the track B reference equal to the fork's `x25519`. Composed with
 the fork's specs, this gives `MontgomeryPoint::mul_base_clamped` and `mul_clamped` of that
@@ -90,8 +90,9 @@ it also lists the missing results:
 
 Translation. Charon reads the MIR of each Rust program and writes LLBC. Aeneas reads LLBC
 and writes Lean. Both programs of a track go into one Lake project, in separate
-namespaces. All tracks use one tool version: Aeneas `nightly-2026.10.12-d119a47`, Charon
-`0.1.281`, Rust `nightly-2026-09-17` and Lean `v4.31.0`. Each track records every source
+namespaces. Tracks A to D use one tool version: Aeneas `nightly-2026.10.12-d119a47`, Charon
+`0.1.281`, Rust `nightly-2026-09-17` and Lean `v4.31.0`. `tracks/fork/` uses the versions that
+curve25519-dalek-fork pins. Each track records every source
 edit and every hand-written Lean definition.
 
 Relation. Each track defines its own relation between the two representations. Track A
@@ -198,7 +199,7 @@ agree.
 | Path | Content |
 |---|---|
 | `tracks/<track>/README.md` | the full description of the track |
-| `tracks/<track>/lean/` | the Lake project: generated code, hand-written models, proofs in `Sim/` |
+| `tracks/<track>/lean/` | the Lake project: generated code, hand-written models, proofs in `Sim/` (`ForkSim/` in `tracks/fork/`) |
 | `shared/dalek/` | the curve25519-dalek extraction and Lean library that tracks B and D import, with the field specs, the point specs and the spec of `Scalar::as_radix_16` in `lean/Curve25519Dalek/Specs/` ([README](shared/dalek/README.md)). Most point specs state their results in the group of `DalekSim/Edwards.lean`. A `#guard_msgs` check shows that each of the 41 top-level specs uses the standard axioms only. It also extracts the basepoint table path of the X25519 public key and proves that entry `j` of row `i` of the table encodes `[(j + 1) 256^i] B` mod `p`, with every limb below `2^52` |
 | `tools/` | scripts that compute certificates and witness points for the proofs in `shared/dalek/lean/DalekSim/`. The proofs check them, so the scripts are not trusted |
 | `tracks/<track>/` other directories | work copies of the Rust sources and extraction scripts |
