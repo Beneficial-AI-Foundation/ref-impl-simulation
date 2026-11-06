@@ -14,10 +14,11 @@ The proof links three pieces:
 
 1. Track B's closed form of the reference (`ForkSim.RefSide`): the reference ladder runs
    `LadderMath.lstep` over the 256 bits of the masked scalar, from bit 255.
-2. The extra step at bit 255 does not change the encoded result
-   (`LadderMath.enc_ladder_extra_step`).
-3. The fork's ladder (`MontgomeryModel.XZ.ladderLoop`) swaps lazily. Its state, with the
-   pending swap applied, is the reference state (`toPair_ladderLoop`).
+2. The fork's ladder (`MontgomeryModel.XZ.ladderLoop`) swaps lazily. Its state, with the
+   pending swap applied, is the reference state (`toPair_ladderLoop`). So over the same bits,
+   the two ladders give the same u-coordinate (`toU_ladderXZ_eq`).
+3. The fork's `x25519` runs 255 bits. For a scalar below `2 ^ 255`, 256 bits give the same
+   result (`ladderXZ_256_eq_255`), by EllipticCurve's `MontgomeryModel.ladder_eq_xMul`.
 
 Both sides compute in `ZMod (2 ^ 255 - 19)`. The fork names the prime `curve25519.p`, and
 `transport` moves its ladder to `ZMod (2 ^ 255 - 19)` with `curve25519.p_def`. -/
@@ -119,7 +120,7 @@ theorem kbit_eq_testBit (k : Array U8 32#usize) (j : ℕ) :
 /-! ## The fork's ladder state -/
 
 section Ladder
-variable {K : Type*} [CommRing K]
+variable {K : Type*} [Field K]
 
 /-- The state of the fork's ladder with the pending swap applied: the reference state. -/
 def toPair (s : XZ.LadderState K) : Pt K × Pt K :=
@@ -140,13 +141,9 @@ same bits. -/
 theorem toPair_ladderLoop (x1 : K) (k : ℕ) :
     ∀ (t : ℕ) (s : XZ.LadderState K), toPair (XZ.ladderLoop 121665 x1 k t s) =
       ladder x1 ((List.range t).reverse.map k.testBit) (toPair s) := by
-  intro t
-  induction t with
-  | zero => intro s; rfl
-  | succ t ih =>
-    intro s
-    rw [XZ.ladderLoop, ih, toPair_ladderStep, List.range_succ, List.reverse_append,
-      List.reverse_singleton, List.singleton_append, List.map_cons, ladder_cons]
+  intro t s
+  rw [XZ.ladderLoop_eq_foldl, ladder]
+  exact (List.foldl_hom toPair fun s b => (toPair_ladderStep x1 s b).symm).symm
 
 /-- The fork's projective ladder result is the first point of the reference ladder. -/
 theorem ladderXZ_eq (bits k : ℕ) (u : K) :
@@ -161,7 +158,8 @@ theorem ladderXZ_eq (bits k : ℕ) (u : K) :
 
 end Ladder
 
-/-- The fork's ladder in `ZMod (2 ^ 255 - 19)`: `toU` is the reference encoding `enc`. -/
+/-- Over a field `K`, `toU` of the fork's projective ladder over bits `bits - 1, …, 0` of `k`
+is `enc` of the first point of the reference ladder over the same bits. -/
 theorem toU_ladderXZ_eq {K : Type*} [Field K] (bits k : ℕ) (u : K) :
     (XZ.ladderXZ (121665 : K) bits k u).toU =
       enc (ladder u ((List.range bits).reverse.map k.testBit) ((1, 0), (u, 1))).1 := by
@@ -170,7 +168,8 @@ theorem toU_ladderXZ_eq {K : Type*} [Field K] (bits k : ℕ) (u : K) :
 
 /-! ## The prime -/
 
-/-- The fork's `x25519`, with `curve25519.p` replaced by `2 ^ 255 - 19`. -/
+/-- For a prime `q = 2 ^ 255 - 19`, the 255-bit fork ladder has the same `val` in `ZMod q` as in
+`ZMod field.p`. `x25519_eq` uses it with `q = curve25519.p`. -/
 theorem transport (c n : ℕ) : ∀ (q : ℕ) [Fact q.Prime], q = 2 ^ 255 - 19 →
     ((XZ.ladderXZ (121665 : ZMod q) 255 c ((n % 2 ^ 255 : ℕ) : ZMod q)).toU).val =
       ((XZ.ladderXZ (121665 : ZMod _root_.field.p) 255 c
@@ -179,12 +178,36 @@ theorem transport (c n : ℕ) : ∀ (q : ℕ) [Fact q.Prime], q = 2 ^ 255 - 19 �
   subst hq
   rfl
 
-/-- The fork's `x25519` unfolded to the ladder in `ZMod (2 ^ 255 - 19)`. -/
+/-- For `c < 2 ^ 255`, the ladder of `curve25519.montgomery` over 256 bits of `c` and over 255
+bits of `c` give the same u-coordinate. Both are `xMul 2 c u` (`ladder_eq_xMul`). -/
+theorem ladderXZ_256_eq_255_curve (c : ℕ) (hc : c < 2 ^ 255) (u : ZMod curve25519.p) :
+    (XZ.ladderXZ (121665 : ZMod curve25519.p) 256 c u).toU =
+      (XZ.ladderXZ (121665 : ZMod curve25519.p) 255 c u).toU := by
+  have h := MontgomeryModel.ladder_eq_xMul (M := curve25519.montgomery)
+    curve25519.not_isSquare_two (bits := 256) (k := c) (by omega) u
+  rw [← MontgomeryModel.ladder_eq_xMul (M := curve25519.montgomery)
+    curve25519.not_isSquare_two hc u] at h
+  simpa only [MontgomeryModel.ladder, XZ.ladder, curve25519.montgomery_a24_eq] using h
+
+/-- `ladderXZ_256_eq_255_curve` in `ZMod field.p`: for `c < 2 ^ 255`, the extra reference
+iteration at bit 255 does not change the u-coordinate. -/
+theorem ladderXZ_256_eq_255 (c : ℕ) (hc : c < 2 ^ 255) (u : ZMod _root_.field.p) :
+    (XZ.ladderXZ (121665 : ZMod _root_.field.p) 256 c u).toU =
+      (XZ.ladderXZ (121665 : ZMod _root_.field.p) 255 c u).toU := by
+  have key : ∀ (q : ℕ) [Fact q.Prime], q = curve25519.p → ∀ u : ZMod q,
+      (XZ.ladderXZ (121665 : ZMod q) 256 c u).toU = (XZ.ladderXZ 121665 255 c u).toU := by
+    intro q _ hq
+    subst hq
+    exact ladderXZ_256_eq_255_curve c hc
+  exact key _ curve25519.p_def.symm u
+
+/-- The fork's `x25519` as the 256-bit ladder in `ZMod (2 ^ 255 - 19)`, the bit count of the
+reference. -/
 theorem x25519_eq (k n : ℕ) :
     curve25519.x25519 k n =
-      ((XZ.ladderXZ (121665 : ZMod _root_.field.p) 255 (curve25519.clamp k)
+      ((XZ.ladderXZ (121665 : ZMod _root_.field.p) 256 (curve25519.clamp k)
         ((n % 2 ^ 255 : ℕ) : ZMod _root_.field.p)).toU).val := by
-  rw [← transport _ _ curve25519.p curve25519.p_def]
+  rw [ladderXZ_256_eq_255 _ (curve25519.clamp_lt k), ← transport _ _ curve25519.p curve25519.p_def]
   simp only [curve25519.x25519, curve25519.encodeU, curve25519.decodeU, MontgomeryModel.ladder,
     XZ.ladder, curve25519.montgomery_a24_eq]
 
@@ -199,7 +222,7 @@ theorem decode_point_spec (u : Array U8 32#usize) :
   step as ⟨i1, hi1, _⟩
   step as ⟨u1, hu1⟩
   rw [fe_from_bytes_eq]
-  simp only [bind_ok, fe_lit_one]
+  simp only [bind_ok, fe_lit_eq, UScalar.ofNatCore_val_eq, Nat.cast_one]
   have hd : ∀ i < (32#usize).val, u[i]!.val < 2 ^ 8 := fun i _ => by
     have := (u[i]!).hBounds; simpa using this
   have hlast := Array.getElem!_last_eq_asNat_div 8 u hd (by simp)
@@ -232,25 +255,13 @@ theorem x25519_scalarmult_spec (k u : Array U8 32#usize) :
   rw [encode_point_eq]
   obtain ⟨b, hb⟩ : ∃ b, _root_.field.fe_to_bytes (r.1 * r.2⁻¹) = ok b := ⟨_, rfl⟩
   rw [hb, spec_ok, fe_to_bytes_val _ _ hb, x25519_eq, toU_ladderXZ_eq, hr, hp]
-  -- The reference bits: bit 255 of the masked scalar is 0, the others are bits of `clamp`.
-  have hbits : ∀ j, kbit m j = (curve25519.clamp (k.asNat 8)).testBit j := fun j => by
-    rw [kbit_eq_testBit m j, hm]
-  have h255 : kbit m 255 = false := by
-    rw [hbits 255]
-    exact Nat.testBit_lt_two_pow (curve25519.clamp_lt _)
-  have hlow : bitsFrom m 255 =
-      (List.range 255).reverse.map (curve25519.clamp (k.asNat 8)).testBit := by
-    unfold bitsFrom
-    exact List.map_congr_left fun j _ => hbits j
-  have h4 : (4 : ZMod _root_.field.p) ≠ 0 := by
-    intro h
-    have := congrArg ZMod.val h
-    rw [ZMod.val_zero] at this
-    exact absurd this (by rw [show (4 : ZMod _root_.field.p) = ((4 : ℕ) : ZMod _root_.field.p)
-      from rfl, ZMod.val_natCast]; norm_num [_root_.field.p])
-  rw [refBits, bitsFrom_succ, h255, ← hlow]
-  exact congrArg ZMod.val
-    (enc_ladder_extra_step (K := ZMod _root_.field.p) _ h4 _ (by simp [bitsFrom]))
+  -- The reference bits are the bits of `clamp`.
+  have hbits : refBits m =
+      (List.range 256).reverse.map (curve25519.clamp (k.asNat 8)).testBit := by
+    unfold refBits bitsFrom
+    exact List.map_congr_left fun j _ => by rw [kbit_eq_testBit m j, hm]
+  rw [hbits]
+  rfl
 
 /-- The bytes of the basepoint `u = 9`. -/
 theorem nine_asNat : ((Array.repeat 32#usize 0#u8).set 0#usize 9#u8).asNat 8 = 9 := by

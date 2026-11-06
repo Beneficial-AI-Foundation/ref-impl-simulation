@@ -18,17 +18,13 @@ open Curve25519Dalek.montgomery
 
 namespace ForkSim
 
-/-- A computation with a spec returns a value. -/
+/-- If `m ⦃ p ⦄`, then `m = ok v` for some `v` with `p v`. A spec excludes `div` and `vis`. -/
 theorem exists_ok_of_spec {α : Type} {m : Result α} {p : α → Prop} (h : m ⦃ p ⦄) :
     ∃ v, m = ok v ∧ p v := by
   cases m with
   | ret r => exact ⟨r, rfl, (spec_ok r).mp h⟩
   | vis i k => exact absurd h (by rw [spec_vis]; exact id)
   | div => exact absurd h (by rw [spec_div]; exact id)
-
-/-- Two byte arrays with the same value are equal. -/
-theorem eq_of_asNat_8 {a b : Array U8 32#usize} (h : a.asNat 8 = b.asNat 8) : a = b :=
-  Array.eq_of_asNat_eq h
 
 /-- **`MontgomeryPoint::mul_base_clamped` refines the reference.** For every 32-byte `k`,
 `mul_base_clamped k` returns the bytes of `x25519_secret_to_public k`. -/
@@ -38,7 +34,7 @@ theorem mul_base_clamped_refines (k : Array U8 32#usize) :
   apply spec_mono (MontgomeryPoint.mul_base_clamped_spec k)
   intro r hr
   obtain ⟨r', hr', hval⟩ := exists_ok_of_spec (x25519_secret_to_public_spec k)
-  rw [hr', eq_of_asNat_8 (hval.trans (hr.symm.trans (MontgomeryPoint.asNat_def r)))]
+  rw [hr', Array.eq_of_asNat_eq (hval.trans (hr.symm.trans (MontgomeryPoint.asNat_def r)))]
 
 /-- **`MontgomeryPoint::mul_clamped` refines the reference.** For all 32-byte `u` and `k`,
 `mul_clamped u k` returns the bytes of `x25519_scalarmult k u`. -/
@@ -49,6 +45,6 @@ theorem mul_clamped_refines (u k : Array U8 32#usize) :
   intro r hr
   obtain ⟨r', hr', hval⟩ := exists_ok_of_spec (x25519_scalarmult_spec k u)
   rw [MontgomeryPoint.asNat_def] at hr
-  rw [hr', eq_of_asNat_8 (hval.trans hr.symm)]
+  rw [hr', Array.eq_of_asNat_eq (hval.trans hr.symm)]
 
 end ForkSim

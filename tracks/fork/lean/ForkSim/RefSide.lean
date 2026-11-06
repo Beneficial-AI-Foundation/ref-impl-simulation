@@ -3,7 +3,10 @@ import ForkSim.LadderMath
 
 /-! # The reference X25519 in closed form
 
-Each lemma computes one function of `x25519_ref` as a pure value. All of them are total. -/
+The `x25519_ref` functions that the ladder uses, as pure values: `scalar_bit` is `kbit`,
+`point_add_and_double` is `LadderMath.pad`, `ladder_step` is `LadderMath.lstep`, and
+`montgomery_ladder` is `LadderMath.ladder` over the 256 key bits from bit 255. Each of these
+functions returns `ok`. -/
 
 open Aeneas Aeneas.Std Result Aeneas.Std.WP
 open ForkSim.LadderMath
@@ -36,9 +39,9 @@ theorem scalar_bit_spec (k : Array U8 32#usize) (i : Usize) (hi : i.val < 256) :
   simp only [kbit, ← hi5, e]
   cases h : (i5.val == 1) <;> simp_all
 
-/-- `fe_lit 121665 = 121665`. -/
-theorem fe_lit_a24 : _root_.field.fe_lit 121665#u32 = ok (121665 : _root_.field.Fe) := by
-  unfold _root_.field.fe_lit; congr 1
+/-- `fe_lit x` is the value of `x` in the field. -/
+@[simp] theorem fe_lit_eq (x : U32) : _root_.field.fe_lit x = ok ((x.val : ℕ) : _root_.field.Fe) :=
+  rfl
 
 /-- The reference ladder step in closed form. It is total. -/
 theorem point_add_and_double_eq (x1 z1 x2 z2 x3 z3 : _root_.field.Fe) :
@@ -49,7 +52,7 @@ theorem point_add_and_double_eq (x1 z1 x2 z2 x3 z3 : _root_.field.Fe) :
           (((x3 - z3) * (x2 + z2) + (x3 + z3) * (x2 - z2)) ^ 2,
            x1 * ((x3 - z3) * (x2 + z2) - (x3 + z3) * (x2 - z2)) ^ 2)) := by
   simp only [x25519_ref.point_add_and_double, _root_.field.fe_add, _root_.field.fe_sub,
-    _root_.field.fe_mul, _root_.field.fe_sq, fe_lit_a24, bind_ok]
+    _root_.field.fe_mul, _root_.field.fe_sq, fe_lit_eq, bind_ok]
   rfl
 
 /-- `point_add_and_double` is `pad`. -/
@@ -73,7 +76,6 @@ theorem ladder_step_eq (k : Array U8 32#usize) (init : _root_.field.Fe × _root_
     have hb : 255 - i.val = i1.val := by omega
     rw [hb]; subst b_post
     simp_all [x25519_ref.swap, point_add_and_double_pad, lstep, cswap, pad]
-
 
 /-- For `i + n = 256`, `ladder_loop k init acc i` terminates and returns
 `ladder init.1 (bitsFrom k n) acc`: the iterations on bits `n - 1, …, 0`. -/
@@ -103,20 +105,12 @@ theorem ladder_loop_eq (k : Array U8 32#usize) (init : _root_.field.Fe × _root_
 /-- The reference bits: bit 255 down to bit 0. -/
 abbrev refBits (k : Array U8 32#usize) : List Bool := bitsFrom k 256
 
-/-- `fe_lit 1 = 1`. -/
-theorem fe_lit_one : _root_.field.fe_lit 1#u32 = ok (1 : _root_.field.Fe) := by
-  unfold _root_.field.fe_lit; congr 1
-
-/-- `fe_lit 0 = 0`. -/
-theorem fe_lit_zero : _root_.field.fe_lit 0#u32 = ok (0 : _root_.field.Fe) := by
-  unfold _root_.field.fe_lit; congr 1
-
 /-- `montgomery_ladder k init` returns the first point of
 `ladder init.1 (refBits k) ((1, 0), init)`: 256 iterations from bit 255. -/
 theorem montgomery_ladder_eq (k : Array U8 32#usize) (init : _root_.field.Fe × _root_.field.Fe) :
     x25519_ref.montgomery_ladder k init ⦃ r => r = (ladder init.1 (refBits k) ((1, 0), init)).1 ⦄ := by
   unfold x25519_ref.montgomery_ladder
-  simp only [fe_lit_one, fe_lit_zero, bind_ok]
+  simp only [fe_lit_eq, UScalar.ofNatCore_val_eq, Nat.cast_one, Nat.cast_zero, bind_ok]
   apply spec_bind (ladder_loop_eq k init 256 0#usize _ (by simp))
   intro r hr
   rw [hr]

@@ -57,11 +57,12 @@ that satisfies the premises.
 
 [`tracks/fork/`](tracks/fork/README.md) builds on
 [`curve25519-dalek-fork`](https://github.com/Beneficial-AI-Foundation/curve25519-dalek-fork),
-which proves curve25519-dalek 5.0.0 against Lean definitions written by hand. It proves the
-track B reference equal to the fork's `x25519`. Composed with the fork's specs, this gives
-`MontgomeryPoint::mul_base_clamped` and `mul_clamped` of 5.0.0 against the reference, for
-the four builds that the fork covers. These theorems go through the fork's definitions,
-not through a lockstep simulation.
+which proves its Aeneas translation of curve25519-dalek 5.0.0 against Lean definitions
+written by hand. It proves the track B reference equal to the fork's `x25519`. Composed with
+the fork's specs, this gives `MontgomeryPoint::mul_base_clamped` and `mul_clamped` of that
+translation against the reference. The translation covers four builds with the `serial`
+backend, after the fork's translation patches. These theorems go through the fork's
+definitions, not through a lockstep simulation.
 
 Each track README is self-contained. It gives the sources, the translation and its edits,
 and the exact theorem. It also gives the assumptions, the proof structure, the checks, and
