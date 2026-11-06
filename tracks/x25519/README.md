@@ -745,7 +745,7 @@ release of `.aeneas/` on `PATH`:
 
 ```bash
 charon cargo --preset=aeneas --start-from crate::x25519_scalarmult --start-from crate::x25519_secret_to_public --start-from crate::point_add_and_double --start-from crate::x25519_is_all_zero --opaque crate::field
-aeneas -backend lean -split-files -loops-to-rec -namespace x25519_ref -dest Ref x25519_ref.llbc
+aeneas -backend lean -split-files -loops-to-rec -max-heartbeats 200000 -namespace x25519_ref -dest Ref x25519_ref.llbc
 ```
 
 For x25519-dalek, `extract-real.sh` holds the commands. It writes to `real-x25519/X25519/`.

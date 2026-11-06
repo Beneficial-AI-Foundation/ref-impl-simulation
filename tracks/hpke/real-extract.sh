@@ -10,4 +10,4 @@ touch src/lib.rs
 $AE/charon cargo --preset=aeneas --hide-marker-traits ${REAL_START:---start-from-pub} --opaque hpke_rs::util::xor_bytes ${REAL_EXTRA:-} \
   --dest-file $T/logs/real.llbc > $T/logs/charon-real.log 2>&1
 rm -rf $T/lean/Real
-$AE/aeneas -backend lean -split-files -dest $T/lean -subdir Real -namespace Real -no-progress-bar $T/logs/real.llbc > $T/logs/aeneas-real.log 2>&1 || true
+$AE/aeneas -backend lean -split-files -max-heartbeats 200000 -dest $T/lean -subdir Real -namespace Real -no-progress-bar $T/logs/real.llbc > $T/logs/aeneas-real.log 2>&1 || true

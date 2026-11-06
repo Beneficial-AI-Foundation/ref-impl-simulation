@@ -15,7 +15,7 @@ RUSTFLAGS="-Zalways-encode-mir -Zmir-opt-level=0" $AE/charon cargo --preset=aene
   --start-from hpke::KeySchedule ${EXTRA_START:-} \
   --dest-file $T/logs/ref.llbc > $T/logs/charon-ref.log 2>&1
 rm -rf $T/lean/Ref
-$AE/aeneas -backend lean -split-files -dest $T/lean -subdir Ref -namespace Ref -no-progress-bar $T/logs/ref.llbc > $T/logs/aeneas-ref.log 2>&1
+$AE/aeneas -backend lean -split-files -max-heartbeats 200000 -dest $T/lean -subdir Ref -namespace Ref -no-progress-bar $T/logs/ref.llbc > $T/logs/aeneas-ref.log 2>&1
 # Tweak: the `discriminant` attribute names its instance from the short type name at the root
 # namespace, so Ref.hpke_errors.HpkeError and Real.HpkeError both define
 # `instDiscriminantHpkeErrorIsize`. Ref never reads that discriminant: drop the attribute.
