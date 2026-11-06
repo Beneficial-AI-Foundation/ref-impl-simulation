@@ -1,0 +1,29 @@
+name = "fork-link"
+version = "0.1.0"
+defaultTargets = ["X25519Ref", "ForkSim", "Checks"]
+
+[leanOptions]
+autoImplicit = false
+relaxedAutoImplicit = false
+
+# curve25519-dalek-fork: the Aeneas translation of curve25519-dalek 5.0.0 and its proofs.
+# It brings Aeneas, Mathlib and EllipticCurve at the versions it is proved with.
+[[require]]
+name = "curve25519-dalek"
+git = "https://github.com/Beneficial-AI-Foundation/curve25519-dalek-fork.git"
+rev = "95b5831c63ff1c5f6287bd3a77569412a9afdbfb"
+
+# Reference: Aeneas output of tracks/x25519/ref-plain plus the hand-written ZMod p field.
+[[lean_lib]]
+name = "X25519Ref"
+globs = ["X25519Ref.+"]
+
+# Proofs that link the reference to the fork's definitions and specs.
+[[lean_lib]]
+name = "ForkSim"
+globs = ["ForkSim.+"]
+
+# Axiom checks (#guard_msgs) that fail the build on a new axiom.
+[[lean_lib]]
+name = "Checks"
+globs = ["Checks.+"]
