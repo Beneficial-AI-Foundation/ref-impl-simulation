@@ -61,10 +61,13 @@ which proves its Aeneas translation of curve25519-dalek 5.0.0 against Lean defin
 written by hand. It proves the track B reference equal to the fork's `x25519`. Composed with
 the fork's specs, this gives `MontgomeryPoint::mul_base_clamped` and `mul_clamped` of that
 translation against the reference. It also proves the track D reference `decode` and
-`encode` equal to the fork's `decodeRep` and `encodeRep`, and the reference `point_mul` equal
-to the scalar multiplication of the fork's group. Composed with the fork's specs, this gives
-`CompressedRistretto::decompress`, `RistrettoPoint::compress` and `Mul<&Scalar> for
-&RistrettoPoint` of 5.0.0 against the reference, and the three end to end. The translation
+`encode` equal to the fork's `decodeRep` and `encodeRep`. It proves that the reference
+`point_mul s` multiplies by the representative of `s` below `l` in the fork's group. Composed
+with the fork's specs, this gives `CompressedRistretto::decompress`, `RistrettoPoint::compress`
+and `Mul<&Scalar> for &RistrettoPoint` of 5.0.0 against the reference. It also gives decode,
+`Scalar::from_bytes_mod_order`, multiplication and encode end to end, on every pair of
+32-byte inputs. The dalek product and the reference product are the same point if the scalar
+is below `l`. For an even point they have the same encoding. The translation
 covers four builds with the `serial` backend, after the fork's translation patches. These
 theorems go through the fork's definitions, not through a lockstep simulation.
 
@@ -205,7 +208,7 @@ agree.
 | Path | Content |
 |---|---|
 | `tracks/<track>/README.md` | the full description of the track |
-| `tracks/<track>/lean/` | the Lake project: generated code, hand-written models, proofs in `Sim/` (`ForkSim/` and `ForkRistretto/` in `tracks/fork/`) |
+| `tracks/<track>/lean/` | the Lake project: generated code, hand-written models, proofs in `Sim/` (`ForkSim/`, `ForkRistretto/` and `ForkCommon/` in `tracks/fork/`) |
 | `shared/dalek/` | the curve25519-dalek extraction and Lean library that tracks B and D import, with the field specs, the point specs and the spec of `Scalar::as_radix_16` in `lean/Curve25519Dalek/Specs/` ([README](shared/dalek/README.md)). Most point specs state their results in the group of `DalekSim/Edwards.lean`. A `#guard_msgs` check shows that each of the 41 top-level specs uses the standard axioms only. It also extracts the basepoint table path of the X25519 public key and proves that entry `j` of row `i` of the table encodes `[(j + 1) 256^i] B` mod `p`, with every limb below `2^52` |
 | `tools/` | scripts that compute certificates and witness points for the proofs in `shared/dalek/lean/DalekSim/`. The proofs check them, so the scripts are not trusted |
 | `tracks/<track>/` other directories | work copies of the Rust sources and extraction scripts |

@@ -2,8 +2,10 @@ import ForkRistretto.Encoding
 
 /-! # The reference scalar multiplication in the fork's group
 
-The reference `edwards.point_mul s Q` (hacspec edwards25519 `point_mul`) computes `s • P` in the
-fork's group `curve25519.edwards.Point` (`point_mul_spec`), if `Q` represents `P` (`Rep`).
+If `Q` represents `P` (`Rep`), the reference `edwards.point_mul s Q` (hacspec edwards25519
+`point_mul`) returns a representative of `scVal s • P` in the fork's group
+`curve25519.edwards.Point` (`point_mul_spec`). `scVal s` is the representative of `s : ZMod l`
+below `l`. The group has order `8 l`, so `s` itself does not act on it.
 
 This is the proof of track D (`tracks/ristretto/lean/Sim/ScalarMul.lean`), moved from the group
 `DalekSim.Edwards.Point dEd` of the shared library to the group of the fork and EllipticCurve.
@@ -170,8 +172,8 @@ theorem point_mul_loop_spec (s : scalar.Scalar) (P : edwards.Point) :
       rw [hi1, hbit, ite_eq_right hb, Nat.add_zero]
       exact hq
 
-/-- The reference `point_mul s Q` computes `s • P`, where `s` is read as its canonical
-representative below `l`. The input needs only to represent a point of the curve. -/
+/-- If `Rep Q P`, the reference `point_mul s Q` returns a representative of `scVal s • P`, where
+`scVal s` is the representative of `s` below `l`. `P` is any point of the curve. -/
 theorem point_mul_spec (s : scalar.Scalar) (Q : RefPt) (P : edwards.Point) (h : Rep Q P) :
     ristretto_ref.edwards.point_mul s Q ⦃ r => Rep r (scVal s • P) ⦄ := by
   simp only [ristretto_ref.edwards.point_mul, ref_point_identity, bind_ok]
@@ -217,12 +219,15 @@ even point `P` (`Even P`, the Ristretto representatives), they differ by a 4-tor
 `4 l • P = 0`. The Ristretto encoding does not see 4-torsion (`encodeRep_rel`), so the two
 products have the same encoding. -/
 
+/-- If `P` is even, `k • P` is even. -/
+theorem even_nsmul {P : edwards.Point} (hP : Even P) (k : ℕ) : Even (k • P) := by
+  obtain ⟨r, rfl⟩ := hP
+  exact ⟨k • r, nsmul_add r r k⟩
+
 /-- For an even point, `(k mod l) • P` and `k • P` have the same encoding. -/
 theorem encodeRep_mod_nsmul {P : edwards.Point} (hP : Even P) (k : ℕ) :
     Ristretto.encodeRep ((k % L) • P) = Ristretto.encodeRep (k • P) := by
-  have hk : Even (k • P) := by
-    obtain ⟨r, rfl⟩ := hP
-    exact ⟨k • r, nsmul_add r r k⟩
+  have hk := even_nsmul hP k
   have h4 := (even_iff_four_mul_L_nsmul P).mp hP
   refine (Ristretto.encodeRep_rel hk ?_).symm
   rw [TwistedEdwardsModel.rel_iff_sub_mem, show (4 : ℤ) = ((4 : ℕ) : ℤ) from rfl,

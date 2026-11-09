@@ -195,7 +195,8 @@ is `ZMod (2 ^ 255 - 19)`. `toF` is the ring isomorphism between the two.
   holds for every valid representative, not only for even points.
 - `ForkRistretto.point_mul_spec` (`ScalarMul.lean`): if `Rep Q P`, the reference
   `edwards.point_mul s Q` returns a representative of `scVal s • P` in the fork's group
-  `curve25519.edwards.Point`. `scVal s` is the representative below `l` of `s : ZMod l`.
+  `curve25519.edwards.Point`. `scVal s` is the representative below `l` of `s : ZMod l`. The
+  group has order `8 l`, so `s` itself does not act on it.
   `point_mul_spec_of` gives `k • P` for a natural number `k` with `(k : ZMod l) = s`, if
   `k < l` or `l • P = 0`. `point_mul_encode_spec` gives the encoding of `k • P` with no
   premise on `k`, if `P` is even.
@@ -206,28 +207,44 @@ The dalek theorems (`lean/ForkRistretto/Dalek.lean`), for each build:
   without panic, overflow or divergence. The reference `decode` returns a result `q` with
   `DecRel q (r.map toPoint)`, for the dalek result `r`. So both reject the same inputs. On the
   other inputs, the reference returns `(x, y, 1, x y)` for the point `(x, y)` that the dalek
-  result represents.
+  result represents. The theorem also keeps the fork's facts on a returned point: it is on the
+  curve, even, and has `LimbsLt n`. So its result meets the premises of the next theorems.
 - `compress_refines`: for a point `P` with `P.LimbsLt n` and `P.OnCurve`,
   `RistrettoPoint::compress` returns the bytes of the reference `encode (extRef P.toExtended)`.
   `extRef` reads the four coordinates of the dalek point as reference field elements.
 - `mul_refines`: for a point `P` as above, a dalek scalar `k` with `k.asNat < 2 ^ 255`, and a
   reference scalar `s` with `(k.asNat : ZMod l) = s`, `Mul<&Scalar> for &RistrettoPoint`
-  returns a point `r`. If `k.asNat < l` or `l • P.toPoint = 0`, the reference
-  `point_mul s (extRef P.toExtended)` returns a representative of `r.toPoint`.
-- `mul_compress_refines`: if `P.toPoint` is also even (a Ristretto representative), and `Q`
+  returns a point `r`. The result `r` is on the curve, has `LimbsLt n`, and is even if `P` is
+  even. If moreover `k.asNat < l` or `l • P.toPoint = 0`, the reference
+  `point_mul s (extRef P.toExtended)` returns a representative of `r.toPoint`. This condition
+  is inside the postcondition, so the facts on `r` hold for every `k` below `2 ^ 255`.
+- `mul_compress_refines`: with `P`, `k` and `s` as above, if `P.toPoint` is also even (a
+  Ristretto representative), and `Q`
   is any reference representative of `P.toPoint`, `compress` of the dalek product returns the
   bytes of the reference `encode (point_mul s Q)`. No premise `k < l` is needed (section 7.4).
-- `decompress_mul_compress_refines`: the three steps end to end. If `decompress` returns a
-  point `P`, the reference `decode` returns `Ok q`, and `compress` of `P * k` returns the bytes
-  of the reference `encode (point_mul s q)`. Its premises are only `k.asNat < 2 ^ 255` and
+- `decompress_mul_compress_refines`: the three steps together. If `decompress` returns
+  `none`, the reference `decode` returns the error `20`. If it returns a point `P`, the
+  reference `decode` returns `Ok q`, and `compress` of `P * k` returns the bytes of the
+  reference `encode (point_mul s q)`. Its premises are only `k.asNat < 2 ^ 255` and
   `(k.asNat : ZMod l) = s`.
+- `from_bytes_decompress_mul_compress_refines`: the same, end to end from two byte arrays. The
+  dalek scalar is `Scalar::from_bytes_mod_order sb`, and the reference scalar is
+  `s = sb.asNat 8` in `ZMod l`, which is what the reference `sc_from_bytes` computes. The
+  premise `(sb.asNat 8 : ZMod l) = s` only names `s`. The fork's `from_bytes_mod_order_spec`
+  gives `k.asNat = sb.asNat 8 mod l`, so the scalar premises of the previous theorem hold. The
+  translation does not include `sc_from_bytes`, because the reference module `scalar` is
+  opaque. So the theorem states the reference scalar directly.
 
 The scalar. The fork's `mul` reads a `Scalar` as the integer of its 32 bytes, `k.asNat`,
 without a reduction mod `l`. Its spec needs `k.asNat < 2 ^ 255`, which dalek's `Scalar`
 invariant gives. The reference reads a scalar as an element of `ZMod l`. So the reference
 multiplies by `k.asNat mod l`. The two products are the same point if `k.asNat < l` or
-`l • P = 0`. For an even point, they differ by a point of order dividing 4, so they have the
-same Ristretto encoding.
+`l • P = 0`. Evenness alone does not give the same point. For example, `P = (0, -1)` has order
+2 and is even, and `k = l` gives `l • P = P` in dalek and the identity in the reference. For an
+even point, the two products differ by a point of order dividing 4, so they have the same
+Ristretto encoding. A scalar from `Scalar::from_bytes_mod_order` is below `l`, so for it
+`mul_refines` gives the reference representative with no torsion condition on `P`. The
+premises `OnCurve` and `LimbsLt n` on `P` remain.
 
 Compared with track D, these theorems are about curve25519-dalek 5.0.0, as the fork translates
 it, and not about the copy of 4.2.0. They also cover the i686 builds and the builds with
@@ -245,7 +262,9 @@ The output `lean/RistrettoRef/Funs.lean` and `lean/RistrettoRef/Types.lean` diff
 track D output (`tracks/ristretto/ref-plain/Ref/`) only by one added `set_option` line.
 `ref-ristretto/` keeps the two Aeneas templates. `lean/RistrettoRef/FunsExternal.lean` and
 `lean/RistrettoRef/TypesExternal.lean` are the track D field and scalar models, with the same
-added line.
+added line. The docstring of `fe_pow_p58` also gives the path of the track D lemma that it
+cites. `--check` compares only the generated files and the templates. It does not check the
+two hand-written models, which section 7.3 lists as assumptions.
 
 `RistrettoRef` and `X25519Ref` both declare the root namespace `field`. So no module imports
 both libraries, and the axiom checks of this section are in `lean/Checks/Ristretto.lean`.
@@ -257,31 +276,46 @@ The trusted base is that of section 4, with these changes:
 1. For the reference theorems: the fork's `Ristretto.decodeRep`, `Ristretto.encodeRep`,
    `sqrtRatioM1`, `ZMod.IsNeg`, `ZMod.abs`, the constants `d`, `sqrtM1`, `invsqrtAMinusD`
    and `L`, and the group `curve25519.edwards` of EllipticCurve. The fork lists them in
-   `Specs/Ristretto.lean` and `Defs/Ristretto.lean`. The dalek theorems state the reference
-   result against the dalek result, so they use these definitions only inside the proof,
-   except `toPoint`, `OnCurve`, `LimbsLt` and `Even` in their premises and relations.
-2. The fork's axioms `RustAx.core` and `RustAx.subtle`. `zeroize` is not on these paths. The
+   `Specs/Ristretto.lean` and `Defs/Ristretto.lean`.
+2. The definitions in the statements of the dalek theorems. They are not axioms, but a reader
+   must read them to know what a theorem says. A weaker `Rep` or a different `extRef` changes
+   the result and does not change the `#print axioms` output. From this package
+   (`Field.lean`, `Encoding.lean`, `Dalek.lean`):
+   - `toF`: the ring isomorphism from `field.Fe` to `ZMod curve25519.p`.
+   - `RefPt`: the reference extended coordinates `(X, Y, Z, T)`.
+   - `refOf P`: the coordinates `(x, y, 1, x y)` of the affine point `P = (x, y)`.
+   - `extRef E`: the four coordinates of a dalek point, read as reference field elements.
+   - `Rep Q P`: `Z ≠ 0`, `X Y = Z T`, and `P = (X / Z, Y / Z)`.
+   - `DecRel q r`: `q = Ok (refOf P)` if `r = some P`, and `q = Err 20` if `r = none`.
+
+   From the fork: `toPoint`, `toExtended`, `OnCurve`, `LimbsLt`, `Even`, `Scalar.asNat`, `L`,
+   `Scalar::from_bytes_mod_order`, and `•` on `curve25519.edwards.Point`.
+3. The fork's axioms `RustAx.core` and `RustAx.subtle`. `zeroize` is not on these paths. The
    `decompress` and `compress` specs of the two i686 builds do not use `RustAx.core`.
-3. The fork's translation, as in section 4.
-4. The track D field and scalar models (`lean/RistrettoRef/FunsExternal.lean`,
+4. The fork's translation, as in section 4.
+5. The track D field and scalar models (`lean/RistrettoRef/FunsExternal.lean`,
    `lean/RistrettoRef/TypesExternal.lean`, track D README section 4).
-5. The `ref-plain` port of the hacspec specs (track D README section 2).
+6. The `ref-plain` port of the hacspec specs (track D README section 2).
 
 `lean/Checks/Ristretto.lean` checks the axioms with `#guard_msgs`. `decode_spec`,
 `encode_spec`, `ref_sqrt_ratio_m1`, `addExt_rep`, `point_mul_spec`, `point_mul_spec_of` and
-`point_mul_encode_spec` use `propext`, `Classical.choice` and `Quot.sound` only. Each dalek
-theorem adds `RustAx.core` and `RustAx.subtle`, except `decompress_refines` and
-`compress_refines` of the two i686 builds, which add `RustAx.subtle` only.
+`point_mul_encode_spec` use `propext`, `Classical.choice` and `Quot.sound` only. So do the
+general compositions `*_of` of `Dalek.lean`, except
+`from_bytes_decompress_mul_compress_refines_of`, which adds `RustAx.subtle` through the fork's
+spec of `from_bytes_mod_order`. Each dalek theorem adds `RustAx.core` and `RustAx.subtle`,
+except `decompress_refines` and `compress_refines` of the two i686 builds, which add
+`RustAx.subtle` only.
 
 ### 7.4 Proof structure
 
 | File | Lines | Content |
 |---|---|---|
-| `ForkRistretto/Field.lean` | 249 | `toF`, the sign, `abs`, the bytes, the constants, and `geq_p` |
+| `ForkCommon/Bytes.lean` | 29 | The two byte lemmas that `ForkSim` and `ForkRistretto` share |
+| `ForkRistretto/Field.lean` | 235 | `toF`, the sign, `abs`, the bytes, the constants, and `geq_p` |
 | `ForkRistretto/SqrtRatio.lean` | 148 | The reference `sqrt_ratio_m1` is the fork's `sqrtRatioM1` |
 | `ForkRistretto/Encoding.lean` | 133 | `decode_spec` and `encode_spec` |
-| `ForkRistretto/ScalarMul.lean` | 246 | `addExt_rep`, `point_mul_spec`, its corollaries, and the encoding of the product |
-| `ForkRistretto/Dalek.lean` | 416 | The compositions with the fork's specs, four builds |
+| `ForkRistretto/ScalarMul.lean` | 251 | `addExt_rep`, `point_mul_spec`, its corollaries, and the encoding of the product |
+| `ForkRistretto/Dalek.lean` | 621 | The compositions, once for any build, then the theorems of the four builds |
 
 1. `sqrt_ratio_m1`. The reference computes the candidate root `r = (u v³) (u v⁷)^((p-5)/8)`
    and tests `v r²`. The fork defines `sqrtRatioM1` by its properties. With `w = u v⁷`,
@@ -300,6 +334,10 @@ theorem adds `RustAx.core` and `RustAx.subtle`, except `decompress_refines` and
    encoding, `encodeRep_mod_nsmul` uses the fork's `even_iff_four_mul_L_nsmul` and
    `encodeRep_rel`: for an even `P`, `k • P - (k mod l) • P` is killed by 4, and the encoding
    does not see 4-torsion.
+5. Composition. The section `Compose` of `Dalek.lean` proves each dalek theorem once, from
+   the shapes of the fork's specs given as hypotheses. Each build states its theorems in full
+   and applies these lemmas to its own specs. So the four copies differ only in their
+   statements.
 
 Copies of track D. Track D builds with Lean `v4.31.0` and this package with `v4.35.0`, so
 this package cannot import track D. Three proofs are copied, with changes. `geq_p_loop_spec`
@@ -309,9 +347,11 @@ fork's `Array.asNat` in place of the digit sums of `DalekSim`. `point_mul_loop_s
 `tracks/ristretto/lean/Sim/ScalarMul.lean`, with the fork's group in place of
 `DalekSim.Edwards.Point dEd`, and `ite_eq_left` and `ite_eq_right` in place of the
 deprecated `if_pos` and `if_neg`. `addExt_rep` keeps the shape of the track D proof, with the
-fork's formulas. The byte lemmas `foldr_range_eq_ofDigits`, `fe_from_bytes_eq` and
-`fe_to_bytes_val` (`Field.lean`) are copies of those of `ForkSim/X25519.lean`, because the
-two reference libraries cannot be imported together. The other proofs are new.
+fork's formulas. `fe_from_bytes_eq` and `fe_to_bytes_val` (`Field.lean`) repeat the lemmas
+of the same names in `ForkSim/X25519.lean`, because the two reference libraries cannot be
+imported together. `fe_to_bytes_val` states the result as an existential here. The two byte
+lemmas that do not use `field`, `foldr_range_eq_ofDigits` and `map_val_getElem!`, are in
+`lean/ForkCommon/Bytes.lean`, which both libraries import. The other proofs are new.
 
 No proof sets `maxHeartbeats` or uses `native_decide`.
 

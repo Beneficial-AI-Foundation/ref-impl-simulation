@@ -40,7 +40,7 @@ theorem sqrtM1_ne_neg_one : (sqrtM1 : ZMod p) ≠ -1 := by
   rw [h] at this
   exact (two_ne_zero : (2 : ZMod p) ≠ 0) (by linear_combination this)
 
-/-- `x = -x` only for `x = 0`. -/
+/-- In `ZMod p`, `2 x = 0` implies `x = 0`. -/
 theorem eq_zero_of_two_mul {x : ZMod p} (h : 2 * x = 0) : x = 0 :=
   (mul_eq_zero.mp h).resolve_left two_ne_zero
 

@@ -1,6 +1,7 @@
 import RistrettoRef.Funs
 import Curve25519.Ristretto.Encoding
 import Proofs.Helpers.AsNat
+import ForkCommon.Bytes
 
 /-! # The reference field is the fork's field
 
@@ -17,7 +18,7 @@ ring isomorphism between the two. This file moves the reference's helpers to the
   computes a candidate root with one exponentiation and tests it. The fork defines the result
   by its properties. The link is that `v r² = u t` for a fourth root of unity `t`. -/
 
-open Aeneas Aeneas.Std Result
+open Aeneas Aeneas.Std Result ForkCommon
 open curve25519
 
 namespace ForkRistretto
@@ -74,21 +75,6 @@ theorem ref_select (x y : _root_.field.Fe) (c : Bool) :
   cases c <;> rfl
 
 /-! ## Bytes -/
-
-/-- The reference reads bytes with `foldr` over the indices. This is `Nat.ofDigits 256`. -/
-theorem foldr_range_eq_ofDigits (l : List ℕ) :
-    (List.range l.length).foldr (fun i acc => acc * 256 + l[i]!) 0 = Nat.ofDigits 256 l := by
-  induction l with
-  | nil => rfl
-  | cons x l ih =>
-    rw [List.length_cons, List.range_succ_eq_map, List.foldr_cons, List.foldr_map]
-    simp only [List.getElem!_cons_succ, List.getElem!_cons_zero, ih, Nat.ofDigits_cons]
-    ring
-
-theorem map_val_getElem! (b : Array U8 32#usize) (i : ℕ) :
-    (b.val.map (fun x => x.val))[i]! = (b.val[i]!).val := by
-  simp only [List.getElem!_eq_getElem?_getD, List.getElem?_map]
-  cases b.val[i]? <;> rfl
 
 /-- `fe_from_bytes` reads the bytes as `asNat 8`, reduced mod p. -/
 theorem fe_from_bytes_eq (b : Array U8 32#usize) :
