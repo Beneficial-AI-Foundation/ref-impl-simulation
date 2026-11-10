@@ -7,7 +7,8 @@ libsignal, against Lean definitions written by hand. This directory proves the t
 reference equal to the same definitions. The composition gives theorems about that
 translation of curve25519-dalek 5.0.0 against the reference, without a second proof of the
 dalek code. Section 1 gives the builds that the translation covers. Sections 1 to 6 are about
-X25519 (track B). Section 7 does the same for Ristretto (track D).
+X25519 (track B). Section 7 does the same for Ristretto (track D). Section 8 states the
+public functions of x25519-dalek 3.0.0 on top of the X25519 results.
 
 The theorems refine through a shared model, the fork's `curve25519.x25519`. They do not
 step the two programs in lockstep, as tracks A to D do.
@@ -69,8 +70,8 @@ this.
 
 The theorems state equality of bytes and termination only. They do not state constant-time
 execution, the erasure of secrets, or the check for an all-zero shared secret of RFC 7748,
-section 6.1. They do not cover the wrappers of x25519-dalek, such as `PublicKey::from`, or
-the calls from libsignal.
+section 6.1. They do not cover the calls from libsignal. Section 8 states the public
+functions of x25519-dalek 3.0.0, and its calls from libsignal, on top of these theorems.
 
 ## 2. The fork's `x25519` and RFC 7748
 
@@ -105,7 +106,7 @@ that they name.
 
 ## 4. Assumptions
 
-The trusted base is:
+The trusted base is as follows. Section 8.4 adds to it for x25519-dalek.
 
 1. For the two reference theorems only: the fork's definitions that they use,
    `curve25519.x25519`, `clamp`, `decodeU`, `encodeU`, `MontgomeryModel.ladder` (from
@@ -370,3 +371,202 @@ cd tracks/fork/lean && lake build
 After the X25519 build of section 6, the fork's `Specs.Ristretto` took 38 s of wall time
 (7 min 11 s of CPU time) on the machine of this study. The files of this section then build
 in 17 s.
+
+## 8. x25519-dalek 3.0.0
+
+libsignal `fc90b90f` computes X25519 through x25519-dalek 3.0.0. The fork has no Lean code
+for this crate. This section translates it with the fork's toolchain, and points its calls into
+curve25519-dalek to the fork's translation. It then states each function that the crate
+defines or derives in its module `x25519`, with the features of section 8.2, except the
+`Debug` and `Hash` impls. It does not state the default trait methods that the impls inherit,
+such as `PartialEq::ne` and `Clone::clone_from`. The proofs use the
+theorems of section 1 and the fork's specs. They prove nothing again that the fork proves.
+
+The theorems state return values. They do not state the ownership rules of the API, for
+example that `EphemeralSecret::diffie_hellman` consumes the secret and that a `ReusableSecret`
+can be used again. The translation makes the secret types plain byte arrays. The Rust compiler
+enforces these rules, not the theorems.
+
+### 8.1 Statement
+
+`lean/ForkSim/X25519Dalek.lean`, for all 32-byte `k` and `u`. Each real function returns
+without panic, overflow or divergence. The exception is `random_from_rng`, whose theorems
+assume that the RNG returns. In the table below, the reference returns the same value.
+
+| Theorem | Real (x25519-dalek 3.0.0) | Reference |
+|---|---|---|
+| `static_diffie_hellman_refines`, `ephemeral_diffie_hellman_refines`, `reusable_diffie_hellman_refines` | `diffie_hellman` on `StaticSecret`, `EphemeralSecret` and `ReusableSecret` | `x25519_scalarmult k u` |
+| `public_key_from_static_refines`, `public_key_from_ephemeral_refines`, `public_key_from_reusable_refines` | `PublicKey::from(&secret)` for the three secret types | `x25519_secret_to_public k` |
+| `x25519_refines` | `x25519(k, u)` | `x25519_scalarmult k u` |
+| `x25519_basepoint_refines` | `x25519(k, X25519_BASEPOINT_BYTES)` | `x25519_secret_to_public k` |
+| `static_diffie_hellman_was_contributory_refines` and the same for the two other secret types | `diffie_hellman`, then `SharedSecret::was_contributory` (a `bool`) | `x25519_scalarmult`, then the negation of `x25519_is_all_zero` |
+| `static_diffie_hellman_as_bytes_refines` | `PublicKey::from(u)`, `StaticSecret::diffie_hellman`, then `SharedSecret::as_bytes`: the x25519-dalek calls of libsignal's `PrivateKey::calculate_agreement` | `x25519_scalarmult k u` |
+| `public_key_from_static_as_bytes_refines` | `PublicKey::from(&secret)`, then `PublicKey::as_bytes`: the x25519-dalek calls of libsignal's `PrivateKey::derive_public_key_bytes` | `x25519_secret_to_public k` |
+
+The two libsignal rows state the x25519-dalek calls only. They do not state the rest of the
+libsignal functions, for example the copy of the bytes or the drop of the temporary
+`SharedSecret`.
+
+The other public functions, without a reference:
+
+- `basepoint_eq`: `X25519_BASEPOINT_BYTES` is 9 followed by 31 zero bytes.
+- The accessors `to_bytes` and `as_bytes` of `StaticSecret`, `PublicKey` and `SharedSecret`,
+  the two `From<[u8; 32]>` impls, the three `Clone` impls and the three `AsRef<[u8]>` impls
+  return the 32 bytes that they wrap (`static_secret_to_bytes_eq` and 13 others).
+- `public_key_eq_spec`: `PartialEq for PublicKey` returns `true` iff the two keys decode to the
+  same u-coordinate. `decodeU` clears bit 255 and reduces mod `p`. So two different byte
+  arrays can be equal keys, for example the encodings of `u` and `u + p` for `u < 19`.
+- `static_random_from_rng_spec` and the same for the two other secret types: if `fill_bytes`
+  returns and keeps the length of the slice, `random_from_rng` returns, without clamping, the
+  32 bytes that `fill_bytes` wrote. This holds for every implementation of
+  `rand_core::CryptoRng`. The `rand_core` documentation lets `fill_bytes` panic, so the
+  theorems do not prove that key generation returns. In Rust, `fill_bytes` cannot change the
+  length of the slice, but the Lean model of the trait does not state this. In Rust,
+  `random_from_rng` returns only the secret and changes the RNG through `&mut R`. The
+  translation returns the new RNG as the second part of a pair, and the theorems state that it
+  is the RNG that `fill_bytes` returned. They do not state that the bytes are random.
+- The `Drop` impls of the four types and `Zeroize for PublicKey` (section 8.3).
+
+`PublicKey::from(&secret)` calls `EdwardsPoint::mul_base_clamped` and then `to_montgomery`.
+The fork has one function per build for each of these, and the theorems hold for the four
+builds of section 1. `diffie_hellman` and `x25519` call `MontgomeryPoint::mul_clamped`.
+
+The check for the all-zero shared secret: `was_contributory` compares the u-coordinate mod
+`p` with 0, through the fork's `is_identity`, `ct_eq` and `identity`. Our reference function
+`x25519_is_all_zero` (track B README, section 1) computes the OR of the 32 bytes. The two
+checks agree on bytes below `p`, and `x25519_scalarmult` returns such bytes. So the theorems
+state the composition, as in track B. They do not state that libsignal calls
+`was_contributory`. libsignal `fc90b90f` does not call it.
+
+Not covered:
+
+- The script excludes the `Debug` impl of `PublicKey` and the `Hash` impl of `PublicKey`. The
+  fork has no model of `core::fmt` and does not translate the `Hash` impl of `MontgomeryPoint`.
+- The feature selection removes `random` (feature `getrandom`) and the `serde` impls. libsignal
+  does not use these features.
+- The script translates the `Copy`, `Eq`, `StructuralPartialEq` and `ZeroizeOnDrop` impls.
+  They are markers without functions, so no theorem states them.
+
+### 8.2 Source and translation
+
+The source is `x25519-dalek/` of the fork at the commit that `lean/lakefile.toml` requires.
+Its `src/` is equal to x25519-dalek 3.0.0 on crates.io, with the checksum
+`e7e8131a…59af6` that libsignal `fc90b90f` locks. If the crate is in the cargo cache,
+`extract-x25519.sh` checks the checksum and the equality. If it is not, the script prints that
+it skips this check. The script reads the source from the commit with `git archive`, not
+from the working tree. So local edits and ignored files of the fork do not reach the
+translation. The manifest differs only in the
+requirement on curve25519-dalek (`"5"` in the fork, `"5.0.0"` on crates.io).
+
+Features: libsignal uses the default features (`precomputed-tables`, `zeroize`) and
+`static_secrets` (`rust/core/Cargo.toml`). The extraction adds `reusable_secrets`. With
+`zeroize`, each `drop` of the secret types calls `zeroize`.
+
+`extract-x25519.sh` copies the fork's Cargo workspace, applies the fork's translation
+patches, and runs Charon with the four target specs of the fork's `scripts/aeneas-translate.sh`
+(section 1). No patch changes x25519-dalek, and no item of x25519-dalek differs between the
+builds. So `lean/X25519Dalek/Funs.lean` has no dispatch on `get_target`. Charon's
+`--start-from` does not accept trait impls with generics, such as the `From` impls. So the
+script starts from the module `x25519_dalek::x25519` and excludes `Debug` and `Hash`.
+
+Only x25519-dalek is translated. Its calls into curve25519-dalek and `zeroize` stay opaque.
+`lean/X25519Dalek/FunsExternal.lean` and `lean/X25519Dalek/TypesExternal.lean` define them,
+with no axiom:
+
+1. `MontgomeryPoint::mul_clamped`, `to_bytes`, `as_bytes`, `ct_eq`, `eq`, `identity` and
+   `zeroize`: the fork's function of the same Rust name.
+2. `is_identity` and the two `zeroize` impls of the `zeroize` crate (for `Z: DefaultIsZeroes`
+   and for `[Z; N]`): Aeneas declares the trait structures again in the namespace
+   `x25519_dalek`. Each definition copies the fields into the fork's structure of the same
+   trait and calls the fork's function.
+3. `EdwardsPoint`: the fork has one structure per build, because the field type differs
+   between the 64-bit and the 32-bit builds. `TypesExternal.lean` defines `EdwardsPoint` as
+   one of the four. `mul_base_clamped` dispatches on `get_target` to the fork's function of
+   that build, as the fork's translation does for functions whose body differs by build.
+   `to_montgomery` calls the fork's function of the point's build.
+
+`random_from_rng` calls `fill_bytes` of the generic RNG. Aeneas translates the trait
+declarations of `rand_core` into `lean/X25519Dalek/Types.lean`, so the theorems take the RNG as
+a parameter. The fork locks `rand_core` 0.10.0, and libsignal `fc90b90f` locks 0.10.1. The two
+versions differ only in two doc comments.
+
+The x25519-dalek functions in scope call no function whose body the feature `alloc` changes.
+The fork translates curve25519-dalek with `alloc`. In curve25519-dalek, `alloc` only adds
+items, for example the batch and multiscalar functions.
+
+The fork's Cargo workspace locks `zeroize` 1.8.2, and the fork's contract describes that
+version. libsignal `fc90b90f` locks 1.9.0. In 1.9.0, the impls on the Rust path (`[Z; N]`,
+`IterMut` and the blanket impl for `Z: DefaultIsZeroes`) write the same values. Only the
+barrier after the write changes, from a compiler fence to an optimization barrier.
+The contract states the values only, so it describes both versions.
+This rests on review.
+
+### 8.3 Drop
+
+x25519-dalek 3.0.0 has an explicit `Drop` impl for `EphemeralSecret`, `ReusableSecret`,
+`StaticSecret` and `SharedSecret`. With the feature `zeroize`, each one calls `zeroize` on
+the 32 bytes. Aeneas translates these four `drop` functions. It does not translate the calls
+to them. For example, Charon's output for `EphemeralSecret::diffie_hellman` ends with a drop
+of `self`, which takes the secret by value, but the Lean body has no such call.
+
+Rust `drop` takes `&mut self` and returns `()`. Aeneas models it as a function that returns
+the new value of `self`. The theorems state the drop code in two ways:
+
+1. Each translated `drop` gives a new value of `self` that is 32 zero bytes (`*_drop_spec`).
+   `public_key_zeroize_spec` states the same for `Zeroize for PublicKey`. These use the
+   fork's `RustAx.zeroize`.
+2. `ephemeral_diffie_hellman_drop_refines` composes the body of
+   `EphemeralSecret::diffie_hellman` with the drop of `self`, in the order of the Rust
+   program. The body returns the bytes of `x25519_scalarmult k u`, and the drop then gives
+   32 zero bytes. We wrote this composition from the Rust semantics. The translation does
+   not give it. In Rust, `diffie_hellman` passes a copy of the secret bytes to `mul_clamped`.
+   The theorem says nothing about that copy.
+
+Lean values have no memory. So the theorems do not state that the old bytes are gone from
+memory, or that the compiler keeps the writes. The drops of `StaticSecret`,
+`ReusableSecret` and `SharedSecret` happen in the caller, for example in libsignal. No
+theorem here states where they happen.
+
+### 8.4 Assumptions
+
+The theorems of this section add to the trusted base of section 4:
+
+1. The two hand-written files of section 8.2: `lean/X25519Dalek/FunsExternal.lean` and
+   `lean/X25519Dalek/TypesExternal.lean`. They hold definitions, not axioms, but review
+   alone links them to the Rust calls.
+2. The Charon and Aeneas translation of x25519-dalek, with the excluded items of section 8.2
+   and the erased drop calls of section 8.3.
+3. The fork's specs that the proofs use: `EdwardsPoint::mul_base_clamped` and `to_montgomery`
+   for each build, `is_identity`, `MontgomeryPoint::ct_eq`, `eq`, `identity`, `to_bytes` and
+   `zeroize`, and the `zeroize` of byte arrays. They rest on `RustAx.core`, `RustAx.subtle`
+   and `RustAx.zeroize` (section 4, item 2).
+4. For `random_from_rng`: the hypotheses `hfill`, that `fill_bytes` returns, and `hlen`,
+   that it keeps the length of the slice (section 8.1).
+5. Our reference function `x25519_is_all_zero` and the review that links it to RFC 7748,
+   section 6.1 (track B README, section 1).
+
+`lean/Checks/X25519Dalek.lean` checks the axioms with `#guard_msgs`. No theorem adds an axiom.
+
+- The theorems on `diffie_hellman`, `x25519` and `was_contributory`,
+  `static_diffie_hellman_as_bytes_refines` and `ephemeral_diffie_hellman_drop_refines`: the
+  three standard axioms, `RustAx.core`, `RustAx.subtle` and `RustAx.zeroize`.
+- The theorems on `PublicKey::from`, and `public_key_from_static_as_bytes_refines`: the three
+  standard axioms, `RustAx.core` and `RustAx.subtle`.
+- `public_key_eq_spec`: the three standard axioms and `RustAx.subtle`.
+- The four `drop` theorems and `public_key_zeroize_spec`: the three standard axioms and
+  `RustAx.zeroize`.
+- `basepoint_eq`, the accessors, the `From<[u8; 32]>`, `Clone` and `AsRef` impls and
+  `random_from_rng`: the three standard axioms.
+
+### 8.5 Reproduce
+
+Build the package (section 6) first, so that Lake fetches the fork into
+`lean/.lake/packages/`. The extraction also needs the crates of the fork's `Cargo.lock` in
+the cargo cache, or network access. Then:
+
+```bash
+tracks/fork/extract-x25519.sh --check
+```
+
+On the machine of this study, the extraction takes 42 s. The files of this section build in
+8 s, after the fork modules that they import.

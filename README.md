@@ -68,8 +68,15 @@ and `Mul<&Scalar> for &RistrettoPoint` of 5.0.0 against the reference. It also g
 `Scalar::from_bytes_mod_order`, multiplication and encode end to end, on every pair of
 32-byte inputs. The dalek product and the reference product are the same point if the scalar
 is below `l`. For an even point they have the same encoding. The translation
-covers four builds with the `serial` backend, after the fork's translation patches. These
-theorems go through the fork's definitions, not through a lockstep simulation.
+covers four builds with the `serial` backend, after the fork's translation patches. On top of
+these results, it translates x25519-dalek 3.0.0, the version in libsignal, with the fork's
+toolchain. It states each function that x25519-dalek defines or derives, with libsignal's
+features and `reusable_secrets`, except `Debug`, `Hash` and the inherited default trait
+methods. Key generation is proved only if the RNG returns. It proves `diffie_hellman`,
+`PublicKey::from(&secret)`, `x25519`, `was_contributory` and the two call sequences of
+libsignal against the reference. These theorems go through the fork's definitions, not
+through a lockstep simulation. The x25519-dalek theorems state return values, not the
+ownership rules of the API or the erasure of secrets from memory.
 
 Each track README is self-contained. It gives the sources, the translation and its edits,
 and the exact theorem. It also gives the assumptions, the proof structure, the checks, and
