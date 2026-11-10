@@ -31,5 +31,10 @@ The Lean files that Aeneas generated are translations of the code in the table a
 hpke-spec. They are in `Ref/`, `Real/`, `RealAead/`, `X25519Ref/`, `RistrettoRef/`,
 `shared/dalek/extract/`, `real-x25519/X25519/` and `ref-plain/Ref/`. They are also `Curve25519Dalek/Funs.lean`,
 `Curve25519Dalek/Types.lean`, `X25519Dalek/Funs.lean` and `X25519Dalek/Types.lean`.
+`tracks/fork/lean/X25519Dalek/Funs.lean` and `Types.lean` translate x25519-dalek 3.0.0
+(BSD-3-Clause), which `tracks/fork/extract-x25519.sh` takes from curve25519-dalek-fork at the
+commit in `tracks/fork/lean/lakefile.toml`. `Types.lean` also has the trait declarations of
+`rand_core` 0.10.0 (MIT or Apache-2.0), `subtle` 2.6.1 (BSD-3-Clause) and `zeroize` 1.8.2
+(Apache-2.0 or MIT). This repository has no copy of these sources.
 `shared/dalek/patches/` and `shared/dalek/inline-table.py` hold the hand edits of
 `Curve25519Dalek/Funs.lean`.

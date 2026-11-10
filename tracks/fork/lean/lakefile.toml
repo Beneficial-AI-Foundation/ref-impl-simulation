@@ -1,6 +1,6 @@
 name = "fork-link"
 version = "0.1.0"
-defaultTargets = ["X25519Ref", "ForkCommon", "ForkSim", "Checks", "RistrettoRef", "ForkRistretto"]
+defaultTargets = ["X25519Ref", "ForkCommon", "X25519Dalek", "ForkSim", "Checks", "RistrettoRef", "ForkRistretto"]
 
 [leanOptions]
 autoImplicit = false
@@ -22,6 +22,12 @@ globs = ["X25519Ref.+"]
 [[lean_lib]]
 name = "ForkCommon"
 globs = ["ForkCommon.+"]
+
+# x25519-dalek 3.0.0: Aeneas output of the fork's x25519-dalek/ (../extract-x25519.sh). Its calls
+# into curve25519-dalek and zeroize are the fork's definitions (X25519Dalek/FunsExternal.lean).
+[[lean_lib]]
+name = "X25519Dalek"
+globs = ["X25519Dalek.+"]
 
 # Proofs that link the reference to the fork's definitions and specs.
 [[lean_lib]]
